@@ -352,7 +352,13 @@ export async function callFileSearchWisdom(
   }
 }
 
-// Unified Wisdom Engine Function - Now always uses File Search
+/**
+ * Unified Wisdom Engine Function - Production Q&A Entry Point
+ * 
+ * IMPORTANT: This function ONLY uses File Search (/api/wisdom/file-search) and
+ * NEVER calls the Discovery Engine (/api/discovery-engine) to avoid placeholder responses.
+ * This is the main entry point for all user Q&A queries from the Ask/Q&A tab.
+ */
 export async function callWisdomEngine(
   question: string,
   sessionId?: string,
@@ -366,7 +372,9 @@ export async function callWisdomEngine(
     historyLength: conversationHistory?.length || 0
   });
 
-  // Always use File Search (multi-agent disabled in favor of File Search)
+  // PRODUCTION PATH: Always use File Search - this is the ONLY path for user Q&A
+  // This ensures we never hit the disabled Discovery Engine placeholder response
+  // callDiscoveryEngine() is kept in this file for future experiments but is NOT used here
   return await callFileSearchWisdom(question, sessionId, category, conversationHistory);
   
   // Multi-Agent code disabled - kept for future reference
