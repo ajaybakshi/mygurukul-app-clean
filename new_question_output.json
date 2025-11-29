@@ -1,0 +1,67 @@
+{
+  "question": "What is the role of dharma in the pursuit of moksha?",
+  "verseData": {
+    "metadata": {
+      "collectionTime": "2025-09-28T13:52:19.692449",
+      "collectorVersion": "v2.0-python"
+    },
+    "query": {
+      "enhanced_query_object": {
+        "conceptual_tags": [
+          "dharma vs. moksha",
+          "Purpose of Dharma",
+          "path to moksha",
+          "Moksha (Liberation)",
+          "Moksha (liberation)",
+          "Path to Liberation (Moksha)",
+          "Moksha"
+        ],
+        "final_query_string": "Moksha (liberation) puru\u1e63\u0101rtha Moksha (Liberation) karma yoga mok\u1e63a path to moksha prabandhakalpan\u0101 dharma vs. moksha Purpose of Dharma ni\u1e63k\u0101ma karma dharma Path to Liberation (Moksha) Moksha",
+        "lexical_expansions": [
+          "prabandhakalpan\u0101"
+        ],
+        "sanskrit_concepts": [
+          "dharma",
+          "mok\u1e63a",
+          "puru\u1e63\u0101rtha",
+          "karma yoga",
+          "ni\u1e63k\u0101ma karma"
+        ],
+        "scoping_filter": null,
+        "user_query": "What is the role of dharma in the pursuit of moksha?"
+      },
+      "original": "What is the role of dharma in the pursuit of moksha?"
+    },
+    "results": {
+      "totalVerses": 5,
+      "verses": [
+        {
+          "content": "evam putra utp\u0101dana \u0101di karman aviccheda eva sa\u1e43tata prabandha r\u016bpa v\u1e5bt hi yas \u0101t idam loka tasm\u0101t tad aviccheda tad k\u1e5b na mok\u1e63a iti artha",
+          "id": "Aitereya_Upanishad_verse_400",
+          "source": "Processed_Documents/Aitereya_Upanishad/Aitereya_Upanishad_verse_400.txt"
+        },
+        {
+          "content": "tad kad\u0101cid parama k\u0101ru\u1e47ika \u0101c\u0101rya \u0101tman j\u00f1\u0101na prabodha k\u1e5bt \u015babdaka ved\u0101nta mahat v\u0101kya bher\u012b tad kar\u1e47a m\u016bla t\u0101\u1e0day etad eva s\u1e5b\u1e63\u1e6di \u0101di kart\u1e5b tva prak\u1e5b puru\u1e63a pur \u015b\u012b \u0101tman brahman b\u1e5bhattatama tak\u0101ra eka lup tatatama vy\u0101ptatama parip\u1e5b \u0101k\u0101\u015ba vat pratibudh pa\u015b",
+          "id": "Aitereya_Upanishad_verse_255",
+          "source": "Processed_Documents/Aitereya_Upanishad/Aitereya_Upanishad_verse_255.txt"
+        },
+        {
+          "content": "tad idam devat\u0101 apyaya lak\u1e63a\u1e47a para puru\u1e63a artha etad mok\u1e63a",
+          "id": "Aitereya_Upanishad_verse_12",
+          "source": "Processed_Documents/Aitereya_Upanishad/Aitereya_Upanishad_verse_12.txt"
+        },
+        {
+          "content": "bh\u016b evam kevala \u0101tman j\u00f1\u0101na mok\u1e63a s\u0101dhana na tu atra aka eva adhik\u1e5b vi\u015be\u1e63a a\u015brava\u1e47a",
+          "id": "Aitereya_Upanishad_verse_19",
+          "source": "Processed_Documents/Aitereya_Upanishad/Aitereya_Upanishad_verse_19.txt"
+        },
+        {
+          "content": "tad etad agni \u0101di devat\u0101 lokap\u0101la tva sa\u1e43kalpay s\u1e5bj \u012b\u015bvara idam sa\u1e43s\u0101ra r\u1e47ava sa\u1e43s\u0101ra samudra mahat avidy\u0101 k\u0101ma karman prabhava du\u1e25kha udaka t\u012bvra roga jar\u0101 m\u1e5btyu mahat gr\u0101ha an \u0101di ananta ap\u0101ra nir\u0101lamba vi\u1e63aya indriya janay sukhaa vak\u1e63a\u1e47a vi\u015br\u0101ma pa\u00f1c an indriya artha t\u1e5b\u1e47m\u0101ruta vik\u1e63obha utth\u0101anartha \u015bata mahat \u016brmi mah\u0101raurava \u0101di aneka niraya gam h\u0101h\u0101 ity\u0101di k\u016bj a \u0101kro\u015bana udbh\u016b mahat rava atya \u0101rjava d\u0101na day\u0101 hi\u1e43s\u0101 \u015bama dama dh\u1e5bti \u0101di \u0101tman gu\u1e47a p\u0101theya p\u016br\u1e47a j\u00f1\u0101na u\u1e0dupa sat sa\u1e45ga sarva ty\u0101ga m\u0101rga mok\u1e63a t\u012bra etad mahat ar\u1e47ava prapat pat tatavat",
+          "id": "Aitereya_Upanishad_verse_185",
+          "source": "Processed_Documents/Aitereya_Upanishad/Aitereya_Upanishad_verse_185.txt"
+        }
+      ]
+    },
+    "sessionId": "api-session"
+  }
+}

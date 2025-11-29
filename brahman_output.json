@@ -1,0 +1,65 @@
+{
+  "question": "What do the Upanishads teach us about Brahman?",
+  "verseData": {
+    "metadata": {
+      "collectionTime": "2025-09-28T14:49:54.411545",
+      "collectorVersion": "v2.0-python"
+    },
+    "query": {
+      "enhanced_query_object": {
+        "conceptual_tags": [
+          "Brahmanical philosophy",
+          "Brahmana Texts",
+          "Brahman",
+          "Upanishadic philosophy.",
+          "Brahman's manifestation.",
+          "Brahman realization",
+          "Upanishadic philosophy"
+        ],
+        "final_query_string": "sat-cit-\u0101nanda turiya Upanishadic philosophy \u0101tman Brahman's manifestation. Brahmana Texts praj\u00f1\u0101nam brahma Brahmanical philosophy Brahman realization Upanishadic philosophy. neti neti Brahman",
+        "lexical_expansions": [],
+        "sanskrit_concepts": [
+          "sat-cit-\u0101nanda",
+          "neti neti",
+          "\u0101tman",
+          "turiya",
+          "praj\u00f1\u0101nam brahma"
+        ],
+        "scoping_filter": null,
+        "user_query": "What do the Upanishads teach us about Brahman?"
+      },
+      "original": "What do the Upanishads teach us about Brahman?"
+    },
+    "results": {
+      "totalVerses": 5,
+      "verses": [
+        {
+          "content": "yath\u0101 karman sambandhin puru\u1e63a s\u016brya \u0101tman sth\u0101vara ja\u1e45gama \u0101di sarva pr\u0101\u1e47in \u0101tman tva vac br\u0101hma\u1e47a mantra ca s\u016brya \u0101tman ity\u0101di tath\u0101 eva etad brahman etad indra ity\u0101di upakram sarva pr\u0101\u1e47in \u0101tman tva yat ca sth\u0101vara sarva tad praj\u00f1\u0101 netra iti upasa\u1e43h\u1e5b",
+          "id": "Aitereya_Upanishad_verse_24",
+          "source": "Processed_Documents/Aitereya_Upanishad/Aitereya_Upanishad_verse_24.txt"
+        },
+        {
+          "content": "tasm\u0101t etad pathin etad ka etad brahman etad satya yad etad para brahman \u0101tman j\u00f1\u0101na na anya pathin vid ayana iti mantra var\u1e47a",
+          "id": "Aitereya_Upanishad_verse_188",
+          "source": "Processed_Documents/Aitereya_Upanishad/Aitereya_Upanishad_verse_188.txt"
+        },
+        {
+          "content": "praj\u00f1\u0101na brahman utpatti sthiti laya k\u0101la prati\u1e63\u1e6dh\u0101 praj\u00f1\u0101 \u0101\u015braya iti artha",
+          "id": "Aitereya_Upanishad_verse_470",
+          "source": "Processed_Documents/Aitereya_Upanishad/Aitereya_Upanishad_verse_470.txt"
+        },
+        {
+          "content": "iha api ka idam \u0101tman iti upakram praj\u00f1\u0101 \u0101tman tva eva praj\u00f1\u0101na brahman iti dar\u015bay",
+          "id": "Aitereya_Upanishad_verse_27",
+          "source": "Processed_Documents/Aitereya_Upanishad/Aitereya_Upanishad_verse_27.txt"
+        },
+        {
+          "content": "y\u0101vat idam evam yath\u0101 vac idam \u0101tman na vid t\u0101vat idam b\u0101hya anitya d\u1e5b\u1e63\u1e6di lak\u1e63a\u1e47a up\u0101dhi \u0101tman tva upe avidy\u0101 up\u0101dhi dharma \u0101tman man brahman \u0101di stamba paryanta deva tirya\u00f1c nara sth\u0101na punar punar \u0101v\u1e5bt avidy\u0101 k\u0101ma karman va\u015ba sa\u1e43s\u1e5b",
+          "id": "Aitereya_Upanishad_verse_377",
+          "source": "Processed_Documents/Aitereya_Upanishad/Aitereya_Upanishad_verse_377.txt"
+        }
+      ]
+    },
+    "sessionId": "api-session"
+  }
+}

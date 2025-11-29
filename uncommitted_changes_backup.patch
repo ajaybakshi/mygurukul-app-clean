@@ -1,0 +1,872 @@
+diff --git a/CHAPTER_SEARCH_FEATURES.md b/CHAPTER_SEARCH_FEATURES.md
+index c6ff2db..06e70ad 100644
+--- a/CHAPTER_SEARCH_FEATURES.md
++++ b/CHAPTER_SEARCH_FEATURES.md
+@@ -257,3 +257,5 @@ The chapter search implementation provides a robust, user-friendly search experi
+ 
+ Ready for production use! ✅
+ 
++
++
+diff --git a/INFINITE_LOOP_FIX.md b/INFINITE_LOOP_FIX.md
+index e21c323..78d86c2 100644
+--- a/INFINITE_LOOP_FIX.md
++++ b/INFINITE_LOOP_FIX.md
+@@ -168,3 +168,5 @@ The **useRef solution** is:
+ 
+ The infinite loop is now fixed and search functionality works smoothly! 🎉
+ 
++
++
+diff --git a/SEARCH_LOADING_FIX.md b/SEARCH_LOADING_FIX.md
+index 96d619b..9e34b94 100644
+--- a/SEARCH_LOADING_FIX.md
++++ b/SEARCH_LOADING_FIX.md
+@@ -309,3 +309,5 @@ The progressive filtering fix provides:
+ 
+ Search now feels responsive and intuitive! 🎉
+ 
++
++
+diff --git a/gurukul-rag-pipeline b/gurukul-rag-pipeline
+--- a/gurukul-rag-pipeline
++++ b/gurukul-rag-pipeline
+@@ -1 +1 @@
+-Subproject commit 18a15043aa95792f6afe0d137fd4d2a20c979678
++Subproject commit 18a15043aa95792f6afe0d137fd4d2a20c979678-dirty
+diff --git a/src/app/(app)/library/[scriptureId]/page.tsx b/src/app/(app)/library/[scriptureId]/page.tsx
+deleted file mode 100644
+index 856b582..0000000
+--- a/src/app/(app)/library/[scriptureId]/page.tsx
++++ /dev/null
+@@ -1,820 +0,0 @@
+-'use client';
+-
+-import { useState, useEffect, useRef } from 'react';
+-import { useParams, useRouter } from 'next/navigation';
+-import { fetchChapterManifest } from '@/lib/libraryService';
+-import type { ChapterManifest, SectionMetadata, ChapterMetadata } from '@/types/library';
+-import ChapterInsightsModal from '@/components/library/ChapterInsightsModal';
+-
+-/**
+- * Converts GCS gs:// URLs to HTTPS URLs that browsers can open
+- * @param gcsUrl - GCS URL in gs:// format
+- * @returns HTTPS URL for browser access
+- */
+-function convertGcsUrlToHttps(gcsUrl: string): string {
+-  if (gcsUrl.startsWith('gs://')) {
+-    return gcsUrl.replace('gs://', 'https://storage.googleapis.com/');
+-  }
+-  return gcsUrl;
+-}
+-
+-/**
+- * Interface for chapters with search scores
+- */
+-interface ChapterWithScore {
+-  chapter: ChapterMetadata;
+-  section: SectionMetadata;
+-  score: number;
+-  metadata: any;
+-}
+-
+-/**
+- * Calculate search relevance score for a chapter
+- * Weighted scoring: Key concepts (10), Chapter# (8), Section (6), Summary (4), Definitions (3), Advice (2)
+- */
+-function calculateSearchScore(
+-  chapter: ChapterMetadata,
+-  section: SectionMetadata,
+-  metadata: any,
+-  query: string
+-): number {
+-  if (!query.trim()) return 0;
+-
+-  let score = 0;
+-  const normalizedQuery = query.toLowerCase().trim();
+-
+-  // 1. Key concept terms (10 points per match)
+-  if (metadata?.keyConcepts) {
+-    const termMatches = metadata.keyConcepts.filter((k: any) =>
+-      k.term?.toLowerCase().includes(normalizedQuery)
+-    ).length;
+-    score += termMatches * 10;
+-  }
+-
+-  // 2. Exact chapter number match (8 points)
+-  if (
+-    chapter.chapterNumber.toString() === normalizedQuery ||
+-    `chapter ${chapter.chapterNumber}` === normalizedQuery ||
+-    `ch ${chapter.chapterNumber}` === normalizedQuery
+-  ) {
+-    score += 8;
+-  }
+-
+-  // 3. Section name match (6 points)
+-  if (
+-    section.sectionName.toLowerCase().includes(normalizedQuery) ||
+-    section.sectionNameEnglish.toLowerCase().includes(normalizedQuery)
+-  ) {
+-    score += 6;
+-  }
+-
+-  // 4. AI summary matches (4 points per occurrence)
+-  if (metadata?.aiSummary) {
+-    const summaryText = metadata.aiSummary.toLowerCase();
+-    const matches = (summaryText.match(new RegExp(normalizedQuery, 'g')) || []).length;
+-    score += matches * 4;
+-  }
+-
+-  // 5. Key concept definitions (3 points per match)
+-  if (metadata?.keyConcepts) {
+-    const defMatches = metadata.keyConcepts.filter((k: any) =>
+-      k.definition?.toLowerCase().includes(normalizedQuery)
+-    ).length;
+-    score += defMatches * 3;
+-  }
+-
+-  // 6. Practical advice (2 points per match)
+-  if (metadata?.deeperInsights?.practicalAdvice) {
+-    const adviceMatches = metadata.deeperInsights.practicalAdvice.filter((a: any) =>
+-      typeof a === 'string' && a.toLowerCase().includes(normalizedQuery)
+-    ).length;
+-    score += adviceMatches * 2;
+-  }
+-
+-  return score;
+-}
+-
+-/**
+- * Highlight matching search terms in text
+- */
+-function highlightMatches(text: string, query: string): string {
+-  if (!query.trim() || !text) return text;
+-
+-  const escapedQuery = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+-  const regex = new RegExp(`(${escapedQuery})`, 'gi');
+-  return text.replace(
+-    regex,
+-    '<mark class="bg-yellow-200 dark:bg-yellow-600 px-1 rounded font-semibold">$1</mark>'
+-  );
+-}
+-
+-/**
+- * Convert score to star rating display
+- */
+-function getStarRating(score: number): string {
+-  if (score >= 20) return '⭐⭐⭐';
+-  if (score >= 10) return '⭐⭐';
+-  if (score >= 5) return '⭐';
+-  return '';
+-}
+-
+-export default function ChapterBrowserPage() {
+-  const params = useParams();
+-  const router = useRouter();
+-  const scriptureId = params.scriptureId as string;
+-
+-  const [manifest, setManifest] = useState<ChapterManifest | null>(null);
+-  const [loading, setLoading] = useState(true);
+-  const [error, setError] = useState<string | null>(null);
+-  const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set());
+-
+-  // Search state
+-  const [searchQuery, setSearchQuery] = useState('');
+-  const [debouncedQuery, setDebouncedQuery] = useState('');
+-  const [searchActive, setSearchActive] = useState(false);
+-  
+-  // Global chapter scores for all sections (lifted up for section sorting)
+-  const [chapterScores, setChapterScores] = useState<Map<string, number>>(new Map());
+-
+-  // Debounce search query
+-  useEffect(() => {
+-    const timer = setTimeout(() => {
+-      setDebouncedQuery(searchQuery);
+-      setSearchActive(searchQuery.trim().length > 0);
+-    }, 300);
+-
+-    return () => clearTimeout(timer);
+-  }, [searchQuery]);
+-
+-  // Reset scores when search query changes
+-  useEffect(() => {
+-    if (searchActive && debouncedQuery) {
+-      console.log('[ChapterBrowser] Query changed, clearing global score cache:', debouncedQuery);
+-      setChapterScores(new Map());
+-    }
+-  }, [debouncedQuery, searchActive]);
+-
+-  useEffect(() => {
+-    const loadManifest = async () => {
+-      try {
+-        setLoading(true);
+-        setError(null);
+-
+-        console.log(`[ChapterBrowser] Loading manifest for: ${scriptureId}`);
+-        const data = await fetchChapterManifest(scriptureId);
+-
+-        if (!data) {
+-          setError('Chapter manifest not found for this scripture.');
+-          return;
+-        }
+-
+-        setManifest(data);
+-
+-        // Expand first section by default (or all if searching)
+-        if (data.sections.length > 0) {
+-          setExpandedSections(new Set([data.sections[0].sectionId]));
+-        }
+-      } catch (err) {
+-        console.error('[ChapterBrowser] Error loading manifest:', err);
+-        setError('Failed to load chapter manifest. Please try again.');
+-      } finally {
+-        setLoading(false);
+-      }
+-    };
+-
+-    if (scriptureId) {
+-      loadManifest();
+-    }
+-  }, [scriptureId]);
+-
+-  // Auto-expand all sections when searching
+-  useEffect(() => {
+-    if (searchActive && manifest) {
+-      const allSectionIds = manifest.sections.map((s) => s.sectionId);
+-      setExpandedSections(new Set(allSectionIds));
+-    } else if (!searchActive && manifest && manifest.sections.length > 0) {
+-      // Collapse back to first section when search cleared
+-      setExpandedSections(new Set([manifest.sections[0].sectionId]));
+-    }
+-  }, [searchActive, manifest]);
+-
+-  const toggleSection = (sectionId: string) => {
+-    setExpandedSections((prev) => {
+-      const newSet = new Set(prev);
+-      if (newSet.has(sectionId)) {
+-        newSet.delete(sectionId);
+-      } else {
+-        newSet.add(sectionId);
+-      }
+-      return newSet;
+-    });
+-  };
+-
+-  const handleBack = () => {
+-    router.back();
+-  };
+-
+-  const handleViewPDF = (pdfUrl: string) => {
+-    const httpsUrl = convertGcsUrlToHttps(pdfUrl);
+-    console.log(`[ChapterBrowser] Opening PDF: ${httpsUrl}`);
+-    window.open(httpsUrl, '_blank', 'noopener,noreferrer');
+-  };
+-
+-  // Loading state
+-  if (loading) {
+-    return (
+-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
+-        <div className="text-center">
+-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+-          <p className="text-gray-600 dark:text-gray-400">Loading chapters...</p>
+-        </div>
+-      </div>
+-    );
+-  }
+-
+-  // Error state
+-  if (error || !manifest) {
+-    return (
+-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center p-4">
+-        <div className="max-w-md w-full bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8 text-center">
+-          <div className="text-red-500 text-5xl mb-4">⚠️</div>
+-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+-            Unable to Load Chapters
+-          </h2>
+-          <p className="text-gray-600 dark:text-gray-400 mb-6">
+-            {error || 'Chapter manifest not found for this scripture.'}
+-          </p>
+-          <button
+-            onClick={handleBack}
+-            className="w-full px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors font-medium"
+-          >
+-            ← Back to Library
+-          </button>
+-        </div>
+-      </div>
+-    );
+-  }
+-
+-  // Main content
+-  return (
+-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+-      {/* Header */}
+-      <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-10 shadow-sm">
+-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+-          <button
+-            onClick={handleBack}
+-            className="flex items-center text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 mb-3 transition-colors"
+-          >
+-            <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+-            </svg>
+-            Back to Library
+-          </button>
+-
+-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+-            {manifest.scriptureName}
+-          </h1>
+-
+-          <div className="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
+-            <span className="flex items-center">
+-              <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+-              </svg>
+-              {manifest.totalChapters} Chapters
+-            </span>
+-            <span className="flex items-center">
+-              <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+-              </svg>
+-              {manifest.sections.length} Sections
+-            </span>
+-          </div>
+-        </div>
+-      </div>
+-
+-      {/* Search Bar */}
+-      <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 sm:px-6 lg:px-8 py-4">
+-        <div className="max-w-7xl mx-auto">
+-          <div className="relative">
+-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+-              <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+-              </svg>
+-            </div>
+-            <input
+-              type="text"
+-              placeholder="Search chapters by concept, term, number, or content..."
+-              value={searchQuery}
+-              onChange={(e) => setSearchQuery(e.target.value)}
+-              className="block w-full pl-10 pr-12 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+-            />
+-            {searchQuery && (
+-              <button
+-                onClick={() => {
+-                  setSearchQuery('');
+-                  setSearchActive(false);
+-                }}
+-                className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+-                aria-label="Clear search"
+-              >
+-                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+-                </svg>
+-              </button>
+-            )}
+-          </div>
+-          
+-          {/* Loading indicator during search recalculation */}
+-          {searchActive && debouncedQuery && (
+-            <div className="mt-3 text-sm text-gray-500 dark:text-gray-400 flex items-center gap-2">
+-              <svg className="animate-spin h-4 w-4 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+-              </svg>
+-              <span>Analyzing chapters for "{debouncedQuery}"...</span>
+-            </div>
+-          )}
+-        </div>
+-      </div>
+-
+-      {/* Content */}
+-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+-        <div className="space-y-4">
+-          {(() => {
+-            // Calculate MAX score (highest star rating) for each section
+-            const sectionsWithScores = manifest.sections.map(section => {
+-              // Find the HIGHEST score among all chapters in this section
+-              const maxScore = section.chapters.reduce((max, chapter) => {
+-                const score = chapterScores.get(chapter.chapterId) || 0;
+-                return Math.max(max, score);
+-              }, 0);
+-
+-              // Also calculate total score for secondary sorting and display
+-              const totalScore = section.chapters.reduce((sum, chapter) => {
+-                const score = chapterScores.get(chapter.chapterId) || 0;
+-                return sum + score;
+-              }, 0);
+-
+-              const matchingChapters = section.chapters.filter(ch => {
+-                const score = chapterScores.get(ch.chapterId);
+-                return score === undefined || score > 0;
+-              }).length;
+-
+-              return {
+-                section,
+-                maxScore,    // ← NEW: Highest star rating
+-                totalScore,  // Keep for display
+-                matchingChapters
+-              };
+-            });
+-
+-            // Sort sections by MAX score (highest star rating) when searching
+-            const sortedSections = searchActive
+-              ? [...sectionsWithScores].sort((a, b) => {
+-                  // PRIMARY: Sort by HIGHEST star rating (max score) descending
+-                  if (b.maxScore !== a.maxScore) {
+-                    return b.maxScore - a.maxScore;
+-                  }
+-
+-                  // TIE-BREAKER 1: If same max score, use total score
+-                  if (b.totalScore !== a.totalScore) {
+-                    return b.totalScore - a.totalScore;
+-                  }
+-
+-                  // TIE-BREAKER 2: More matching chapters first
+-                  if (b.matchingChapters !== a.matchingChapters) {
+-                    return b.matchingChapters - a.matchingChapters;
+-                  }
+-
+-                  // FINAL: Maintain original order
+-                  return 0;
+-                })
+-              : sectionsWithScores;
+-
+-            console.log('[ChapterBrowser] Sections sorted by max score:', 
+-              sortedSections.map(s => ({
+-                name: s.section.sectionName,
+-                maxScore: s.maxScore,     // ← Show max score
+-                totalScore: s.totalScore,
+-                matches: s.matchingChapters
+-              }))
+-            );
+-
+-            return sortedSections.map(({ section, maxScore, totalScore, matchingChapters }) => (
+-              <SectionAccordion
+-                key={section.sectionId}
+-                section={section}
+-                isExpanded={expandedSections.has(section.sectionId)}
+-                onToggle={() => toggleSection(section.sectionId)}
+-                onViewPDF={handleViewPDF}
+-                searchQuery={debouncedQuery}
+-                searchActive={searchActive}
+-                chapterScores={chapterScores}
+-                setChapterScores={setChapterScores}
+-                maxScore={maxScore}
+-                totalScore={totalScore}
+-                matchingChapters={matchingChapters}
+-              />
+-            ));
+-          })()}
+-        </div>
+-
+-        {/* Footer - Back to Library */}
+-        <div className="mt-12 text-center">
+-          <button
+-            onClick={handleBack}
+-            className="inline-flex items-center px-6 py-3 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors font-medium"
+-          >
+-            <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+-            </svg>
+-            Back to Library
+-          </button>
+-        </div>
+-      </div>
+-    </div>
+-  );
+-}
+-
+-// Section Accordion Component
+-interface SectionAccordionProps {
+-  section: SectionMetadata;
+-  isExpanded: boolean;
+-  onToggle: () => void;
+-  onViewPDF: (pdfUrl: string) => void;
+-  searchQuery: string;
+-  searchActive: boolean;
+-  chapterScores: Map<string, number>;
+-  setChapterScores: React.Dispatch<React.SetStateAction<Map<string, number>>>;
+-  maxScore: number;
+-  totalScore: number;
+-  matchingChapters: number;
+-}
+-
+-function SectionAccordion({
+-  section,
+-  isExpanded,
+-  onToggle,
+-  onViewPDF,
+-  searchQuery,
+-  searchActive,
+-  chapterScores,
+-  setChapterScores,
+-  maxScore,
+-  totalScore,
+-  matchingChapters,
+-}: SectionAccordionProps) {
+-  const [totalResults, setTotalResults] = useState(0);
+-
+-  console.log(`[SectionAccordion] RENDER START: ${section.sectionName}, searchActive=${searchActive}, query="${searchQuery}", totalChapters=${section.chapters.length}, chapterScoresSize=${chapterScores.size}, maxScore=${maxScore}, totalScore=${totalScore}, matchingChapters=${matchingChapters}, isExpanded=${isExpanded}`);
+-  
+-  console.log('[SectionAccordion] chapterScores entries:', 
+-    Array.from(chapterScores.entries()).slice(0, 5) // Show first 5
+-  );
+-
+-  // Filter chapters based on search
+-  const visibleChapters = searchActive
+-    ? section.chapters.filter((chapter) => {
+-        const score = chapterScores.get(chapter.chapterId);
+-        const shouldShow = score === undefined || score > 0;
+-        
+-        console.log(`[Filter] Ch${chapter.chapterNumber}: score=${score}, shouldShow=${shouldShow}`);
+-        
+-        return shouldShow;
+-      })
+-    : section.chapters;
+-
+-  console.log(`[SectionAccordion] Visible chapters: ${visibleChapters.length}`);
+-
+-  // Update total results when scores change
+-  useEffect(() => {
+-    if (searchActive) {
+-      const count = section.chapters.filter((chapter) => {
+-        const score = chapterScores.get(chapter.chapterId);
+-        // Only count chapters with calculated scores > 0
+-        return score !== undefined && score > 0;
+-      }).length;
+-      setTotalResults(count);
+-    }
+-  }, [chapterScores, searchActive, section.chapters]);
+-
+-  // Sort by score when searching
+-  const sortedChapters = searchActive
+-    ? [...visibleChapters].sort((a, b) => {
+-        const scoreA = chapterScores.get(a.chapterId);
+-        const scoreB = chapterScores.get(b.chapterId);
+-        
+-        // Put chapters with undefined scores (still loading) at the end
+-        if (scoreA === undefined && scoreB === undefined) {
+-          // Both loading - maintain chapter number order
+-          return a.chapterNumber - b.chapterNumber;
+-        }
+-        if (scoreA === undefined) return 1;
+-        if (scoreB === undefined) return -1;
+-        
+-        // Both have scores, sort by score (highest first)
+-        if (scoreB !== scoreA) {
+-          return scoreB - scoreA;
+-        }
+-        
+-        // Tie-breaker: sort by chapter number ascending
+-        return a.chapterNumber - b.chapterNumber;
+-      })
+-    : visibleChapters;
+-
+-  // Don't render section if no results when searching
+-  // But only hide if all chapters have been scored (no undefined scores)
+-  if (searchActive && visibleChapters.length === 0) {
+-    const allScored = section.chapters.every((chapter) => chapterScores.has(chapter.chapterId));
+-    
+-    console.log(`[SectionAccordion] Empty check: ${section.sectionName}, allScored=${allScored}, willHide=${allScored}`);
+-    
+-    if (allScored) {
+-      console.log(`[SectionAccordion] HIDING section: ${section.sectionName}`);
+-      return null;
+-    }
+-  }
+-
+-  console.log(`[SectionAccordion] RENDER END: ${section.sectionName}, visibleChapters=${visibleChapters.length}, sortedChapters=${sortedChapters.length}, willRender=true`);
+-  
+-  if (searchActive && sortedChapters.length > 0) {
+-    console.log(`[SectionAccordion] Top 5 chapters by score:`, 
+-      sortedChapters.slice(0, 5).map(ch => ({
+-        chNum: ch.chapterNumber,
+-        score: chapterScores.get(ch.chapterId)
+-      }))
+-    );
+-  }
+-
+-  return (
+-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md border border-gray-200 dark:border-gray-700 overflow-hidden">
+-      {/* Section Header */}
+-      <button
+-        onClick={onToggle}
+-        className="w-full px-6 py-4 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-750 transition-colors"
+-      >
+-        <div className="flex items-center gap-3">
+-          <div
+-            className="text-blue-600 dark:text-blue-400 transition-transform duration-200"
+-            style={{ transform: isExpanded ? 'rotate(90deg)' : 'rotate(0deg)' }}
+-          >
+-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+-            </svg>
+-          </div>
+-          <div className="text-left">
+-            <div className="flex items-center gap-2">
+-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{section.sectionName}</h3>
+-              {searchActive && maxScore > 0 && (
+-                <span className="text-sm font-medium text-yellow-600 dark:text-yellow-400 flex items-center gap-1">
+-                  <span>{getStarRating(maxScore)}</span>
+-                  <span className="text-xs text-gray-500 dark:text-gray-400">
+-                    ({totalScore} pts total)
+-                  </span>
+-                </span>
+-              )}
+-            </div>
+-            <p className="text-sm text-gray-500 dark:text-gray-400">{section.sectionNameEnglish}</p>
+-          </div>
+-        </div>
+-        <span className="text-sm font-medium text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-3 py-1 rounded-full">
+-          {searchActive ? `${totalResults} result${totalResults !== 1 ? 's' : ''}` : `${section.chapterCount} ${section.chapterCount === 1 ? 'Chapter' : 'Chapters'}`}
+-        </span>
+-      </button>
+-
+-      {/* Section Content */}
+-      {isExpanded && (
+-        <div className="border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 p-4">
+-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+-            {sortedChapters.map((chapter) => (
+-              <ChapterCard
+-                key={chapter.chapterId}
+-                chapter={chapter}
+-                section={section}
+-                onViewPDF={onViewPDF}
+-                searchQuery={searchQuery}
+-                searchActive={searchActive}
+-                onScoreCalculated={(chapterId, score) => {
+-                  setChapterScores((prev) => {
+-                    const newMap = new Map(prev);
+-                    newMap.set(chapterId, score);
+-                    return newMap;
+-                  });
+-                }}
+-              />
+-            ))}
+-          </div>
+-        </div>
+-      )}
+-    </div>
+-  );
+-}
+-
+-// Chapter Card Component
+-interface ChapterCardProps {
+-  chapter: ChapterMetadata;
+-  section: SectionMetadata;
+-  onViewPDF: (pdfUrl: string) => void;
+-  searchQuery: string;
+-  searchActive: boolean;
+-  onScoreCalculated: (chapterId: string, score: number) => void;
+-}
+-
+-interface ChapterMetadataJson {
+-  aiSummary?: string;
+-  keyConcepts?: Array<{ term: string; definition: string }>;
+-  deeperInsights?: {
+-    philosophicalViewpoint?: string;
+-    practicalAdvice?: string[];
+-    [key: string]: any;
+-  };
+-  [key: string]: any;
+-}
+-
+-function ChapterCard({
+-  chapter,
+-  section,
+-  onViewPDF,
+-  searchQuery,
+-  searchActive,
+-  onScoreCalculated,
+-}: ChapterCardProps) {
+-  const [fullMetadata, setFullMetadata] = useState<ChapterMetadataJson | null>(null);
+-  const [loadingSummary, setLoadingSummary] = useState(false);
+-  const [isInsightsOpen, setIsInsightsOpen] = useState(false);
+-  const [searchScore, setSearchScore] = useState(0);
+-  const lastReportedScoreRef = useRef<number>(-1); // Track last reported score to prevent infinite loops
+-
+-  useEffect(() => {
+-    // Only fetch if chapter has metadata and metadataUrl is available
+-    if (!chapter.hasMetadata || !chapter.metadataUrl) return;
+-
+-    const fetchMetadata = async () => {
+-      try {
+-        setLoadingSummary(true);
+-        const httpsUrl = convertGcsUrlToHttps(chapter.metadataUrl);
+-
+-        console.log(`[ChapterCard] Fetching metadata for Chapter ${chapter.chapterNumber}: ${httpsUrl}`);
+-
+-        const response = await fetch(httpsUrl);
+-        if (response.ok) {
+-          const data: ChapterMetadataJson = await response.json();
+-          setFullMetadata(data);
+-
+-          if (data.aiSummary) {
+-            console.log(`[ChapterCard] Loaded metadata for Chapter ${chapter.chapterNumber}`);
+-          }
+-        } else {
+-          console.warn(`[ChapterCard] Failed to fetch metadata for Chapter ${chapter.chapterNumber}: ${response.status}`);
+-        }
+-      } catch (error) {
+-        console.error(`[ChapterCard] Error fetching chapter metadata for Chapter ${chapter.chapterNumber}:`, error);
+-      } finally {
+-        setLoadingSummary(false);
+-      }
+-    };
+-
+-    fetchMetadata();
+-  }, [chapter.metadataUrl, chapter.hasMetadata, chapter.chapterNumber]);
+-
+-  // Calculate search score when metadata loads or query changes
+-  useEffect(() => {
+-    // If search is not active, don't calculate or report scores
+-    if (!searchActive) {
+-      setSearchScore(0);
+-      lastReportedScoreRef.current = -1;  // Reset for next search
+-      return;
+-    }
+-    
+-    // If search is active but metadata hasn't loaded yet, DON'T report a score
+-    // This keeps the score as undefined in the parent's Map
+-    if (!fullMetadata) {
+-      return;  // ← KEY FIX: Don't call onScoreCalculated until we have metadata!
+-    }
+-    
+-    // Now we have both searchActive=true AND fullMetadata loaded
+-    const newScore = calculateSearchScore(chapter, section, fullMetadata, searchQuery);
+-    
+-    console.log(`[ChapterCard] Recalculated score for Ch${chapter.chapterNumber}: ${newScore}`);
+-    
+-    setSearchScore(newScore);
+-    
+-    // Only call onScoreCalculated if the score actually changed
+-    // Don't include onScoreCalculated in dependencies to avoid infinite loop
+-    if (lastReportedScoreRef.current !== newScore) {
+-      lastReportedScoreRef.current = newScore;
+-      onScoreCalculated(chapter.chapterId, newScore);
+-    }
+-  }, [searchActive, searchQuery, fullMetadata, chapter.chapterId, section.sectionId]);
+-
+-  // Extract and truncate summary for card display
+-  const aiSummary = fullMetadata?.aiSummary || '';
+-  const truncatedSummary = aiSummary.length > 250 ? aiSummary.substring(0, 250).trim() + '...' : aiSummary;
+-
+-  // Highlight matches in summary
+-  const displaySummary = searchActive && searchQuery ? highlightMatches(truncatedSummary, searchQuery) : truncatedSummary;
+-
+-  // Calculate star rating based on score
+-  const getStarRating = (score: number): string => {
+-    if (score >= 20) return '⭐⭐⭐';
+-    if (score >= 10) return '⭐⭐';
+-    if (score >= 5) return '⭐';
+-    return '';
+-  };
+-
+-  return (
+-    <div className="bg-white dark:bg-gray-800 rounded-md border border-gray-200 dark:border-gray-700 p-4 hover:shadow-md transition-shadow relative">
+-      {/* Search Score Indicator */}
+-      {searchActive && searchScore > 0 && (
+-        <div className="absolute top-2 right-2 flex items-center gap-1 text-xs">
+-          <span className="text-yellow-500" title={`Relevance score: ${searchScore}`}>
+-            {getStarRating(searchScore)}
+-          </span>
+-        </div>
+-      )}
+-
+-      {/* Chapter Header */}
+-      <div className="mb-3">
+-        <div className="flex items-center gap-2 mb-2">
+-          <span className="text-xs font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 px-2 py-1 rounded">
+-            Chapter {chapter.chapterNumber}
+-          </span>
+-          {chapter.hasMetadata && (
+-            <span className="text-xs text-green-600 dark:text-green-400" title="Metadata available">
+-              ✓
+-            </span>
+-          )}
+-        </div>
+-        <h4 className="font-semibold text-gray-900 dark:text-white text-base mb-1 leading-snug">
+-          {chapter.title}
+-        </h4>
+-        {chapter.titleEnglish && chapter.titleEnglish.trim() !== '' && (
+-          <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed mb-2">
+-            {chapter.titleEnglish}
+-          </p>
+-        )}
+-      </div>
+-
+-      {/* AI Summary Section */}
+-      {chapter.hasMetadata && (
+-        <div className="mb-3">
+-          {loadingSummary ? (
+-            <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+-              <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-blue-600"></div>
+-              <span>Loading summary...</span>
+-            </div>
+-          ) : aiSummary ? (
+-            <div
+-              className="text-xs text-gray-700 dark:text-gray-300 leading-relaxed line-clamp-4"
+-              dangerouslySetInnerHTML={{ __html: displaySummary }}
+-            />
+-          ) : null}
+-        </div>
+-      )}
+-
+-      {/* Chapter Actions */}
+-      <div className="flex flex-col gap-2">
+-        <button
+-          onClick={() => onViewPDF(chapter.pdfUrl)}
+-          className="w-full px-3 py-2 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 transition-colors font-medium flex items-center justify-center gap-2"
+-        >
+-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+-          </svg>
+-          View PDF
+-        </button>
+-
+-        <button
+-          onClick={() => setIsInsightsOpen(true)}
+-          disabled={!chapter.hasMetadata || !fullMetadata}
+-          className={`w-full px-3 py-2 text-sm rounded font-medium flex items-center justify-center gap-2 transition-colors ${
+-            chapter.hasMetadata && fullMetadata
+-              ? 'bg-purple-600 text-white hover:bg-purple-700'
+-              : 'bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-500 cursor-not-allowed'
+-          }`}
+-          title={chapter.hasMetadata ? 'View detailed insights' : 'No insights available'}
+-        >
+-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+-            <path
+-              strokeLinecap="round"
+-              strokeLinejoin="round"
+-              strokeWidth={2}
+-              d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
+-            />
+-          </svg>
+-          View Full Insights
+-        </button>
+-      </div>
+-
+-      {/* Chapter Insights Modal */}
+-      <ChapterInsightsModal
+-        isOpen={isInsightsOpen}
+-        onClose={() => setIsInsightsOpen(false)}
+-        chapterMetadata={fullMetadata}
+-        chapterNumber={chapter.chapterNumber}
+-        chapterTitle={chapter.title}
+-      />
+-    </div>
+-  );
+-}
+diff --git a/src/components/library/ChapterInsightsModal.tsx b/src/components/library/ChapterInsightsModal.tsx
+index ec9ddc8..178d109 100644
+--- a/src/components/library/ChapterInsightsModal.tsx
++++ b/src/components/library/ChapterInsightsModal.tsx
+@@ -208,3 +208,5 @@ export default function ChapterInsightsModal({
+   );
+ }
+ 
++
++

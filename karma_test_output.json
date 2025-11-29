@@ -1,0 +1,68 @@
+{
+  "question": "Explain the concept of Karma and its consequences as described in the scriptures.",
+  "verseData": {
+    "metadata": {
+      "collectionTime": "2025-09-28T14:01:18.469331",
+      "collectorVersion": "v2.0-python"
+    },
+    "query": {
+      "enhanced_query_object": {
+        "conceptual_tags": [
+          "Philosophy of Karma",
+          "Karma theory",
+          "purpose of karma",
+          "karma and rebirth",
+          "Law of Karma",
+          "transcendence of karma",
+          "freedom from karma"
+        ],
+        "final_query_string": "karma and rebirth v\u0101san\u0101 freedom from karma sa\u1e43sk\u0101ra purpose of karma up\u0101ya\u1e25 karmaphala Law of Karma transcendence of karma sa\u1e43s\u0101ra karma vimar\u015bo Philosophy of Karma Karma theory",
+        "lexical_expansions": [
+          "up\u0101ya\u1e25",
+          "vimar\u015bo"
+        ],
+        "sanskrit_concepts": [
+          "karma",
+          "karmaphala",
+          "sa\u1e43sk\u0101ra",
+          "v\u0101san\u0101",
+          "sa\u1e43s\u0101ra"
+        ],
+        "scoping_filter": null,
+        "user_query": "Explain the concept of Karma and its consequences as described in the scriptures."
+      },
+      "original": "Explain the concept of Karma and its consequences as described in the scriptures."
+    },
+    "results": {
+      "totalVerses": 5,
+      "verses": [
+        {
+          "content": "para hi \u0101p k\u0101ma sarva sa\u1e43s\u0101ra do\u1e63a varjay brahman mad as iti \u0101tman tva vij\u00f1\u0101na k\u1e5b k\u1e5b v\u0101 prayojana \u0101tman pa\u015b phala adar\u015bana kriy\u0101 na upapad",
+          "id": "Aitereya_Upanishad_verse_48",
+          "source": "Processed_Documents/Aitereya_Upanishad/Aitereya_Upanishad_verse_48.txt"
+        },
+        {
+          "content": "y\u0101vat idam evam yath\u0101 vac idam \u0101tman na vid t\u0101vat idam b\u0101hya anitya d\u1e5b\u1e63\u1e6di lak\u1e63a\u1e47a up\u0101dhi \u0101tman tva upe avidy\u0101 up\u0101dhi dharma \u0101tman man brahman \u0101di stamba paryanta deva tirya\u00f1c nara sth\u0101na punar punar \u0101v\u1e5bt avidy\u0101 k\u0101ma karman va\u015ba sa\u1e43s\u1e5b",
+          "id": "Aitereya_Upanishad_verse_377",
+          "source": "Processed_Documents/Aitereya_Upanishad/Aitereya_Upanishad_verse_377.txt"
+        },
+        {
+          "content": "yadi karmin eva param\u0101tman vij\u00f1\u0101na bh\u016b sa\u1e43s\u0101ra vi\u1e63aya eva phala upasa\u1e43h\u0101ra na upapad",
+          "id": "Aitereya_Upanishad_verse_101",
+          "source": "Processed_Documents/Aitereya_Upanishad/Aitereya_Upanishad_verse_101.txt"
+        },
+        {
+          "content": "idam eva avidy\u0101 k\u0101ma karman abhim\u0101navat yaj\u00f1a \u0101di karman k\u1e5b idam loka dh\u016bma \u0101di krama anna bh\u016b puru\u1e63a agni hu",
+          "id": "Aitereya_Upanishad_verse_379",
+          "source": "Processed_Documents/Aitereya_Upanishad/Aitereya_Upanishad_verse_379.txt"
+        },
+        {
+          "content": "tad etad agni \u0101di devat\u0101 lokap\u0101la tva sa\u1e43kalpay s\u1e5bj \u012b\u015bvara idam sa\u1e43s\u0101ra r\u1e47ava sa\u1e43s\u0101ra samudra mahat avidy\u0101 k\u0101ma karman prabhava du\u1e25kha udaka t\u012bvra roga jar\u0101 m\u1e5btyu mahat gr\u0101ha an \u0101di ananta ap\u0101ra nir\u0101lamba vi\u1e63aya indriya janay sukhaa vak\u1e63a\u1e47a vi\u015br\u0101ma pa\u00f1c an indriya artha t\u1e5b\u1e47m\u0101ruta vik\u1e63obha utth\u0101anartha \u015bata mahat \u016brmi mah\u0101raurava \u0101di aneka niraya gam h\u0101h\u0101 ity\u0101di k\u016bj a \u0101kro\u015bana udbh\u016b mahat rava atya \u0101rjava d\u0101na day\u0101 hi\u1e43s\u0101 \u015bama dama dh\u1e5bti \u0101di \u0101tman gu\u1e47a p\u0101theya p\u016br\u1e47a j\u00f1\u0101na u\u1e0dupa sat sa\u1e45ga sarva ty\u0101ga m\u0101rga mok\u1e63a t\u012bra etad mahat ar\u1e47ava prapat pat tatavat",
+          "id": "Aitereya_Upanishad_verse_185",
+          "source": "Processed_Documents/Aitereya_Upanishad/Aitereya_Upanishad_verse_185.txt"
+        }
+      ]
+    },
+    "sessionId": "api-session"
+  }
+}

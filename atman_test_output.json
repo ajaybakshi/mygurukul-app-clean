@@ -1,0 +1,67 @@
+{
+  "question": "What do the Upanishads tell us about Atman?",
+  "verseData": {
+    "metadata": {
+      "collectionTime": "2025-09-28T13:57:50.259758",
+      "collectorVersion": "v2.0-python"
+    },
+    "query": {
+      "enhanced_query_object": {
+        "conceptual_tags": [
+          "Atman is Brahman",
+          "\u0100tman as lineage",
+          "Atman as Creator",
+          "Brahman and Atman",
+          "Atman",
+          "\u0100tman",
+          "\u0101tman"
+        ],
+        "final_query_string": "sat-cit-\u0101nanda Brahman and Atman \u0101tman \u0100tman Atman Atman as Creator brahman j\u012bva \u0100tman as lineage Atman is Brahman advaita j\u012bvant\u012b",
+        "lexical_expansions": [
+          "j\u012bvant\u012b"
+        ],
+        "sanskrit_concepts": [
+          "\u0101tman",
+          "brahman",
+          "j\u012bva",
+          "sat-cit-\u0101nanda",
+          "advaita"
+        ],
+        "scoping_filter": null,
+        "user_query": "What do the Upanishads tell us about Atman?"
+      },
+      "original": "What do the Upanishads tell us about Atman?"
+    },
+    "results": {
+      "totalVerses": 5,
+      "verses": [
+        {
+          "content": "yath\u0101 karman sambandhin puru\u1e63a s\u016brya \u0101tman sth\u0101vara ja\u1e45gama \u0101di sarva pr\u0101\u1e47in \u0101tman tva vac br\u0101hma\u1e47a mantra ca s\u016brya \u0101tman ity\u0101di tath\u0101 eva etad brahman etad indra ity\u0101di upakram sarva pr\u0101\u1e47in \u0101tman tva yat ca sth\u0101vara sarva tad praj\u00f1\u0101 netra iti upasa\u1e43h\u1e5b",
+          "id": "Aitereya_Upanishad_verse_24",
+          "source": "Processed_Documents/Aitereya_Upanishad/Aitereya_Upanishad_verse_24.txt"
+        },
+        {
+          "content": "tad kad\u0101cid parama k\u0101ru\u1e47ika \u0101c\u0101rya \u0101tman j\u00f1\u0101na prabodha k\u1e5bt \u015babdaka ved\u0101nta mahat v\u0101kya bher\u012b tad kar\u1e47a m\u016bla t\u0101\u1e0day etad eva s\u1e5b\u1e63\u1e6di \u0101di kart\u1e5b tva prak\u1e5b puru\u1e63a pur \u015b\u012b \u0101tman brahman b\u1e5bhattatama tak\u0101ra eka lup tatatama vy\u0101ptatama parip\u1e5b \u0101k\u0101\u015ba vat pratibudh pa\u015b",
+          "id": "Aitereya_Upanishad_verse_255",
+          "source": "Processed_Documents/Aitereya_Upanishad/Aitereya_Upanishad_verse_255.txt"
+        },
+        {
+          "content": "yatas evam tad eva vid para brahman \u0101tman \u0101tman sarva bh\u016bta ca yad vac vi\u015be\u1e63a\u1e47a prak\u1e5b ca jagant utpatti sthiti sa\u1e43h\u0101ra hetu tva tad sarva sa\u1e43s\u0101ra du\u1e25kha upa\u015bamana vid",
+          "id": "Aitereya_Upanishad_verse_187",
+          "source": "Processed_Documents/Aitereya_Upanishad/Aitereya_Upanishad_verse_187.txt"
+        },
+        {
+          "content": "tasm\u0101t etad pathin etad ka etad brahman etad satya yad etad para brahman \u0101tman j\u00f1\u0101na na anya pathin vid ayana iti mantra var\u1e47a",
+          "id": "Aitereya_Upanishad_verse_188",
+          "source": "Processed_Documents/Aitereya_Upanishad/Aitereya_Upanishad_verse_188.txt"
+        },
+        {
+          "content": "bahman vidy\u0101 s\u0101dhana k\u1e5b sarva \u0101tman bh\u0101va phala av\u0101pti v\u0101madeva \u0101di a \u0101c\u0101rya parampar\u0101 \u015brut avadyotay brahman vid pari\u1e63ad atyanta prasidh upalabh mumuk\u1e63u br\u0101hma\u1e47a adhun\u0101tana brahman jij\u00f1\u0101su anitya s\u0101dhya s\u0101dhana lak\u1e63a\u1e47a sa\u1e43s\u0101ra \u0101j\u012bva bh\u0101va vy\u0101viv\u1e5btsu vic\u0101ray nyonya pracch ka idam \u0101tman iti katham",
+          "id": "Aitereya_Upanishad_verse_424",
+          "source": "Processed_Documents/Aitereya_Upanishad/Aitereya_Upanishad_verse_424.txt"
+        }
+      ]
+    },
+    "sessionId": "api-session"
+  }
+}

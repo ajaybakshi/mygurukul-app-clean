@@ -1,0 +1,67 @@
+{
+  "question": "What do the Upanishads teach about Atman and its relationship with Brahman?",
+  "verseData": {
+    "metadata": {
+      "collectionTime": "2025-09-28T17:46:08.588610",
+      "collectorVersion": "v2.0-python"
+    },
+    "query": {
+      "enhanced_query_object": {
+        "conceptual_tags": [
+          "Brahman and Atman",
+          "Atman is Brahman",
+          "Brahman as Atman",
+          "Identity of Atman and Brahman",
+          "Brahman Atman",
+          "Atman-Brahman",
+          "Atman-Brahman Identity"
+        ],
+        "final_query_string": "advaita m\u0101y\u0101 Atman-Brahman Atman-Brahman Identity tattvamasi Atman is Brahman Identity of Atman and Brahman Brahman Atman sy\u0101n Brahman and Atman brahman Brahman as Atman \u0101tman",
+        "lexical_expansions": [
+          "sy\u0101n"
+        ],
+        "sanskrit_concepts": [
+          "\u0101tman",
+          "brahman",
+          "advaita",
+          "tattvamasi",
+          "m\u0101y\u0101"
+        ],
+        "scoping_filter": null,
+        "user_query": "What do the Upanishads teach about Atman and its relationship with Brahman?"
+      },
+      "original": "What do the Upanishads teach about Atman and its relationship with Brahman?"
+    },
+    "results": {
+      "totalVerses": 5,
+      "verses": [
+        {
+          "content": "iha api ka idam \u0101tman iti upakram praj\u00f1\u0101 \u0101tman tva eva praj\u00f1\u0101na brahman iti dar\u015bay",
+          "id": "Aitereya_Upanishad_verse_27",
+          "source": "Processed_Documents/Aitereya_Upanishad/Aitereya_Upanishad_verse_27.txt"
+        },
+        {
+          "content": "y\u0101vat idam evam yath\u0101 vac idam \u0101tman na vid t\u0101vat idam b\u0101hya anitya d\u1e5b\u1e63\u1e6di lak\u1e63a\u1e47a up\u0101dhi \u0101tman tva upe avidy\u0101 up\u0101dhi dharma \u0101tman man brahman \u0101di stamba paryanta deva tirya\u00f1c nara sth\u0101na punar punar \u0101v\u1e5bt avidy\u0101 k\u0101ma karman va\u015ba sa\u1e43s\u1e5b",
+          "id": "Aitereya_Upanishad_verse_377",
+          "source": "Processed_Documents/Aitereya_Upanishad/Aitereya_Upanishad_verse_377.txt"
+        },
+        {
+          "content": "yath\u0101 karman sambandhin puru\u1e63a s\u016brya \u0101tman sth\u0101vara ja\u1e45gama \u0101di sarva pr\u0101\u1e47in \u0101tman tva vac br\u0101hma\u1e47a mantra ca s\u016brya \u0101tman ity\u0101di tath\u0101 eva etad brahman etad indra ity\u0101di upakram sarva pr\u0101\u1e47in \u0101tman tva yat ca sth\u0101vara sarva tad praj\u00f1\u0101 netra iti upasa\u1e43h\u1e5b",
+          "id": "Aitereya_Upanishad_verse_24",
+          "source": "Processed_Documents/Aitereya_Upanishad/Aitereya_Upanishad_verse_24.txt"
+        },
+        {
+          "content": "tad etad praj\u00f1\u0101na r\u016bpa \u0101tman brahman apara sarva \u015bar\u012bra stha pr\u0101\u1e47a praj\u00f1\u0101 \u0101tman",
+          "id": "Aitereya_Upanishad_verse_458",
+          "source": "Processed_Documents/Aitereya_Upanishad/Aitereya_Upanishad_verse_458.txt"
+        },
+        {
+          "content": "brahman \u0101tman tva dar\u015bin api as ced niyuj niyoga avi\u1e63aya api as na ka\u015bcit na niyuj iti sarva karman sarva sarvad\u0101 k\u1e5b prap",
+          "id": "Aitereya_Upanishad_verse_52",
+          "source": "Processed_Documents/Aitereya_Upanishad/Aitereya_Upanishad_verse_52.txt"
+        }
+      ]
+    },
+    "sessionId": "api-session"
+  }
+}

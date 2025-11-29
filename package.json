@@ -1,0 +1,49 @@
+{
+  "name": "mygurukul-app",
+  "version": "4.2.0",
+  "description": "MyGurukul v4.1: Advanced AI-powered Sanskrit spiritual guidance platform featuring Python CollectorServiceV2 integration, Gemini + Amarakosha + FAISS processing pipeline, first-person spiritual guidance, enhanced verse formatting with complete IAST and translations, and seamless conversational wisdom synthesis",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@chakra-ui/react": "^2.10.9",
+    "@chakra-ui/system": "^2.6.2",
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.1",
+    "@google-cloud/discoveryengine": "^2.4.0",
+    "@google-cloud/storage": "^7.17.0",
+    "@google/genai": "^1.29.1",
+    "@google/generative-ai": "^0.24.1",
+    "@tailwindcss/typography": "^0.5.16",
+    "@types/form-data": "^2.2.1",
+    "detect-node-es": "^1.1.0",
+    "fast-xml-parser": "^5.2.5",
+    "form-data": "^4.0.4",
+    "framer-motion": "^10.18.0",
+    "google-auth-library": "^10.2.1",
+    "lucide-react": "^0.294.0",
+    "next": "14.0.4",
+    "node-cache": "^5.1.2",
+    "react": "^18",
+    "react-dom": "^18",
+    "sanscript": "^0.0.2",
+    "uuid": "^9.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "@types/react": "^18.3.24",
+    "@types/react-dom": "^18",
+    "@types/uuid": "^9.0.0",
+    "autoprefixer": "^10.0.1",
+    "eslint": "^8",
+    "eslint-config-next": "14.0.4",
+    "postcss": "^8",
+    "postcss-selector-parser": "^7.1.0",
+    "tailwindcss": "^3.3.0",
+    "typescript": "^5"
+  }
+}
