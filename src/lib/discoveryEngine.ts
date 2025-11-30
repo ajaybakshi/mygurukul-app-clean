@@ -16,6 +16,7 @@ export interface DiscoveryEngineResponse {
     citations?: Array<{
       startIndex: number;
       endIndex: number;
+      text?: string; // Text extract from the source
       sources: Array<{
         referenceId: string;
         title?: string;
@@ -388,12 +389,53 @@ export async function callWisdomEngine(
 }
 
 // File Search Response Mapping Functions
+
+/**
+ * Find the nearest sentence boundary (safe insertion point) before or at target position
+ * Looks for sentence endings (. ! ?) followed by space, or falls back to word boundaries
+ */
+function findSentenceBoundary(text: string, targetPos: number): number {
+  if (!text || targetPos < 0) return 0;
+  if (targetPos >= text.length) return text.length;
+  
+  // Look backwards from targetPos for sentence endings
+  for (let i = Math.min(targetPos, text.length - 1); i >= 0; i--) {
+    const char = text[i];
+    if (char === '.' || char === '!' || char === '?') {
+      // Check if followed by space or end of text
+      if (i + 1 >= text.length || text[i + 1] === ' ') {
+        return i + 1; // Position after sentence end (safe for marker insertion)
+      }
+    }
+  }
+  
+  // Fallback: find nearest space before target position
+  for (let i = Math.min(targetPos, text.length - 1); i >= 0; i--) {
+    if (text[i] === ' ') {
+      return i + 1; // Position after space
+    }
+  }
+  
+  // Last resort: return targetPos (but ensure it's not mid-word)
+  // If targetPos is not a space, try to find space after it
+  if (targetPos < text.length && text[targetPos] !== ' ') {
+    for (let i = targetPos; i < text.length; i++) {
+      if (text[i] === ' ') {
+        return i + 1;
+      }
+    }
+  }
+  
+  return targetPos;
+}
+
 function mapFileSearchCitations(
   citations: any[],
   answerText: string
 ): Array<{
   startIndex: number;
   endIndex: number;
+  text?: string; // Preserve the actual text extract
   sources: Array<{
     referenceId: string;
     title?: string;
@@ -401,24 +443,46 @@ function mapFileSearchCitations(
   }>;
 }> {
   if (!citations || !Array.isArray(citations)) return [];
+  if (!answerText || answerText.length === 0) return [];
   
   return citations.map((citation, index) => {
-    // Try to find citation text in answerText to get accurate startIndex/endIndex
     const citationText = citation.text || '';
     let startIndex = 0;
-    let endIndex = 50; // Default length
+    let endIndex = 0;
     
     if (citationText && answerText) {
-      const foundIndex = answerText.indexOf(citationText.substring(0, Math.min(50, citationText.length)));
+      // Try to find citation text in answerText
+      const searchText = citationText.substring(0, Math.min(50, citationText.length));
+      const foundIndex = answerText.indexOf(searchText);
+      
       if (foundIndex !== -1) {
+        // Found exact or partial match - use it as base
         startIndex = foundIndex;
         endIndex = Math.min(foundIndex + citationText.length, answerText.length);
       } else {
-        // If exact match not found, use approximate position based on citation index
+        // If exact match not found, distribute citations evenly across answer text
         const approximateStart = Math.floor((index / citations.length) * answerText.length);
-        startIndex = approximateStart;
-        endIndex = Math.min(approximateStart + citationText.length, answerText.length);
+        endIndex = findSentenceBoundary(answerText, approximateStart);
+        // Set startIndex to be just before endIndex (marker goes after the sentence)
+        startIndex = Math.max(0, endIndex - 1);
       }
+      
+      // Ensure endIndex points to a safe insertion point (sentence boundary or space)
+      endIndex = findSentenceBoundary(answerText, endIndex);
+      
+      // Validation: ensure endIndex >= startIndex
+      if (endIndex < startIndex) {
+        endIndex = Math.min(startIndex + 1, answerText.length);
+      }
+      
+      // Ensure indices are within bounds
+      startIndex = Math.max(0, Math.min(startIndex, answerText.length));
+      endIndex = Math.max(startIndex, Math.min(endIndex, answerText.length));
+    } else {
+      // No citation text or answer text - distribute evenly
+      const approximateStart = Math.floor((index / citations.length) * answerText.length);
+      endIndex = findSentenceBoundary(answerText, approximateStart);
+      startIndex = Math.max(0, endIndex - 1);
     }
     
     // Extract source title - ensure we preserve it from File Search API
@@ -432,19 +496,32 @@ function mapFileSearchCitations(
         title: citation.title,
         sourceTitle,
         hasText: !!citationText,
-        textLength: citationText.length
+        textLength: citationText.length,
+        textPreview: citationText.substring(0, 100)
       });
     }
     
-    return {
+    const mappedCitation = {
       startIndex,
       endIndex,
+      text: citationText, // Preserve the text extract for hover popup
       sources: [{
         referenceId: citation.id || sourceTitle || `citation-${index}`,
         title: sourceTitle,
         uri: citation.uri || ''
       }]
     };
+    
+    // Verify text is preserved
+    if (index === 0 && mappedCitation.text) {
+      console.log('✅ Citation text preserved:', {
+        hasText: !!mappedCitation.text,
+        textLength: mappedCitation.text.length,
+        textPreview: mappedCitation.text.substring(0, 100)
+      });
+    }
+    
+    return mappedCitation;
   });
 }
 

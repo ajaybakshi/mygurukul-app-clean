@@ -52,6 +52,7 @@ interface Message {
   sender: "user" | "ai";
   text: string;
   citations?: Array<any>;
+  references?: Array<any>;
   timestamp: Date;
 }
 

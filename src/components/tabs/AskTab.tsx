@@ -7,33 +7,10 @@ import {
   DiscoveryEngineResponse,
   DiscoveryEngineError,
 } from "@/lib/discoveryEngine";
-import AIResponse from "@/components/AIResponse";
+import { ChatMessageList } from "@/components/chat/ChatMessageList";
 import { categoryService } from "@/lib/database/categoryService";
 import { TopicCategory } from "@/types/categories";
 import { useTabContext } from '@/contexts/TabContext';
-
-// Client-side only timestamp component to avoid hydration mismatches
-const ClientTimestamp: React.FC<{ timestamp: Date | string }> = ({ timestamp }) => {
-  const [mounted, setMounted] = useState(false);
-  
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  if (!mounted) {
-    return <span>--:--</span>;
-  }
-
-  // Safe date conversion - handles both Date objects and strings
-  const dateObj = timestamp instanceof Date ? timestamp : new Date(timestamp);
-  
-  // Check if date is valid
-  if (isNaN(dateObj.getTime())) {
-    return <span>--:--</span>;
-  }
-
-  return <span>{dateObj.toLocaleTimeString()}</span>;
-};
 
 // Initialize categories directly
 const initialCategories = categoryService.getCategories();
@@ -73,15 +50,44 @@ const AskTab: React.FC<AskTabProps> = ({ className = '', initialQuestion, onBack
   const [categories, setCategories] = useState<TopicCategory[]>(initialCategories);
   const [isClient, setIsClient] = useState(false);
 
-  // Auto-scroll to latest message
+  // Refs for chat container and messages
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const chatContainerRef = useRef<HTMLDivElement>(null);
+  const lastMessageCount = useRef<number>(0);
+  const lastAIMessageId = useRef<number | null>(null);
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
-
+  // Scroll behavior: Only scroll when user sends a message
+  // For AI responses, don't auto-scroll - let reader read from the top at their own pace
   useEffect(() => {
-    scrollToBottom();
+    const currentMessageCount = messages.length;
+    const lastAIMessage = messages.filter(m => m.sender === 'ai').slice(-1)[0];
+    
+    // Only scroll if user just sent a new message (message count increased and last message is from user)
+    if (currentMessageCount > lastMessageCount.current) {
+      const lastMessage = messages[messages.length - 1];
+      
+      if (lastMessage.sender === 'user') {
+        // User sent a new message - scroll to show it briefly, then allow natural reading
+        if (chatContainerRef.current) {
+          // Small delay to let message render, then scroll
+          setTimeout(() => {
+            if (chatContainerRef.current) {
+              chatContainerRef.current.scrollTo({
+                top: chatContainerRef.current.scrollHeight,
+                behavior: "smooth"
+              });
+            }
+          }, 100);
+        }
+      } else if (lastMessage.sender === 'ai' && lastMessage.id !== lastAIMessageId.current) {
+        // New AI message added - don't auto-scroll, keep current position
+        // This allows reader to see the answer from the top and scroll at their own pace
+        lastAIMessageId.current = lastMessage.id;
+        // Explicitly do NOT scroll - maintain current scroll position
+      }
+      
+      lastMessageCount.current = currentMessageCount;
+    }
   }, [messages]);
 
   // Fix hydration mismatch by ensuring client-side rendering
@@ -158,16 +164,41 @@ const AskTab: React.FC<AskTabProps> = ({ className = '', initialQuestion, onBack
       
       setAiResponse(response);
 
-      // Add AI response to message history
+      // Add AI response to message history with full response data
       if (response.answer && response.answer.answerText) {
+        if (process.env.NODE_ENV === 'development') {
+          console.log('📝 Creating AI message:', {
+            hasAnswerText: !!response.answer.answerText,
+            answerTextLength: response.answer.answerText.length,
+            hasCitations: !!response.answer.citations,
+            citationsCount: response.answer.citations?.length || 0,
+            hasReferences: !!response.answer.references,
+            referencesCount: response.answer.references?.length || 0
+          });
+        }
+        
         const aiMessage = {
           id: Date.now() + 1,
           sender: "ai" as const,
           text: response.answer.answerText,
           citations: response.answer.citations,
+          references: response.answer.references,
           timestamp: new Date(),
         };
-        addMessage(aiMessage);
+        
+        try {
+          addMessage(aiMessage);
+          if (process.env.NODE_ENV === 'development') {
+            console.log('✅ AI message added to history');
+          }
+        } catch (error) {
+          console.error('❌ Error adding AI message:', error);
+        }
+      } else {
+        console.warn('⚠️ Response missing answer or answerText:', {
+          hasAnswer: !!response.answer,
+          hasAnswerText: !!response.answer?.answerText
+        });
       }
 
       // Extract and store session ID from response
@@ -264,26 +295,28 @@ const AskTab: React.FC<AskTabProps> = ({ className = '', initialQuestion, onBack
         />
       </div>
 
-      <div className="relative z-10 max-w-4xl mx-auto p-6 space-y-8">
+      <div className="relative z-10 max-w-4xl mx-auto flex flex-col" style={{ height: 'calc(100vh - 60px)', minHeight: 0 }}>
         {/* Back Button - shown when onBack is provided */}
         {onBack && (
-          <button
-            onClick={onBack}
-            className="flex items-center gap-2 text-amber-700 hover:text-amber-800 font-medium transition-colors mb-4"
-            style={{ fontFamily: 'Playfair Display, serif' }}
-          >
-            <ArrowLeft size={18} />
-            <span>← Back to Home</span>
-          </button>
+          <div className="flex-shrink-0 mb-2">
+            <button
+              onClick={onBack}
+              className="flex items-center gap-2 text-amber-700 hover:text-amber-800 font-medium transition-colors"
+              style={{ fontFamily: 'Playfair Display, serif' }}
+            >
+              <ArrowLeft size={18} />
+              <span>← Back to Home</span>
+            </button>
+          </div>
         )}
 
         {/* Header */}
-        <div className="text-center py-6">
-          <div className="text-5xl mb-4">💬</div>
-          <h1 className="text-3xl font-bold mb-2" style={{ color: '#D4AF37' }}>
+        <div className="text-center py-2 flex-shrink-0">
+          <div className="text-3xl mb-2">💬</div>
+          <h1 className="text-2xl font-bold mb-1" style={{ color: '#D4AF37' }}>
             Ask for Spiritual Guidance
           </h1>
-          <p className="text-amber-600 text-lg">
+          <p className="text-amber-600 text-sm">
             Seek wisdom from ancient spiritual texts and receive AI-powered guidance
           </p>
 
@@ -329,158 +362,74 @@ const AskTab: React.FC<AskTabProps> = ({ className = '', initialQuestion, onBack
           )}
         </div>
 
-        {/* Main Form */}
-        <form onSubmit={handleSubmit} className="space-y-8">
-          {/* Category Dropdown - Hidden for now */}
-          {/* <CategoryDropdown /> */}
+        {/* Input Area - Above Chat */}
+        <div className="bg-white/80 backdrop-blur-sm p-3 flex-shrink-0 border-b border-amber-200">
+          <form onSubmit={handleSubmit} className="space-y-2">
+            {/* Category Dropdown - Hidden for now */}
+            {/* <CategoryDropdown /> */}
 
-          <div className="bg-white/80 backdrop-blur-sm border border-amber-200 rounded-xl p-6 sm:p-8 shadow-lg">
-            <label className="block text-lg font-semibold text-amber-800 mb-4">
-              Your Spiritual Question
-            </label>
-            <textarea
-              key="question-textarea"
-              value={isClient ? question : ""}
-              onChange={(e) => {
-                setQuestion(e.target.value);
-                setShowValidationError(false);
-              }}
-              placeholder="Share your spiritual question or concern..."
-              className="w-full p-5 border border-amber-300 rounded-xl bg-gradient-to-r from-white to-amber-50/30 text-amber-900 placeholder-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent resize-none transition-all duration-200 hover:border-amber-400 hover:shadow-md text-base leading-relaxed"
-              rows={6}
-              maxLength={500}
-            />
-            <div className="text-right text-sm text-amber-600 mt-3">
-              {question.length}/500
-            </div>
-          </div>
-
-          <button
-            key="submit-button"
-            type="submit"
-            disabled={isSubmitting || !isClient || !question.trim()}
-            className="w-full bg-gradient-to-r from-amber-500 to-amber-600 text-white py-5 px-8 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 hover:from-amber-600 hover:to-amber-700 hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] touch-manipulation text-lg font-semibold border-2 border-amber-400 shadow-lg focus:outline-none focus:ring-4 focus:ring-amber-300 focus:ring-opacity-50"
-            aria-label="Submit spiritual question for AI guidance"
-          >
-            {isSubmitting ? (
-              <div className="flex items-center justify-center space-x-3">
-                <div className="w-6 h-6 border-3 border-white border-t-transparent rounded-full animate-spin"></div>
-                <span>Seeking Wisdom...</span>
-              </div>
-            ) : (
-              <div className="flex items-center justify-center space-x-3">
-                <Send className="w-6 h-6" />
-                <span>Ask for Guidance</span>
-              </div>
-            )}
-          </button>
-
-          {/* Validation Error Message */}
-          {showValidationError && (
-            <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm text-center animate-pulse">
-              Please enter your question before seeking guidance.
-            </div>
-          )}
-        </form>
-
-        {/* Conversation History */}
-        <div className="bg-white/80 backdrop-blur-sm border border-amber-200 rounded-xl p-6 shadow-lg">
-          <h3 className="text-lg font-semibold text-amber-800 mb-4 flex items-center">
-            <span className="mr-2">💬</span>
-            Spiritual Conversation
-          </h3>
-          <div className="space-y-4 max-h-96 overflow-y-auto p-2">
-            {messages.length > 0 ? (
-              messages.map((message) => (
-                <div
-                  key={message.id}
-                  className={`flex ${
-                    message.sender === "user" ? "justify-end" : "justify-start"
-                  }`}
-                >
-                  <div
-                    className={`max-w-[80%] ${
-                      message.sender === "user"
-                        ? "bg-gradient-to-r from-amber-100 to-amber-50 border border-amber-200 rounded-l-lg rounded-tr-lg"
-                        : "bg-gradient-to-r from-white to-blue-50 border border-blue-100 rounded-r-lg rounded-tl-lg"
-                    } p-4 shadow-sm`}
-                  >
-                    {/* Message Header */}
-                    <div
-                      className={`text-xs font-medium mb-2 ${
-                        message.sender === "user"
-                          ? "text-amber-700 text-right"
-                          : "text-blue-600 text-left"
-                      }`}
-                    >
-                      {message.sender === "user" ? "You" : "🕉️ Spiritual Guide"}
-                    </div>
-
-                    {/* Message Content */}
-                    <div
-                      className={`leading-relaxed ${
-                        message.sender === "user"
-                          ? "text-amber-900 text-right"
-                          : "text-gray-800 text-left"
-                      }`}
-                    >
-                      {message.text}
-                    </div>
-
-                    {/* Citations for AI messages */}
-                    {message.sender === "ai" &&
-                      message.citations &&
-                      message.citations.length > 0 && (
-                        <div className="mt-3 pt-3 border-t border-blue-100">
-                          <div className="text-xs text-blue-600 font-medium mb-2">
-                            📚 Sacred Sources:
-                          </div>
-                          <div className="space-y-1">
-                            {message.citations.map((citation, idx) => (
-                              <div
-                                key={idx}
-                                className="text-xs text-blue-700 bg-blue-50 px-2 py-1 rounded"
-                              >
-                                {citation.title ||
-                                  citation.documentId ||
-                                  `Source ${idx + 1}`}
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-
-                    {/* Timestamp */}
-                    <div
-                      className={`text-xs mt-3 ${
-                        message.sender === "user"
-                          ? "text-amber-600 text-right"
-                          : "text-blue-500 text-left"
-                      }`}
-                    >
-                      <ClientTimestamp timestamp={message.timestamp} />
-                    </div>
-                  </div>
+            <div className="border border-amber-200 rounded-lg p-2 shadow-sm">
+              <label className="block text-sm font-semibold text-amber-800 mb-1">
+                Your Spiritual Question
+              </label>
+              <textarea
+                key="question-textarea"
+                value={isClient ? question : ""}
+                onChange={(e) => {
+                  setQuestion(e.target.value);
+                  setShowValidationError(false);
+                }}
+                placeholder="Share your spiritual question or concern..."
+                className="w-full p-2 border border-amber-300 rounded-lg bg-gradient-to-r from-white to-amber-50/30 text-amber-900 placeholder-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent resize-none transition-all duration-200 hover:border-amber-400 text-sm leading-relaxed"
+                rows={1}
+                maxLength={500}
+              />
+              <div className="flex items-center justify-between mt-1">
+                <div className="text-xs text-amber-600">
+                  {question.length}/500
                 </div>
-              ))
-            ) : (
-              <div className="text-center py-8 text-amber-600">
-                <span className="text-3xl mb-2 block">🕉️</span>
-                <p className="font-serif">Your spiritual conversation will appear here</p>
-                <p className="text-sm mt-2 text-amber-500">Ask a question to begin your journey of wisdom</p>
+                <button
+                  key="submit-button"
+                  type="submit"
+                  disabled={isSubmitting || !isClient || !question.trim()}
+                  className="bg-gradient-to-r from-amber-500 to-amber-600 text-white py-2 px-4 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 hover:from-amber-600 hover:to-amber-700 hover:shadow-md touch-manipulation text-sm font-semibold border border-amber-400 shadow-sm focus:outline-none focus:ring-2 focus:ring-amber-300 focus:ring-opacity-50 flex items-center gap-2"
+                  aria-label="Submit spiritual question for AI guidance"
+                >
+                  {isSubmitting ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                      <span>Seeking...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Send className="w-4 h-4" />
+                      <span>Ask</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+
+            {/* Validation Error Message */}
+            {showValidationError && (
+              <div className="p-2 bg-red-50 border border-red-200 rounded-lg text-red-700 text-xs text-center animate-pulse">
+                Please enter your question before seeking guidance.
               </div>
             )}
-            <div ref={messagesEndRef} />
-          </div>
+          </form>
         </div>
 
-        {/* AI Response Section */}
-        <div className="transition-all duration-300 ease-in-out">
-          <AIResponse
-            response={aiResponse}
-            isLoading={isLoadingAI}
-            error={aiError}
-          />
+        {/* Chat Area - Scrollable */}
+        <div 
+          ref={chatContainerRef}
+          className="flex-1 overflow-y-auto px-4 py-6"
+          style={{ 
+            maxHeight: '100%',
+            minHeight: 0 // Important for flex children to respect parent constraints
+          }}
+        >
+          <ChatMessageList messages={messages} isLoading={isLoadingAI} error={aiError} />
+          <div ref={messagesEndRef} />
         </div>
       </div>
     </div>

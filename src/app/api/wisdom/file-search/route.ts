@@ -315,22 +315,60 @@ Now, please answer this seeker's question using ONLY the wisdom from the uploade
     // Extract response text and citations from NEW SDK response
     // Per docs: response.text is a property (not a method)
     const narrative = response.text || '';
-    const citations = response.candidates?.[0]?.groundingMetadata?.groundingChunks || [];
     
-    // DEBUG: Log citation extraction
+    // Phase 2: Try multiple paths for citation extraction
+    let citations: any[] = [];
+    let citationSource = 'none';
+    
+    // Try path 1: Standard groundingChunks
+    citations = response.candidates?.[0]?.groundingMetadata?.groundingChunks || [];
+    if (citations.length > 0) {
+      citationSource = 'groundingChunks';
+    }
+    
+    // Try path 2: groundingSupports (alternative citation format)
+    if (citations.length === 0) {
+      citations = response.candidates?.[0]?.groundingMetadata?.groundingSupports || [];
+      if (citations.length > 0) {
+        citationSource = 'groundingSupports';
+      }
+    }
+    
+    // Try path 3: Response-level groundingMetadata
+    if (citations.length === 0) {
+      citations = (response as any).groundingMetadata?.groundingChunks || [];
+      if (citations.length > 0) {
+        citationSource = 'response.groundingMetadata.groundingChunks';
+      }
+    }
+    
+    // Try path 4: Alternative structure - candidates[0].groundingChunks
+    if (citations.length === 0) {
+      citations = response.candidates?.[0]?.groundingChunks || [];
+      if (citations.length > 0) {
+        citationSource = 'candidates[0].groundingChunks';
+      }
+    }
+    
+    // DEBUG: Log citation extraction with source
     console.log('📚 Citation Extraction:');
+    console.log('  Citation source path:', citationSource);
     console.log('  Raw citations array length:', citations.length);
-    console.log('  Raw citations:', JSON.stringify(citations, null, 2));
-
+    
     if (citations.length > 0) {
       console.log('  First citation structure:', JSON.stringify(citations[0], null, 2));
     } else {
-      console.log('  ⚠️  NO CITATIONS FOUND - Investigating why...');
+      console.log('  ⚠️  NO CITATIONS FOUND - All paths checked');
+      console.log('  Checked paths:');
+      console.log('    - response.candidates[0].groundingMetadata.groundingChunks:', response.candidates?.[0]?.groundingMetadata?.groundingChunks?.length || 0);
+      console.log('    - response.candidates[0].groundingMetadata.groundingSupports:', response.candidates?.[0]?.groundingMetadata?.groundingSupports?.length || 0);
+      console.log('    - response.groundingMetadata.groundingChunks:', (response as any).groundingMetadata?.groundingChunks?.length || 0);
+      console.log('    - response.candidates[0].groundingChunks:', response.candidates?.[0]?.groundingChunks?.length || 0);
       
       // Check if response has text but no grounding
       if (narrative && narrative.length > 0) {
-        console.log('  ❌ ISSUE: Response has text but no grounding chunks');
-        console.log('  Text preview:', narrative.substring(0, 200));
+        console.log('  ℹ️  Response has narrative but no grounding chunks');
+        console.log('  Narrative preview:', narrative.substring(0, 200));
       }
     }
     
@@ -420,9 +458,36 @@ Now, please answer this seeker's question using ONLY the wisdom from the uploade
     console.log(`  Citations with text content: ${citationsWithText}`);
     console.log(`  Grounding confidence: ${citationsWithTitles > 0 && citationsWithText === formattedCitations.length ? 'HIGH' : citationsWithText > 0 ? 'MEDIUM' : 'LOW'}`);
 
-    // HALLUCINATION PREVENTION: Reject responses with no grounding
-    if (formattedCitations.length === 0) {
-      console.log('⚠️  No citations found - returning scripture not found message');
+    // Phase 1 & 3: Validate narrative and make citation check conditional
+    // Check if narrative is a placeholder or invalid
+    const isPlaceholderNarrative = !narrative || 
+                                    narrative.length < 50 || 
+                                    narrative.includes('I apologize') || 
+                                    narrative.includes('could not find') ||
+                                    narrative.includes('not yet been indexed') ||
+                                    narrative.toLowerCase().includes('no specific guidance');
+    
+    // Determine if we have a valid answer
+    const hasValidAnswer = narrative && 
+                           narrative.length >= 50 && 
+                           !narrative.includes('I apologize') &&
+                           !narrative.includes('could not find') &&
+                           !narrative.includes('not yet been indexed') &&
+                           !narrative.toLowerCase().includes('no specific guidance');
+    
+    // Phase 4: Enhanced logging before decision
+    console.log('🔍 Response Validation:');
+    console.log('  Narrative length:', narrative?.length || 0);
+    console.log('  Is placeholder narrative:', isPlaceholderNarrative);
+    console.log('  Has valid answer:', hasValidAnswer);
+    console.log('  Citations count:', formattedCitations.length);
+    console.log('  Narrative preview:', narrative?.substring(0, 150) || 'empty');
+    
+    // HALLUCINATION PREVENTION: Only reject if BOTH no citations AND invalid/placeholder narrative
+    if (formattedCitations.length === 0 && isPlaceholderNarrative) {
+      console.log('⚠️  Rejecting response: No citations AND invalid/placeholder narrative');
+      console.log('  Rejection reason: Both conditions met - no citations and narrative is placeholder/invalid');
+      
       const groundedFailMessage =
         'Namaste, dear seeker. I apologize, but I could not find specific guidance on this topic in the currently uploaded sacred texts. ' +
         'This may mean the relevant scriptures have not yet been indexed, or the question may need to be rephrased. ' +
@@ -442,14 +507,24 @@ Now, please answer this seeker's question using ONLY the wisdom from the uploade
             category,
             responseTime: totalTime,
             citationsCount: 0,
-            grounded: false
+            grounded: false,
+            hasValidAnswer: false
           }
         },
         timestamp: new Date().toISOString()
       });
     }
+    
+    // If we have a valid answer (even without citations), proceed
+    if (hasValidAnswer && formattedCitations.length === 0) {
+      console.log('✅ Accepting response: Valid narrative without citations');
+      console.log('  Note: Response has meaningful content but no citations extracted');
+    } else if (hasValidAnswer && formattedCitations.length > 0) {
+      console.log('✅ Accepting response: Valid narrative with citations');
+    }
 
     // Return response in format compatible with existing frontend
+    // Include metadata about answer validity
     return NextResponse.json({
       success: true,
       data: {
@@ -468,7 +543,8 @@ Now, please answer this seeker's question using ONLY the wisdom from the uploade
           responseTime: totalTime,
           citationsCount: formattedCitations.length,
           grounded: formattedCitations.length > 0,
-          citationsWithSources: formattedCitations.filter(c => c.source && c.source !== 'Unknown Source' && c.source !== 'Sacred Text').length
+          citationsWithSources: formattedCitations.filter(c => c.source && c.source !== 'Unknown Source' && c.source !== 'Sacred Text').length,
+          hasValidAnswer: hasValidAnswer
         }
       },
       timestamp: new Date().toISOString()
