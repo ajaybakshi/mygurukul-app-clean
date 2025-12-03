@@ -11,10 +11,15 @@ export async function GET() {
   try {
     console.log('[API] Fetching library manifest from:', MANIFEST_URL);
     
-    const response = await fetch(MANIFEST_URL, {
+    // Add cache-busting query parameter to ensure fresh manifest
+    const cacheBuster = `?t=${Date.now()}`;
+    const manifestUrlWithCacheBuster = `${MANIFEST_URL}${cacheBuster}`;
+    
+    const response = await fetch(manifestUrlWithCacheBuster, {
       cache: 'no-store',
       headers: {
         'Accept': 'application/json',
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
       },
     });
 

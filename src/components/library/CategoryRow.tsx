@@ -6,9 +6,13 @@ interface CategoryRowProps {
 }
 
 export default function CategoryRow({ category }: CategoryRowProps) {
+  const count = category.scriptures?.length ?? 0;
+  
   return (
     <div className="mb-8">
-      <h2 className="text-2xl font-semibold mb-4">{category.name}</h2>
+      <h2 className="text-2xl font-semibold mb-4">
+        {category.name} {category.scriptures !== undefined ? `(${count})` : ''}
+      </h2>
       
       <div className="flex flex-nowrap space-x-4 overflow-x-auto pb-4">
         {category.scriptures.map(scripture => (

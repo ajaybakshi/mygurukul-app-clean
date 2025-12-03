@@ -53,3 +53,8 @@ gretil_pipeline/
 output_jsonl/
 .next/
 .next*
+library_manifest*.json
+MANIFEST_UPDATE_SUMMARY.md
+MISSING_SCRIPTURES_ANALYSIS.md
+*_fix.js
+*_scan.js

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import type { Category } from '@/types/library';
-import { getOrganizedLibrary } from '@/lib/libraryService';
+import { getOrganizedLibrary, hasChapterManifestSync } from '@/lib/libraryService';
 import CategoryRow from '@/components/library/CategoryRow';
 
 export default function LibraryPage() {
@@ -29,10 +29,23 @@ export default function LibraryPage() {
   const filteredCategories = categories
     .map(category => ({
       ...category,
-      scriptures: category.scriptures.filter(scripture =>
-        scripture.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        scripture.description.toLowerCase().includes(searchTerm.toLowerCase())
-      )
+      scriptures: category.scriptures
+        .filter(scripture =>
+          scripture.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          scripture.description.toLowerCase().includes(searchTerm.toLowerCase())
+        )
+        .sort((a, b) => {
+          const aHasManifest = hasChapterManifestSync(a.id);
+          const bHasManifest = hasChapterManifestSync(b.id);
+          
+          // First, sort by manifest presence (true comes first)
+          if (aHasManifest !== bHasManifest) {
+            return aHasManifest ? -1 : 1;
+          }
+          
+          // If both have same manifest status, sort alphabetically by title
+          return a.title.localeCompare(b.title);
+        })
     }))
     .filter(category => category.scriptures.length > 0);
 

@@ -1,4 +1,4 @@
-import type { Scripture, Category, ChapterManifest } from '@/types/library';
+import type { Scripture, Category, ChapterManifest, Edition } from '@/types/library';
 
 const MANIFEST_URL = 'https://storage.googleapis.com/mygurukul-sacred-texts-corpus/Gurukul_Library/library_manifest.json';
 
@@ -9,8 +9,13 @@ const MANIFEST_URL = 'https://storage.googleapis.com/mygurukul-sacred-texts-corp
 export async function fetchLibraryManifest(): Promise<Scripture[]> {
   try {
     console.log("Attempting to fetch manifest via API route");
-    const response = await fetch('/api/library-manifest', {
+    // Add cache-busting to ensure fresh manifest
+    const cacheBuster = `?t=${Date.now()}`;
+    const response = await fetch(`/api/library-manifest${cacheBuster}`, {
       cache: 'no-store',
+      headers: {
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+      },
     });
 
     console.log("API response received. Status:", response.status, response.statusText);
@@ -161,11 +166,120 @@ export async function fetchChapterManifest(
 }
 
 /**
- * Checks if a scripture has a chapter manifest available
+ * Checks if a scripture has a chapter manifest available (async - fetches manifest)
  * @param scriptureId - The unique ID of the scripture
  * @returns boolean indicating if manifest exists
  */
 export async function hasChapterManifest(scriptureId: string): Promise<boolean> {
   const manifest = await fetchChapterManifest(scriptureId);
   return manifest !== null;
+}
+
+/**
+ * Synchronously checks if a scripture has a chapter manifest based on known scripture IDs
+ * This is used for sorting without needing to fetch manifests
+ * @param scriptureId - The unique ID of the scripture
+ * @returns boolean indicating if scripture has chapter manifest
+ */
+export function hasChapterManifestSync(scriptureId: string): boolean {
+  // Check if this scripture has a chapter manifest (case-insensitive check)
+  // This matches the logic in ScriptureCard.tsx
+  const normalizedId = scriptureId.toLowerCase();
+  return (
+    normalizedId === 'caraka_samhita' ||
+    normalizedId === 'sushruta_samhita' ||
+    normalizedId === 'arthashastra' ||
+    normalizedId === 'arthasastra' || // Handle library manifest variation
+    scriptureId === 'Arthasastra' || // Handle exact library manifest ID
+    normalizedId === 'kamasutra' ||
+    normalizedId === 'natyashastra' ||
+    normalizedId === 'manu_smriti' ||
+    normalizedId === 'aryabhatia' ||
+    normalizedId === 'yoga_sutra' ||
+    normalizedId === 'panchatantra' ||
+    normalizedId === 'bhagvad_gita' ||
+    normalizedId === 'vedangasastra_jyotisa' ||
+    scriptureId === 'VedangaSastra_Jyotisa' ||
+    normalizedId === 'vastu_sastra' ||
+    scriptureId === 'Vastu_Sastra' ||
+    scriptureId === 'Bhagvata_Purana' ||
+    normalizedId === 'ramayana_valmiki' ||
+    scriptureId === 'ramayana_valmiki'
+  );
+}
+
+/**
+ * Finds an edition by language from a scripture's editions array
+ * @param scripture - The scripture object
+ * @param language - The language to search for ('English' or 'Sanskrit')
+ * @returns The matching edition or null if not found
+ */
+export function findEditionByLanguage(scripture: Scripture, language: 'English' | 'Sanskrit'): Edition | null {
+  // First, try exact Language field match
+  let edition = scripture.editions.find(e => 
+    e['Language'].toLowerCase() === language.toLowerCase()
+  );
+  
+  // For Sanskrit, also check title contains "sanskrit" as fallback
+  if (!edition && language === 'Sanskrit') {
+    edition = scripture.editions.find(e => 
+      e['Edition Title'].toLowerCase().includes('sanskrit')
+    );
+  }
+  
+  return edition || null;
+}
+
+/**
+ * Gets all English PDF editions for a scripture
+ * @param scripture - The scripture object
+ * @returns Array of all English PDF editions
+ */
+export function getEnglishEditions(scripture: Scripture): Edition[] {
+  return scripture.editions.filter(e => 
+    e['Language'].toLowerCase() === 'english' && 
+    e['Format'].toUpperCase() === 'PDF'
+  );
+}
+
+/**
+ * Checks if a scripture has multiple English volumes
+ * @param scripture - The scripture object
+ * @returns true if scripture has 2+ English PDF editions
+ */
+export function hasMultipleEnglishVolumes(scripture: Scripture): boolean {
+  const englishPdfs = getEnglishEditions(scripture);
+  return englishPdfs.length > 1;
+}
+
+/**
+ * Converts GCS gs:// URLs to HTTPS URLs that browsers can open
+ * Properly URL-encodes path components to handle spaces and special characters
+ * @param gcsPath - GCS URL in gs:// format
+ * @returns HTTPS URL for browser access
+ */
+export function convertGcsUrlToHttps(gcsPath: string): string {
+  if (gcsPath.startsWith('gs://')) {
+    // Remove gs:// prefix
+    const path = gcsPath.substring(5); // Remove 'gs://'
+    
+    // Split into bucket and object path
+    const firstSlash = path.indexOf('/');
+    if (firstSlash === -1) {
+      // No path, just bucket
+      return `https://storage.googleapis.com/${path}`;
+    }
+    
+    const bucket = path.substring(0, firstSlash);
+    const objectPath = path.substring(firstSlash + 1);
+    
+    // URL-encode each path segment (but not the slashes)
+    const encodedPath = objectPath
+      .split('/')
+      .map(segment => encodeURIComponent(segment))
+      .join('/');
+    
+    return `https://storage.googleapis.com/${bucket}/${encodedPath}`;
+  }
+  return gcsPath;
 }
