@@ -2,7 +2,9 @@ import { NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
 
-const MANIFEST_URL = 'https://storage.googleapis.com/mygurukul-sacred-texts-corpus/Gurukul_Library/library_manifest.json';
+// Use environment variable for GCS bucket, fallback to default
+const GCS_BUCKET = process.env.GCS_BUCKET_NAME || 'mygurukul-sacred-texts-corpus';
+const MANIFEST_URL = `https://storage.googleapis.com/${GCS_BUCKET}/Gurukul_Library/library_manifest.json`;
 
 // Local fallback path for development
 const LOCAL_MANIFEST_PATH = path.join(process.cwd(), 'Gurukul_Library', 'library_manifest.json');

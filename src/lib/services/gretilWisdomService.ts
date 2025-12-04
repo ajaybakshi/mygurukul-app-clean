@@ -120,19 +120,26 @@ class GretilWisdomService {
   private initializeStorage(): Storage {
     if (this.storage) return this.storage;
 
-    // Use the EXACT same pattern as your working Today's Wisdom service
-    if (process.env.GOOGLE_APPLICATION_CREDENTIALS) {
-      this.storage = new Storage();
-    } else if (process.env.GOOGLE_CLOUD_PROJECT_ID && process.env.GOOGLE_CLOUD_PRIVATE_KEY && process.env.GOOGLE_CLOUD_CLIENT_EMAIL) {
+    // Prioritize environment variables over file path
+    if (process.env.GOOGLE_CLOUD_PROJECT_ID && process.env.GOOGLE_CLOUD_PRIVATE_KEY && process.env.GOOGLE_CLOUD_CLIENT_EMAIL) {
       this.storage = new Storage({
         projectId: process.env.GOOGLE_CLOUD_PROJECT_ID,
         credentials: {
           client_email: process.env.GOOGLE_CLOUD_CLIENT_EMAIL,
-          private_key: process.env.GOOGLE_CLOUD_PRIVATE_KEY.replace(/\\n/g, '\n'),
+          private_key: process.env.GOOGLE_CLOUD_PRIVATE_KEY.replace(/\\n/g, '\n').replace(/^"|"$/g, ''),
         },
       });
+    } else if (process.env.GOOGLE_APPLICATION_CREDENTIALS) {
+      // Fallback to file path only if it exists
+      const fs = require('fs');
+      const credsPath = process.env.GOOGLE_APPLICATION_CREDENTIALS;
+      if (fs.existsSync(credsPath)) {
+        this.storage = new Storage();
+      } else {
+        throw new Error(`Credentials file not found: ${credsPath}. Please set GOOGLE_CLOUD_PROJECT_ID, GOOGLE_CLOUD_PRIVATE_KEY, and GOOGLE_CLOUD_CLIENT_EMAIL environment variables instead.`);
+      }
     } else {
-      throw new Error('Google Cloud credentials not found in environment variables');
+      throw new Error('Google Cloud credentials not found. Please set GOOGLE_CLOUD_PROJECT_ID, GOOGLE_CLOUD_PRIVATE_KEY, and GOOGLE_CLOUD_CLIENT_EMAIL environment variables.');
     }
 
     return this.storage;

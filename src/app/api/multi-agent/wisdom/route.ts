@@ -100,7 +100,8 @@ export async function POST(request: NextRequest) {
       };
 
       try {
-        const collectorRes = await fetch('http://localhost:5001/collect', {
+        const collectorUrl = process.env.COLLECTOR_SERVICE_URL || 'http://localhost:5001/collect';
+        const collectorRes = await fetch(collectorUrl, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -177,7 +178,8 @@ export async function POST(request: NextRequest) {
 
     if (isNewSession) {
       // NEW session: Use synthesize-wisdom endpoint with verse data
-      synthesizerEndpoint = 'http://localhost:3002/api/v1/synthesize-wisdom';
+      const baseSynthesizerUrl = process.env.SYNTHESIZER_SERVICE_URL || 'http://localhost:3002';
+      synthesizerEndpoint = `${baseSynthesizerUrl}/api/v1/synthesize-wisdom`;
       synthesizerRequest = {
         question: question.trim(),
         sessionId: collectorResponse!.verseData.sessionId, // Use session ID from collector
@@ -195,7 +197,8 @@ export async function POST(request: NextRequest) {
       };
     } else {
       // EXISTING session: Use continue-conversation endpoint
-      synthesizerEndpoint = 'http://localhost:3002/api/v1/continue-conversation';
+      const baseSynthesizerUrl = process.env.SYNTHESIZER_SERVICE_URL || 'http://localhost:3002';
+      synthesizerEndpoint = `${baseSynthesizerUrl}/api/v1/continue-conversation`;
       synthesizerRequest = {
         question: question.trim(),
         sessionId: sessionId,
