@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import type { Scripture, Edition } from '@/types/library';
 import EditionsModal from './EditionsModal';
 import VolumeSelectorModal from './VolumeSelectorModal';
-import { fetchChapterManifest, findEditionByLanguage, getEnglishEditions, hasMultipleEnglishVolumes, convertGcsUrlToHttps } from '@/lib/libraryService';
+import { fetchChapterManifest, findEditionByLanguage, getEnglishEditions, hasMultipleEnglishVolumes, convertGcsUrlToHttps, hasChapterManifestSync } from '@/lib/libraryService';
 import type { ChapterManifest } from '@/types/library';
 
 interface ScriptureCardProps {
@@ -24,30 +24,8 @@ export default function ScriptureCard({ scripture }: ScriptureCardProps) {
 
   useEffect(() => {
     const loadManifest = async () => {
-      // Check if this scripture has a chapter manifest (case-insensitive check)
-      const normalizedId = scripture.id.toLowerCase();
-      const hasManifest = 
-        normalizedId === 'caraka_samhita' ||
-        normalizedId === 'sushruta_samhita' ||
-        normalizedId === 'arthashastra' ||
-        normalizedId === 'arthasastra' || // Handle library manifest variation
-        scripture.id === 'Arthasastra' || // Handle exact library manifest ID
-        normalizedId === 'kamasutra' ||
-        normalizedId === 'natyashastra' ||
-        normalizedId === 'manu_smriti' ||
-        normalizedId === 'aryabhatia' ||
-        normalizedId === 'yoga_sutra' ||
-        normalizedId === 'panchatantra' ||
-        normalizedId === 'bhagvad_gita' ||
-        normalizedId === 'vedangasastra_jyotisa' ||
-        scripture.id === 'VedangaSastra_Jyotisa' ||
-        normalizedId === 'vastu_sastra' ||
-        scripture.id === 'Vastu_Sastra' ||
-        scripture.id === 'Bhagvata_Purana' ||
-        normalizedId === 'ramayana_valmiki' ||
-        scripture.id === 'ramayana_valmiki';
-      
-      if (hasManifest) {
+      // Use the centralized synchronous check to determine if this scripture has a manifest
+      if (hasChapterManifestSync(scripture.id)) {
         setLoadingManifest(true);
         const manifest = await fetchChapterManifest(scripture.id);
         setChapterManifest(manifest);
@@ -109,8 +87,9 @@ export default function ScriptureCard({ scripture }: ScriptureCardProps) {
         </p>
 
         <div className="mt-auto space-y-2">
-          {chapterManifest ? (
+          {hasChapterManifestSync(scripture.id) ? (
             // Scripture has chapter manifest - show Browse Chapters first, then Read buttons
+            // Use synchronous check so button appears even if manifest fetch fails
             <>
               <button
                 onClick={handleBrowseChapters}
@@ -177,7 +156,7 @@ export default function ScriptureCard({ scripture }: ScriptureCardProps) {
       />
 
       {/* EditionsModal only for non-chapter scriptures (backward compatibility) */}
-      {!chapterManifest && (
+      {!hasChapterManifestSync(scripture.id) && (
         <EditionsModal
           isModalOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
