@@ -120,8 +120,7 @@ class GretilWisdomService {
   private initializeStorage(): Storage {
     if (this.storage) return this.storage;
 
-    // CRITICAL: Prioritize environment variables FIRST to avoid hardcoded file paths
-    // Only use environment variables - no file path fallback
+    // CRITICAL: Use ONLY environment variables - no file path fallback
     if (process.env.GOOGLE_CLOUD_PROJECT_ID && process.env.GOOGLE_CLOUD_PRIVATE_KEY && process.env.GOOGLE_CLOUD_CLIENT_EMAIL) {
       this.storage = new Storage({
         projectId: process.env.GOOGLE_CLOUD_PROJECT_ID,

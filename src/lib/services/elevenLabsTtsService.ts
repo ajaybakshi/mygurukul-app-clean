@@ -97,18 +97,18 @@ export class ElevenLabsTtsService {
    */
   private initializeStorage(): void {
     try {
-      if (process.env.GOOGLE_APPLICATION_CREDENTIALS) {
-        this.storage = new Storage();
-      } else if (process.env.GOOGLE_CLOUD_PROJECT_ID && process.env.GOOGLE_CLOUD_PRIVATE_KEY && process.env.GOOGLE_CLOUD_CLIENT_EMAIL) {
+      // CRITICAL: Use ONLY environment variables - no file path fallback
+      if (process.env.GOOGLE_CLOUD_PROJECT_ID && process.env.GOOGLE_CLOUD_PRIVATE_KEY && process.env.GOOGLE_CLOUD_CLIENT_EMAIL) {
         this.storage = new Storage({
           projectId: process.env.GOOGLE_CLOUD_PROJECT_ID,
           credentials: {
             client_email: process.env.GOOGLE_CLOUD_CLIENT_EMAIL,
-            private_key: process.env.GOOGLE_CLOUD_PRIVATE_KEY.replace(/\\n/g, '\n'),
+            private_key: process.env.GOOGLE_CLOUD_PRIVATE_KEY.replace(/\\n/g, '\n').replace(/^"|"$/g, ''),
           },
         });
       } else {
         console.warn('⚠️ Google Cloud Storage credentials not found. Audio files will only be cached locally.');
+        console.warn('Please set GOOGLE_CLOUD_PROJECT_ID, GOOGLE_CLOUD_PRIVATE_KEY, and GOOGLE_CLOUD_CLIENT_EMAIL environment variables.');
       }
     } catch (error) {
       console.error('❌ Error initializing Google Cloud Storage:', error);

@@ -4,24 +4,22 @@ import { Storage } from '@google-cloud/storage';
 // Initialize Google Cloud Storage using existing pattern
 function initializeStorage() {
   try {
-    if (process.env.GOOGLE_APPLICATION_CREDENTIALS) {
-      return new Storage();
-    }
-    
-    if (process.env.GOOGLE_CLOUD_PROJECT_ID && process.env.GOOGLE_CLOUD_PRIVATE_KEY) {
-      const credentials = {
-        projectId: process.env.GOOGLE_CLOUD_PROJECT_ID,
-        private_key: process.env.GOOGLE_CLOUD_PRIVATE_KEY.replace(/\\n/g, '\n'),
-        client_email: process.env.GOOGLE_CLOUD_CLIENT_EMAIL,
-      };
-      
+    // CRITICAL: Use ONLY environment variables - no file path fallback
+    if (process.env.GOOGLE_CLOUD_PROJECT_ID && process.env.GOOGLE_CLOUD_PRIVATE_KEY && process.env.GOOGLE_CLOUD_CLIENT_EMAIL) {
       return new Storage({
         projectId: process.env.GOOGLE_CLOUD_PROJECT_ID,
-        credentials
+        credentials: {
+          client_email: process.env.GOOGLE_CLOUD_CLIENT_EMAIL,
+          private_key: process.env.GOOGLE_CLOUD_PRIVATE_KEY.replace(/\\n/g, '\n').replace(/^"|"$/g, ''),
+        },
       });
     }
     
-    throw new Error('Google Cloud Storage credentials not found');
+    throw new Error(
+      'Google Cloud credentials not found. ' +
+      'Please set GOOGLE_CLOUD_PROJECT_ID, GOOGLE_CLOUD_PRIVATE_KEY, and GOOGLE_CLOUD_CLIENT_EMAIL environment variables. ' +
+      'File-based credentials (GOOGLE_APPLICATION_CREDENTIALS) are not supported to avoid hardcoded paths.'
+    );
   } catch (error) {
     console.error('Error initializing Google Cloud Storage:', error);
     throw error;
