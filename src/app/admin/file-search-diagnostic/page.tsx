@@ -276,10 +276,10 @@ export default function FileSearchDiagnosticPage() {
                     </div>
                   )}
 
-                  {('pendingOperations' in store && (store as any).pendingOperations > 0) && (
+                  {store.pendingOperations > 0 && (
                     <div className="bg-yellow-50 border-l-4 border-yellow-500 p-3 mb-4">
                       <p className="text-sm text-yellow-800 font-semibold">
-                        ⏳ {(store as any).pendingOperations} upload operation(s) still processing
+                        ⏳ {store.pendingOperations} upload operation(s) still processing
                       </p>
                       <p className="text-xs text-yellow-700 mt-1">
                         Documents will appear here once indexing completes (usually 2-5 minutes)

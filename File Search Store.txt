@@ -1,0 +1,617 @@
+🔍 File Search Diagnostics
+Check document upload and indexing status
+
+Last updated: 7:16:32 PM
+Auto-refresh (10s)
+
+🔄
+Refresh Now
+Overall Summary
+Total Stores
+6
+Documents Ready
+104
+Stores Indexing
+0
+Stores Empty/Error
+0
+Recommendation:
+
+All stores checked. Found 104 total document(s) across 6 ready store(s).
+
+Store Details (6 stores)
+✅
+Upanishads - MyGurukul Sacred Library
+fileSearchStores/upanishads-mygurukul-sacred-c8mafm3ykkw9
+
+ready
+Documents in Store
+16
+Recent Uploads
+0
+Store is ready with 16 indexed document(s)
+
+📄 Recent Files (16)
+upload-1763018268726-Aitareya_Upanishad_ENGLISH.pdf
+application/pdf • 2507.2 KB
+fileSearchStores/upanishads-mygurukul-sacred-c8mafm3ykkw9/documents/upload1763018268726aitareya-ezootip3ya6z
+STATE_ACTIVE
+🗑️
+upload-1763019005252-Aitareya_Upanishad_ENGLISH.pdf
+application/pdf • 2507.2 KB
+fileSearchStores/upanishads-mygurukul-sacred-c8mafm3ykkw9/documents/upload1763019005252aitareya-tp74y09u7x9g
+STATE_ACTIVE
+🗑️
+726566mayb1c-ibab6yspwlxq
+application/pdf • 2507.2 KB
+fileSearchStores/upanishads-mygurukul-sacred-c8mafm3ykkw9/documents/726566mayb1c-ibab6yspwlxq
+STATE_ACTIVE
+🗑️
+lj23z6wnmbf5-wk6yzg4ojw19
+application/pdf • 2507.2 KB
+fileSearchStores/upanishads-mygurukul-sacred-c8mafm3ykkw9/documents/lj23z6wnmbf5-wk6yzg4ojw19
+STATE_ACTIVE
+🗑️
+9fcbjowqptp8-1mxe384zkw2l
+application/pdf • 13100.5 KB
+fileSearchStores/upanishads-mygurukul-sacred-c8mafm3ykkw9/documents/9fcbjowqptp8-1mxe384zkw2l
+STATE_ACTIVE
+🗑️
+upload_1763103446239_Maitri_Upanishad_English.pdf
+application/pdf • 24938.5 KB
+fileSearchStores/upanishads-mygurukul-sacred-c8mafm3ykkw9/documents/upload1763103446239maitriup-87c6u6ugc4dr
+STATE_ACTIVE
+🗑️
+upload_1763103481019_Taittiriya_Upanishad_English.pdf
+application/pdf • 43630.4 KB
+fileSearchStores/upanishads-mygurukul-sacred-c8mafm3ykkw9/documents/upload1763103481019taittiri-rg8zobqro02c
+STATE_ACTIVE
+🗑️
+upload_1763103565868_Svetasvatara_Upanishad_Swami_Tyagisananda_1949.pdf
+application/pdf • 5025.7 KB
+fileSearchStores/upanishads-mygurukul-sacred-c8mafm3ykkw9/documents/upload1763103565868svetasva-gvxw88yg4t7h
+STATE_ACTIVE
+🗑️
+upload_1763103608538_Siva_Upanishads_English.pdf
+application/pdf • 21609.6 KB
+fileSearchStores/upanishads-mygurukul-sacred-c8mafm3ykkw9/documents/upload1763103608538sivaupan-hi8o8np4twt7
+STATE_ACTIVE
+🗑️
+upload_1763103866354_Prashna_Upanishad_Swami_Sarvanand_Sanskrit_English.pdf
+application/pdf • 2174.0 KB
+fileSearchStores/upanishads-mygurukul-sacred-c8mafm3ykkw9/documents/upload1763103866354prashnau-6n3doy7lhqb6
+STATE_ACTIVE
+🗑️
+upload_1763103893824_Mandukya_Upanishad_Swami_Nikhilananda_R_K_Mutt_1936_English.pdf
+application/pdf • 12293.9 KB
+fileSearchStores/upanishads-mygurukul-sacred-c8mafm3ykkw9/documents/upload1763103893824mandukya-ud39jixw1wnp
+STATE_ACTIVE
+🗑️
+upload_1763103927737_Katha_Upanishad_English.pdf
+application/pdf • 17954.3 KB
+fileSearchStores/upanishads-mygurukul-sacred-c8mafm3ykkw9/documents/upload1763103927737kathaupa-psrrd0mvkfcg
+STATE_ACTIVE
+🗑️
+upload_1763103971834_Isa_Upanishad_English_Radhakrishnan.pdf
+application/pdf • 13100.5 KB
+fileSearchStores/upanishads-mygurukul-sacred-c8mafm3ykkw9/documents/upload1763103971834isaupani-oyckte4z62wf
+STATE_ACTIVE
+🗑️
+upload_1763104008148_Chandogya_Upanishad_English.pdf
+application/pdf • 85859.8 KB
+fileSearchStores/upanishads-mygurukul-sacred-c8mafm3ykkw9/documents/upload1763104008148chandogy-0yavteicoals
+STATE_ACTIVE
+🗑️
+upload_1763104077979_Brihadaranyaka_Upanishad_English.pdf
+application/pdf • 56104.3 KB
+fileSearchStores/upanishads-mygurukul-sacred-c8mafm3ykkw9/documents/upload1763104077979brihadar-gp0ibeot2f95
+STATE_ACTIVE
+🗑️
+upload_1763104699608_The_Principal_Upanishads_by_S_Radhakrishnan.pdf
+application/pdf • 34544.9 KB
+fileSearchStores/upanishads-mygurukul-sacred-c8mafm3ykkw9/documents/upload1763104699608theprinc-23ooodvqcz5f
+STATE_ACTIVE
+🗑️
+✅
+Darshanas - MyGurukul Sacred Library
+fileSearchStores/darshanas-mygurukul-sacred--eunb1m3n9ijl
+
+ready
+Documents in Store
+9
+Recent Uploads
+0
+Store is ready with 9 indexed document(s)
+
+📄 Recent Files (9)
+upload_1763104766010_Vaiseshika_Sutra_Of-Kanada_English.pdf
+application/pdf • 28163.8 KB
+fileSearchStores/darshanas-mygurukul-sacred--eunb1m3n9ijl/documents/upload1763104766010vaiseshi-t0c35gutlu86
+STATE_ACTIVE
+🗑️
+upload_1763104830010_Nyaya-Sutras-Of-Gautama-vol.-1_English.pdf
+application/pdf • 45761.1 KB
+fileSearchStores/darshanas-mygurukul-sacred--eunb1m3n9ijl/documents/upload1763104830010nyayasut-ois36ivram4e
+STATE_ACTIVE
+🗑️
+upload_1763104886830_Nyaya-Sutras-Of-Gautama-vol.-2_English.pdf
+application/pdf • 40035.3 KB
+fileSearchStores/darshanas-mygurukul-sacred--eunb1m3n9ijl/documents/upload1763104886830nyayasut-ohtuf90t7em0
+STATE_ACTIVE
+🗑️
+upload_1763104936523_Nyaya-Sutras-Of-Gautama-vol.-3_English.pdf
+application/pdf • 25732.4 KB
+fileSearchStores/darshanas-mygurukul-sacred--eunb1m3n9ijl/documents/upload1763104936523nyayasut-9jtwahwkbvk4
+STATE_ACTIVE
+🗑️
+upload_1763105058010_Nyaya-Sutras-Of-Gautama-vol.-4_English.pdf
+application/pdf • 24768.7 KB
+fileSearchStores/darshanas-mygurukul-sacred--eunb1m3n9ijl/documents/upload1763105058010nyayasut-r3ygvxkiuv1y
+STATE_ACTIVE
+🗑️
+upload_1763105097756_The-Samkhya-English.pdf
+application/pdf • 100035.3 KB
+fileSearchStores/darshanas-mygurukul-sacred--eunb1m3n9ijl/documents/upload1763105097756thesamkh-rcfi1ffgv711
+STATE_ACTIVE
+🗑️
+upload_1763107639963_Purva_Mimamsa_Sutra_Of_Jaimini_With_The_Original_Commentary_In_English.pdf
+application/pdf • 73241.0 KB
+fileSearchStores/darshanas-mygurukul-sacred--eunb1m3n9ijl/documents/upload1763107639963purvamim-kwlggozi5r2u
+STATE_ACTIVE
+🗑️
+upload_1763107692495_Samkhya_Karika_Of_Ishvara_Krishna_English.pdf
+application/pdf • 40785.2 KB
+fileSearchStores/darshanas-mygurukul-sacred--eunb1m3n9ijl/documents/upload1763107692495samkhyak-7v0dn5sox8rb
+STATE_ACTIVE
+🗑️
+upload_1763107730644_The_Brahma_Sutra_RadhaKrishna_1960_English.pdf
+application/pdf • 51540.8 KB
+fileSearchStores/darshanas-mygurukul-sacred--eunb1m3n9ijl/documents/upload1763107730644thebrahm-fk3c1r2mq2ol
+STATE_ACTIVE
+🗑️
+✅
+Vedas - MyGurukul Sacred Library
+fileSearchStores/vedas-mygurukul-sacred-libr-3mjn81k3k4n5
+
+ready
+Documents in Store
+54
+Recent Uploads
+0
+Store is ready with 54 indexed document(s)
+
+📄 Recent Files (54)
+upload_1763109517883_Rg_Ved_Samhita_Vol_1_English_compressed.pdf
+application/pdf • 77107.9 KB
+fileSearchStores/vedas-mygurukul-sacred-libr-3mjn81k3k4n5/documents/upload1763109517883rgvedsam-docncfjc4o53
+STATE_ACTIVE
+🗑️
+upload_1763109676510_Rg_Ved_Samhita_Vol_2_English_compressed.pdf
+application/pdf • 68372.0 KB
+fileSearchStores/vedas-mygurukul-sacred-libr-3mjn81k3k4n5/documents/upload1763109676510rgvedsam-rqi8atpckn4s
+STATE_ACTIVE
+🗑️
+upload_1763109750374_Atharva-Veda_Part_1_ENGLISH_compressed.pdf
+application/pdf • 26114.8 KB
+fileSearchStores/vedas-mygurukul-sacred-libr-3mjn81k3k4n5/documents/upload1763109750374atharvav-lt8t24271t82
+STATE_ACTIVE
+🗑️
+upload_1763109803903_Atharva-Veda_Part_2_ENGLISH_compressed.pdf
+application/pdf • 24713.5 KB
+fileSearchStores/vedas-mygurukul-sacred-libr-3mjn81k3k4n5/documents/upload1763109803903atharvav-41cbwzswu6bw
+STATE_ACTIVE
+🗑️
+upload_1763110121590_Samved_Samhita_ENGLISH_compressed.pdf
+application/pdf • 68881.2 KB
+fileSearchStores/vedas-mygurukul-sacred-libr-3mjn81k3k4n5/documents/upload1763110121590samvedsa-6c5lrsn6azzu
+STATE_ACTIVE
+🗑️
+upload_1763110173575_Yajur_Veda_ENGLISH.pdf
+application/pdf • 19675.2 KB
+fileSearchStores/vedas-mygurukul-sacred-libr-3mjn81k3k4n5/documents/upload1763110173575yajurved-ejaxtozxlm18
+STATE_ACTIVE
+🗑️
+upload_1763212526716_srimad-bhagavata-mahapurana-english-translations.pdf
+application/pdf • 11630.7 KB
+fileSearchStores/vedas-mygurukul-sacred-libr-3mjn81k3k4n5/documents/upload1763212526716srimadbh-dkcjrd19cxr8
+STATE_ACTIVE
+🗑️
+upload_1763212561300_Agni_Purana_English.pdf
+application/pdf • 40362.9 KB
+fileSearchStores/vedas-mygurukul-sacred-libr-3mjn81k3k4n5/documents/upload1763212561300agnipura-yhhi5iicbw5j
+STATE_ACTIVE
+🗑️
+upload_1763212633362_Brahmanda_Purana_Part_1_English.pdf
+application/pdf • 50141.3 KB
+fileSearchStores/vedas-mygurukul-sacred-libr-3mjn81k3k4n5/documents/upload1763212633362brahmand-vdocug4fn7f2
+STATE_ACTIVE
+🗑️
+upload_1763212673311_Brahmanda_Purana_Part_2_English.pdf
+application/pdf • 21237.1 KB
+fileSearchStores/vedas-mygurukul-sacred-libr-3mjn81k3k4n5/documents/upload1763212673311brahmand-6qxj0t58wbkw
+STATE_ACTIVE
+🗑️
+upload_1763212698461_Brahmanda_Purana_Part_3_English.pdf
+application/pdf • 14615.3 KB
+fileSearchStores/vedas-mygurukul-sacred-libr-3mjn81k3k4n5/documents/upload1763212698461brahmand-zbsq9hngl7d1
+STATE_ACTIVE
+🗑️
+upload_1763212724714_Brahmanda_Purana_Part_4_English.pdf
+application/pdf • 52048.7 KB
+fileSearchStores/vedas-mygurukul-sacred-libr-3mjn81k3k4n5/documents/upload1763212724714brahmand-e254m2aydngp
+STATE_ACTIVE
+🗑️
+upload_1763212752627_Brahmanda_Purana_Part_5_English.pdf
+application/pdf • 12010.9 KB
+fileSearchStores/vedas-mygurukul-sacred-libr-3mjn81k3k4n5/documents/upload1763212752627brahmand-3uu1tn17yyix
+STATE_ACTIVE
+🗑️
+upload_1763212783722_Srimad_Devi_Bhagavatam_English.pdf
+application/pdf • 5246.5 KB
+fileSearchStores/vedas-mygurukul-sacred-libr-3mjn81k3k4n5/documents/upload1763212783722srimadde-q7tn003tala1
+STATE_ACTIVE
+🗑️
+upload_1763212826272_The-Garuda-Purana_Vol-1_English.pdf
+application/pdf • 18066.5 KB
+fileSearchStores/vedas-mygurukul-sacred-libr-3mjn81k3k4n5/documents/upload1763212826272thegarud-b5avdd83xlw7
+STATE_ACTIVE
+🗑️
+upload_1763212850996_The-Garuda-Purana_Vol-2_English.pdf
+application/pdf • 19143.6 KB
+fileSearchStores/vedas-mygurukul-sacred-libr-3mjn81k3k4n5/documents/upload1763212850996thegarud-c2qwnackdx5j
+STATE_ACTIVE
+🗑️
+upload_1763212886697_Kurma_Purana_Parts_1_and_2_English.pdf
+application/pdf • 62890.2 KB
+fileSearchStores/vedas-mygurukul-sacred-libr-3mjn81k3k4n5/documents/upload1763212886697kurmapur-re1zwxry93b5
+STATE_ACTIVE
+🗑️
+upload_1763212936825_The-Linga-purana_English.pdf
+application/pdf • 38110.5 KB
+fileSearchStores/vedas-mygurukul-sacred-libr-3mjn81k3k4n5/documents/upload1763212936825thelinga-uqpe1u3iesfd
+STATE_ACTIVE
+🗑️
+upload_1763213014277_matsya_purana_English.pdf
+application/pdf • 24679.7 KB
+fileSearchStores/vedas-mygurukul-sacred-libr-3mjn81k3k4n5/documents/upload1763213014277matsyapu-pzvlmdifl4wi
+STATE_ACTIVE
+🗑️
+upload_1763213065568_Narada-Purana-ENGLISH-01-1950-OCR-Motilal-Banasirdass.pdf
+application/pdf • 20384.1 KB
+fileSearchStores/vedas-mygurukul-sacred-libr-3mjn81k3k4n5/documents/upload1763213065568naradapu-f8fy1ah8yuzc
+STATE_ACTIVE
+🗑️
+upload_1763213104327_Narada-Purana-ENGLISH-02-1950-OCR-Motilal-Banasirdass.pdf
+application/pdf • 29551.2 KB
+fileSearchStores/vedas-mygurukul-sacred-libr-3mjn81k3k4n5/documents/upload1763213104327naradapu-p5o7k9s49ltt
+STATE_ACTIVE
+🗑️
+upload_1763213153214_Narada-Purana-ENGLISH-03-1951-OCR-Motilal-Banasirdass.pdf
+application/pdf • 32821.1 KB
+fileSearchStores/vedas-mygurukul-sacred-libr-3mjn81k3k4n5/documents/upload1763213153214naradapu-mh4p8tf8xhtq
+STATE_ACTIVE
+🗑️
+upload_1763213191221_Narada-Purana-ENGLISH-04-1952-OCR-Motilal-Banasirdass.pdf
+application/pdf • 17043.5 KB
+fileSearchStores/vedas-mygurukul-sacred-libr-3mjn81k3k4n5/documents/upload1763213191221naradapu-0p4yknpgbupt
+STATE_ACTIVE
+🗑️
+upload_1763213223201_Narada-Purana-ENGLISH-05-1952-OCR-Motilal-Banasirdass.pdf
+application/pdf • 13900.3 KB
+fileSearchStores/vedas-mygurukul-sacred-libr-3mjn81k3k4n5/documents/upload1763213223201naradapu-pzlewk3301vn
+STATE_ACTIVE
+🗑️
+upload_1763213258559_NARASIMHA_PURANA_English.pdf
+application/pdf • 21230.0 KB
+fileSearchStores/vedas-mygurukul-sacred-libr-3mjn81k3k4n5/documents/upload1763213258559narasimh-6p2ztalp5toz
+STATE_ACTIVE
+🗑️
+upload_1763213298873_Siva_Purana_English-Part_1.pdf
+application/pdf • 62060.0 KB
+fileSearchStores/vedas-mygurukul-sacred-libr-3mjn81k3k4n5/documents/upload1763213298873sivapura-9du4jny6kwvs
+STATE_ACTIVE
+🗑️
+upload_1763213349423_Siva_Purana_English-Part_2.pdf
+application/pdf • 33600.6 KB
+fileSearchStores/vedas-mygurukul-sacred-libr-3mjn81k3k4n5/documents/upload1763213349423sivapura-ro4xztt29piu
+STATE_ACTIVE
+🗑️
+upload_1763213387028_Siva_Purana_English_Part_3.pdf
+application/pdf • 29535.6 KB
+fileSearchStores/vedas-mygurukul-sacred-libr-3mjn81k3k4n5/documents/upload1763213387028sivapura-hoim2rq0t4wq
+STATE_ACTIVE
+🗑️
+upload_1763213421729_Siva-Purana_English_Part_4.pdf
+application/pdf • 33133.1 KB
+fileSearchStores/vedas-mygurukul-sacred-libr-3mjn81k3k4n5/documents/upload1763213421729sivapura-voar837dgc8l
+STATE_ACTIVE
+🗑️
+upload_1763297102075_Skanda_Purana_Part_1_ENGLISH.pdf
+application/pdf • 21423.3 KB
+fileSearchStores/vedas-mygurukul-sacred-libr-3mjn81k3k4n5/documents/upload1763297102075skandapu-7fhnxvkpl2d4
+STATE_ACTIVE
+🗑️
+upload_1763297140368_Skanda_Purana_Part_2_ENGLISH.pdf
+application/pdf • 41753.0 KB
+fileSearchStores/vedas-mygurukul-sacred-libr-3mjn81k3k4n5/documents/upload1763297140368skandapu-vg8pzns7fxz9
+STATE_ACTIVE
+🗑️
+upload_1763297198352_Skanda_Purana_Part_3_ENGLISH.pdf
+application/pdf • 28667.7 KB
+fileSearchStores/vedas-mygurukul-sacred-libr-3mjn81k3k4n5/documents/upload1763297198352skandapu-fc1czu7u7gxq
+STATE_ACTIVE
+🗑️
+upload_1763297272913_Skanda_Purana_Part_4_ENGLISH.pdf
+application/pdf • 15331.0 KB
+fileSearchStores/vedas-mygurukul-sacred-libr-3mjn81k3k4n5/documents/upload1763297272913skandapu-ie913mktqpxc
+STATE_ACTIVE
+🗑️
+upload_1763297300188_Skanda_Purana_Part_5_ENGLISH.pdf
+application/pdf • 40997.5 KB
+fileSearchStores/vedas-mygurukul-sacred-libr-3mjn81k3k4n5/documents/upload1763297300188skandapu-0vubu5vg7bzf
+STATE_ACTIVE
+🗑️
+upload_1763297409350_Skanda_Purana_Part_6_ENGLISH.pdf
+application/pdf • 42085.6 KB
+fileSearchStores/vedas-mygurukul-sacred-libr-3mjn81k3k4n5/documents/upload1763297409350skandapu-n16fqoproetc
+STATE_ACTIVE
+🗑️
+upload_1763297516414_Skanda_Purana_Part_7_ENGLISH.pdf
+application/pdf • 24817.5 KB
+fileSearchStores/vedas-mygurukul-sacred-libr-3mjn81k3k4n5/documents/upload1763297516414skandapu-tm6h3029952i
+STATE_ACTIVE
+🗑️
+upload_1763297577932_Skanda_Purana_Part_8_ENGLISH.pdf
+application/pdf • 26167.7 KB
+fileSearchStores/vedas-mygurukul-sacred-libr-3mjn81k3k4n5/documents/upload1763297577932skandapu-03g4qea3ysl7
+STATE_ACTIVE
+🗑️
+upload_1763297605902_Skanda_Purana_Part_9_ENGLISH.pdf
+application/pdf • 29618.0 KB
+fileSearchStores/vedas-mygurukul-sacred-libr-3mjn81k3k4n5/documents/upload1763297605902skandapu-0dwixnvu8tij
+STATE_ACTIVE
+🗑️
+upload_1763297637104_Skanda_Purana_Part_10_ENGLISH.pdf
+application/pdf • 37679.2 KB
+fileSearchStores/vedas-mygurukul-sacred-libr-3mjn81k3k4n5/documents/upload1763297637104skandapu-i44xoeth6f25
+STATE_ACTIVE
+🗑️
+upload_1763297714107_Skanda_Purana_Part_11_ENGLISH.pdf
+application/pdf • 30137.9 KB
+fileSearchStores/vedas-mygurukul-sacred-libr-3mjn81k3k4n5/documents/upload1763297714107skandapu-mx1tt9ybrgdx
+STATE_ACTIVE
+🗑️
+upload_1763297748647_Skanda_Purana_Part_12_ENGLISH.pdf
+application/pdf • 21543.9 KB
+fileSearchStores/vedas-mygurukul-sacred-libr-3mjn81k3k4n5/documents/upload1763297748647skandapu-dul4fty38k7g
+STATE_ACTIVE
+🗑️
+upload_1763297786559_Skanda_Purana_Part_13_ENGLISH.pdf
+application/pdf • 50486.2 KB
+fileSearchStores/vedas-mygurukul-sacred-libr-3mjn81k3k4n5/documents/upload1763297786559skandapu-1p3do82g01j8
+STATE_ACTIVE
+🗑️
+upload_1763297836973_Skanda_Purana_Part_15_ENGLISH.pdf
+application/pdf • 47139.3 KB
+fileSearchStores/vedas-mygurukul-sacred-libr-3mjn81k3k4n5/documents/upload1763297836973skandapu-w2kjo3p7g19k
+STATE_ACTIVE
+🗑️
+upload_1763297867955_Skanda_Purana_Part_16_ENGLISH.pdf
+application/pdf • 26433.3 KB
+fileSearchStores/vedas-mygurukul-sacred-libr-3mjn81k3k4n5/documents/upload1763297867955skandapu-b7f8kmniklmk
+STATE_ACTIVE
+🗑️
+upload_1763297903667_Skanda_Purana_Part_17_ENGLISH.pdf
+application/pdf • 24617.9 KB
+fileSearchStores/vedas-mygurukul-sacred-libr-3mjn81k3k4n5/documents/upload1763297903667skandapu-qbrfarkizpch
+STATE_ACTIVE
+🗑️
+upload_1763297939460_Skanda_Purana_Part_18_ENGLISH.pdf
+application/pdf • 28384.5 KB
+fileSearchStores/vedas-mygurukul-sacred-libr-3mjn81k3k4n5/documents/upload1763297939460skandapu-lm3wbo8cxr9y
+STATE_ACTIVE
+🗑️
+upload_1763297979834_Skanda_Purana_Part_19_ENGLISH.pdf
+application/pdf • 24243.0 KB
+fileSearchStores/vedas-mygurukul-sacred-libr-3mjn81k3k4n5/documents/upload1763297979834skandapu-5l5ez2xwup6x
+STATE_ACTIVE
+🗑️
+upload_1763298007395_Skanda_Purana_Part_20_ENGLISH.pdf
+application/pdf • 24749.1 KB
+fileSearchStores/vedas-mygurukul-sacred-libr-3mjn81k3k4n5/documents/upload1763298007395skandapu-52nwma134xzt
+STATE_ACTIVE
+🗑️
+upload_1763298061089_Vamana-Purana-English.pdf
+application/pdf • 22672.6 KB
+fileSearchStores/vedas-mygurukul-sacred-libr-3mjn81k3k4n5/documents/upload1763298061089vamanapu-yfy2msmwvdmc
+STATE_ACTIVE
+🗑️
+upload_1763298136394_Shree_Vishnu_Purana _Volume_1_ENGLISH.pdf
+application/pdf • 19241.2 KB
+fileSearchStores/vedas-mygurukul-sacred-libr-3mjn81k3k4n5/documents/upload1763298136394shreevis-0ffjbgg8xltj
+STATE_ACTIVE
+🗑️
+upload_1763298192445_Shree_Vishnu_Purana _Volume_2_ENGLISH.pdf
+application/pdf • 19862.5 KB
+fileSearchStores/vedas-mygurukul-sacred-libr-3mjn81k3k4n5/documents/upload1763298192445shreevis-cq0kqs7u4dy6
+STATE_ACTIVE
+🗑️
+upload_1763298220079_Shree_Vishnu_Purana _Volume_3_ENGLISH.pdf
+application/pdf • 19108.8 KB
+fileSearchStores/vedas-mygurukul-sacred-libr-3mjn81k3k4n5/documents/upload1763298220079shreevis-bxmwa67mzshy
+STATE_ACTIVE
+🗑️
+upload_1763298263276_Shree_Vishnu_Purana _Volume_5_ENGLISH.pdf
+application/pdf • 18821.4 KB
+fileSearchStores/vedas-mygurukul-sacred-libr-3mjn81k3k4n5/documents/upload1763298263276shreevis-duej2m92xvgy
+STATE_ACTIVE
+🗑️
+upload_1763298396008_Shree_Vishnu_Purana _Volume_4_ENGLISH.pdf
+application/pdf • 19013.6 KB
+fileSearchStores/vedas-mygurukul-sacred-libr-3mjn81k3k4n5/documents/upload1763298396008shreevis-z8u27mnz31n1
+STATE_ACTIVE
+🗑️
+✅
+Epics - MyGurukul Sacred Library
+fileSearchStores/epics-mygurukul-sacred-libr-wgzuh46tehax
+
+ready
+Documents in Store
+6
+Recent Uploads
+0
+Store is ready with 6 indexed document(s)
+
+📄 Recent Files (6)
+5k92gik5ll6c-4qdz2xvvmfaz
+application/pdf • 26955.7 KB
+fileSearchStores/epics-mygurukul-sacred-libr-wgzuh46tehax/documents/5k92gik5ll6c-4qdz2xvvmfaz
+STATE_ACTIVE
+🗑️
+lanj5pmcd5al-295qz3i6hc7u
+application/pdf • 40329.8 KB
+fileSearchStores/epics-mygurukul-sacred-libr-wgzuh46tehax/documents/lanj5pmcd5al-295qz3i6hc7u
+STATE_ACTIVE
+🗑️
+upload_1763110262958_Mahabharata_Unabridged_English.pdf
+application/pdf • 19501.9 KB
+fileSearchStores/epics-mygurukul-sacred-libr-wgzuh46tehax/documents/upload1763110262958mahabhar-owtio3ql8z9r
+STATE_ACTIVE
+🗑️
+upload_1763110396977_Bhagavad_Gita_comm_Sankara_English.pdf
+application/pdf • 39850.7 KB
+fileSearchStores/epics-mygurukul-sacred-libr-wgzuh46tehax/documents/upload1763110396977bhagavad-cf17tyhl5w3s
+STATE_ACTIVE
+🗑️
+upload_1763110444353_HARIVAMSHA_English.pdf
+application/pdf • 5414.3 KB
+fileSearchStores/epics-mygurukul-sacred-libr-wgzuh46tehax/documents/upload1763110444353harivams-2mzuj37sl069
+STATE_ACTIVE
+🗑️
+upload_1763110499919_Mahabharata_Unabridged_English.pdf
+application/pdf • 19501.9 KB
+fileSearchStores/epics-mygurukul-sacred-libr-wgzuh46tehax/documents/upload1763110499919mahabhar-luqxbyxlzgzb
+STATE_ACTIVE
+🗑️
+✅
+Yoga - MyGurukul Sacred Library
+fileSearchStores/yoga-mygurukul-sacred-libra-mg4b2gtka68h
+
+ready
+Documents in Store
+4
+Recent Uploads
+0
+Store is ready with 4 indexed document(s)
+
+📄 Recent Files (4)
+upload_1763116381897_Patanjali-yogasutra-English.pdf
+application/pdf • 3245.3 KB
+fileSearchStores/yoga-mygurukul-sacred-libra-mg4b2gtka68h/documents/upload1763116381897patanjal-o0tomwow5hb3
+STATE_ACTIVE
+🗑️
+upload_1763116434430_Hatha_Yoga_Pradipika_English.pdf
+application/pdf • 2495.9 KB
+fileSearchStores/yoga-mygurukul-sacred-libra-mg4b2gtka68h/documents/upload1763116434430hathayog-nt6eg5uldf0u
+STATE_ACTIVE
+🗑️
+upload_1763116466768_gheranda-samhita-english.pdf
+application/pdf • 248.1 KB
+fileSearchStores/yoga-mygurukul-sacred-libra-mg4b2gtka68h/documents/upload1763116466768gheranda-qmq4nugnnwni
+STATE_ACTIVE
+🗑️
+upload_1763116488945_yoga_yajnavalkya.pdf
+application/pdf • 5223.9 KB
+fileSearchStores/yoga-mygurukul-sacred-libra-mg4b2gtka68h/documents/upload1763116488945yogayajn-cy7h0byjuhrx
+STATE_ACTIVE
+🗑️
+✅
+Sastras - MyGurukul Sacred Library
+fileSearchStores/sastras-mygurukul-sacred-li-sitzp4ae5niy
+
+ready
+Documents in Store
+15
+Recent Uploads
+0
+Store is ready with 15 indexed document(s)
+
+📄 Recent Files (15)
+upload_1763116543783_Kautilya's_Arthashastra_ENGLISH.pdf
+application/pdf • 2106.3 KB
+fileSearchStores/sastras-mygurukul-sacred-li-sitzp4ae5niy/documents/upload1763116543783kautilya-u9ktfbso5bc3
+STATE_ACTIVE
+🗑️
+upload_1763116620220_natyashastra-english-manomohan-ghosh-2vol-ADB-red.pdf
+application/pdf • 28442.4 KB
+fileSearchStores/sastras-mygurukul-sacred-li-sitzp4ae5niy/documents/upload1763116620220natyasha-3sm3es98dgzf
+STATE_ACTIVE
+🗑️
+upload_1763116669518_Kama_Sutra_Upadhyaya.pdf
+application/pdf • 56687.5 KB
+fileSearchStores/sastras-mygurukul-sacred-li-sitzp4ae5niy/documents/upload1763116669518kamasutr-fxklcs63wfrl
+STATE_ACTIVE
+🗑️
+upload_1763116718328_Manusmriti_Buhler_English.pdf
+application/pdf • 2971.4 KB
+fileSearchStores/sastras-mygurukul-sacred-li-sitzp4ae5niy/documents/upload1763116718328manusmri-4cbrnzf1hm4w
+STATE_ACTIVE
+🗑️
+upload_1763116870016_Narada_Smriti_English.pdf
+application/pdf • 22453.0 KB
+fileSearchStores/sastras-mygurukul-sacred-li-sitzp4ae5niy/documents/upload1763116870016naradasm-5lkqzfp4mbkq
+STATE_ACTIVE
+🗑️
+upload_1763116909605_Vedanga-Jyotisa.pdf
+application/pdf • 5950.6 KB
+fileSearchStores/sastras-mygurukul-sacred-li-sitzp4ae5niy/documents/upload1763116909605vedangaj-pzdw9ao9kay2
+STATE_ACTIVE
+🗑️
+upload_1763116937389_Nirukta_Yaska_English.pdf
+application/pdf • 19104.8 KB
+fileSearchStores/sastras-mygurukul-sacred-li-sitzp4ae5niy/documents/upload1763116937389niruktay-yjqncgr9mnj4
+STATE_ACTIVE
+🗑️
+upload_1763116967071_Ashtadhyayi_Of_Panini_Sanskrit_English.pdf
+application/pdf • 9322.5 KB
+fileSearchStores/sastras-mygurukul-sacred-li-sitzp4ae5niy/documents/upload1763116967071ashtadhy-4w78qoa4ht80
+STATE_ACTIVE
+🗑️
+upload_1763117002676_sen-the-paniniya-siksa-with-translation-and-notes.pdf
+application/pdf • 8526.3 KB
+fileSearchStores/sastras-mygurukul-sacred-li-sitzp4ae5niy/documents/upload1763117002676senthepa-s60l9v74u1mv
+STATE_ACTIVE
+🗑️
+upload_1763179631563_Charaka_samhita_english_Vol_1_compressed.pdf
+application/pdf • 78920.8 KB
+fileSearchStores/sastras-mygurukul-sacred-li-sitzp4ae5niy/documents/upload1763179631563charakas-m6wqvnlo50ts
+STATE_ACTIVE
+🗑️
+upload_1763181043126_Charaka_samhita_english_Vol_2_trimmed_compressed-compressed.pdf
+application/pdf • 86501.3 KB
+fileSearchStores/sastras-mygurukul-sacred-li-sitzp4ae5niy/documents/upload1763181043126charakas-xo4o73ooo80m
+STATE_ACTIVE
+🗑️
+upload_1763181301558_Sushruta_Samhita_Vol_1-English.pdf
+application/pdf • 29930.7 KB
+fileSearchStores/sastras-mygurukul-sacred-li-sitzp4ae5niy/documents/upload1763181301558sushruta-jkw3wqam8jo1
+STATE_ACTIVE
+🗑️
+upload_1763181402353_Sushruta_Samhita_Vol_2-English.pdf
+application/pdf • 51053.7 KB
+fileSearchStores/sastras-mygurukul-sacred-li-sitzp4ae5niy/documents/upload1763181402353sushruta-txo5a0m2qgxd
+STATE_ACTIVE
+🗑️
+upload_1763181472643_Sushruta_Samhita_Vol_3-English.pdf
+application/pdf • 26182.6 KB
+fileSearchStores/sastras-mygurukul-sacred-li-sitzp4ae5niy/documents/upload1763181472643sushruta-ytpq2ba8itwk
+STATE_ACTIVE
+🗑️
+upload_1763544678243_Sanatan Dharma 1904 2 copy_compressed.pdf
+application/pdf • 32986.1 KB
+fileSearchStores/sastras-mygurukul-sacred-li-sitzp4ae5niy/documents/upload1763544678243sanatan--bucjbtqyhs11
+STATE_ACTIVE
+🗑️
+Home
+Ask Sevak
+Library
