@@ -108,7 +108,7 @@ export default function AIResponse({ response, isLoading, error }: AIResponsePro
     );
   }
 
-  const { answer } = response
+  const { answer } = response as any
   
   // Check if the answer is in a successful state
   if (answer.state !== 'SUCCEEDED') {
@@ -135,7 +135,7 @@ export default function AIResponse({ response, isLoading, error }: AIResponsePro
     answer.answerText?.includes('ru̱drā') ||
     answer.answerText?.includes('rudrā') ||
     answer.answerText?.includes('How might you apply this wisdom') ||
-    (answer.references && answer.references.some(ref => ref.chunkInfo?.relevanceScore && ref.chunkInfo.relevanceScore > 0.6))
+    (answer.references && answer.references.some((ref: any) => ref.chunkInfo?.relevanceScore && ref.chunkInfo.relevanceScore > 0.6))
   );
 
   if (process.env.NODE_ENV === 'development') {
@@ -145,14 +145,14 @@ export default function AIResponse({ response, isLoading, error }: AIResponsePro
       hasPracticalGuidance: answer.answerText?.includes('Practical guidance:'),
       hasSanskrit: answer.answerText?.includes('nitya̱ṁ') || answer.answerText?.includes('ru̱drā'),
       hasFollowUp: answer.answerText?.includes('How might you apply this wisdom'),
-      highRelevanceRefs: answer.references?.filter(ref => ref.chunkInfo?.relevanceScore && ref.chunkInfo.relevanceScore > 0.6).length || 0
+      highRelevanceRefs: answer.references?.filter((ref: any) => ref.chunkInfo?.relevanceScore && ref.chunkInfo.relevanceScore > 0.6).length || 0
     });
   }
 
   // Use rich multi-agent content directly or create comprehensive response for traditional
   const displayText = isMultiAgentResponse 
     ? answer.answerText  // Use rich multi-agent content directly - preserve Sanskrit IAST and enhanced scoring
-    : createComprehensiveSpiritualResponse(response); // Use traditional function for Discovery Engine
+    : createComprehensiveSpiritualResponse(response as any); // Use traditional function for Discovery Engine
 
   const formattedText = formatAnswerText(displayText)
   const citations = extractCitations(answer.answerText, answer.citations)
@@ -235,7 +235,7 @@ export default function AIResponse({ response, isLoading, error }: AIResponsePro
             Further Reading
           </h4>
           <div className="space-y-2">
-            {answer.references.map((reference, index) => (
+            {answer.references.map((reference: any, index: number) => (
               <a
                 key={index}
                 href={reference.uri}

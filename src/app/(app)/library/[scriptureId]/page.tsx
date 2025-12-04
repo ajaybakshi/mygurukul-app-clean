@@ -341,7 +341,7 @@ export default function ChapterBrowserPage() {
     } else {
       setScoringComplete(false);
     }
-  }, [searchActive, chapterScores.size, totalChaptersToScore]);
+  }, [searchActive, chapterScores, totalChaptersToScore]);
 
   // Auto-expand sections when scoring completes (run only once)
   const hasAutoExpandedRef = useRef(false);
@@ -371,7 +371,7 @@ export default function ChapterBrowserPage() {
       const sectionsToExpand = new Set(globalTop5.map(item => item.section.sectionId));
       setExpandedSections(sectionsToExpand);
     }
-  }, [searchActive, scoringComplete, manifest]); // Removed chapterScores to prevent re-running on every score update
+  }, [searchActive, scoringComplete, manifest, chapterScores]); // Include chapterScores.size would cause re-runs, but we check chapterScores.size > 0, so we need the full object
 
   // Note: Scores are cleared when searchTriggered changes (in the main search useEffect)
 
@@ -811,7 +811,7 @@ function SectionAccordion({
       newMap.set(chapterId, score);
       return newMap;
     });
-  }, []); // Empty dependency array - setChapterScores is stable
+  }, [setChapterScores]); // setChapterScores is stable from useState, but included for completeness
 
   // Use global top 5 if provided, otherwise use section's own filtering
   const chaptersToRender = searchActive && globalTop5Chapters && globalTop5Chapters.length > 0
@@ -1030,7 +1030,7 @@ function ChapterCard({
       const uniqueChapterId = `${section.sectionId}-${chapter.chapterId}`;
       onScoreCalculated(uniqueChapterId, newScore);
     }
-  }, [searchActive, searchQuery, fullMetadata, loadingSummary, chapter.chapterId, section.sectionId, chapter, expandedQuery, section]);
+  }, [searchActive, searchQuery, fullMetadata, loadingSummary, chapter.chapterId, section.sectionId, chapter, expandedQuery, section, onScoreCalculated]);
 
   // Extract and truncate summary for card display
   const aiSummary = fullMetadata?.aiSummary || '';

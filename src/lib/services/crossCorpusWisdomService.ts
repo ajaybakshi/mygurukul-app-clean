@@ -92,10 +92,12 @@ class CrossCorpusWisdomService {
       const availableSources = await this.getAllAvailableSources();
       console.log('Available folder count:', availableSources.length);
       
-      // If user specified a preference, try to honor it
+      // 1. Handle User Preference
       if (options.userPreference && options.userPreference !== 'random') {
+        // FIX: Capture the value in a const so TypeScript knows it's safe inside the callback
+        const preference = options.userPreference;
         const preferredSource = availableSources.find(source => 
-          source.toLowerCase().includes(options.userPreference.toLowerCase())
+          source.toLowerCase().includes(preference.toLowerCase())
         );
         if (preferredSource) {
           console.log('Selected folder:', preferredSource);
@@ -110,17 +112,20 @@ class CrossCorpusWisdomService {
         }
       }
       
-      // Filter out recently shown sources for variety
-      let candidateSources = availableSources;
-      if (options.excludeRecent && options.excludeRecent.length > 0) {
-        candidateSources = availableSources.filter(source => 
-          !options.excludeRecent.includes(source)
-        );
-      }
+      let candidateSources = [...availableSources];
       
-      // If no candidates after filtering, use all sources
-      if (candidateSources.length === 0) {
-        candidateSources = availableSources;
+      // 2. Filter out recently used sources
+      if (options.excludeRecent && options.excludeRecent.length > 0) {
+        // FIX: Capture the array in a const so TypeScript knows it's safe inside the callback
+        const excludeList = options.excludeRecent;
+        candidateSources = availableSources.filter(source => 
+          !excludeList.includes(source)
+        );
+        
+        // If we filtered everything out (e.g. cycle complete), reset to all available
+        if (candidateSources.length === 0) {
+          candidateSources = [...availableSources];
+        }
       }
       
       // Random selection with optional weighting

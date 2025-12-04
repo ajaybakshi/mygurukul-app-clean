@@ -191,7 +191,8 @@ async function analyzeFolder(storage: Storage, folderName: string) {
             analysisResults.push(analysis);
           }
         } catch (fileError) {
-          console.warn(`   ⚠️  Skipping file ${file.name}: ${fileError.message}`);
+          const errorMessage = fileError instanceof Error ? fileError.message : String(fileError);
+          console.warn(`   ⚠️  Skipping file ${file.name}: ${errorMessage}`);
         }
       }
     }
@@ -203,11 +204,12 @@ async function analyzeFolder(storage: Storage, folderName: string) {
     };
   } catch (error) {
     console.error(`❌ Error analyzing folder ${folderName}:`, error);
+    const errorMessage = error instanceof Error ? error.message : String(error);
     return {
       folderName,
       fileCount: 0,
       files: [],
-      error: error.message
+      error: errorMessage
     };
   }
 }
@@ -220,12 +222,12 @@ function generateLookupTable(allAnalyses: any[]) {
       totalScriptures: 0,
       totalFiles: 0,
       totalPatterns: 0,
-      edgeCases: []
+      edgeCases: [] as Array<{scripture: string, reason: string, complexity: any}>
     },
-    scriptures: {},
-    patternFrequency: {},
-    edgeCases: [],
-    preprocessingTemplates: {}
+    scriptures: {} as Record<string, any>,
+    patternFrequency: {} as Record<string, number>,
+    edgeCases: [] as Array<{scripture: string, reason: string, complexity: any}>,
+    preprocessingTemplates: {} as Record<string, any>
   };
   
   // Process each scripture
@@ -238,7 +240,7 @@ function generateLookupTable(allAnalyses: any[]) {
     const scriptureData = {
       folderName: analysis.folderName,
       fileCount: analysis.fileCount,
-      files: {},
+      files: {} as Record<string, any>,
       allPatterns: new Set(),
       hasComplexPatterns: false,
       recommendedParsingStrategy: 'standard'

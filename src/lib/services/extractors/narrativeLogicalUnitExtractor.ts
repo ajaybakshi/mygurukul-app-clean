@@ -166,8 +166,8 @@ export class NarrativeLogicalUnitExtractor {
         continue;
       }
 
-      let reference: string;
-      let text: string;
+      let reference: string = '';
+      let text: string = '';
 
       // Look for Puranic reference patterns
       const puranicPatterns = [

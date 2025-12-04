@@ -314,11 +314,11 @@ export default function FileSearchUploadPage() {
         <div className="bg-gray-100 rounded-lg p-6">
           <h3 className="font-semibold text-gray-800 mb-3">📖 Instructions</h3>
           <ol className="list-decimal list-inside space-y-2 text-gray-700 text-sm">
-            <li>First time: Click "Create All Stores" to set up all six category stores</li>
+            <li>First time: Click &quot;Create All Stores&quot; to set up all six category stores</li>
             <li>Select the appropriate store for your document (Vedas, Upanishads, Darshanas, Epics, Yoga, or Sastras)</li>
             <li>Choose your PDF file (must be in English, max 100MB)</li>
             <li>Optionally edit the display name for better citations</li>
-            <li>Click "Upload Document" and wait for indexing to complete (~10-30 seconds)</li>
+            <li>Click &quot;Upload Document&quot; and wait for indexing to complete (~10-30 seconds)</li>
             <li>Repeat for all your documents</li>
           </ol>
           <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">

@@ -96,7 +96,7 @@ export default function TraditionalWisdomDisplay({ wisdomData, isLoading = false
       {/* Sacred Header */}
       <div className="text-center border-b border-amber-300 pb-4">
         <div className="text-amber-600 text-sm font-medium mb-2">
-          🕉️ Today's Sacred Reading 🕉️
+          🕉️ Today&apos;s Sacred Reading 🕉️
         </div>
         <h1 className="text-2xl font-bold text-gray-800">
           {wisdomData.sourceName} Daily Wisdom
@@ -181,7 +181,7 @@ export default function TraditionalWisdomDisplay({ wisdomData, isLoading = false
         {/* Raw Sacred Text with Audio Control */}
         <div className="relative">
           <div className="text-gray-800 leading-relaxed text-lg font-medium bg-white bg-opacity-40 p-4 rounded italic border-l-2 border-amber-300">
-            "{wisdomData.rawText}"
+            &quot;{wisdomData.rawText}&quot;
           </div>
           
           {/* Audio control - positioned subtly in top-right corner */}
@@ -203,7 +203,7 @@ export default function TraditionalWisdomDisplay({ wisdomData, isLoading = false
       <div className="text-center py-4">
         <div className="inline-flex items-center space-x-3">
           <div className="h-px bg-amber-300 w-16"></div>
-          <div className="text-amber-600 font-medium">🙏 Guru's Interpretation 🙏</div>
+          <div className="text-amber-600 font-medium">🙏 Guru&apos;s Interpretation 🙏</div>
           <div className="h-px bg-amber-300 w-16"></div>
         </div>
       </div>

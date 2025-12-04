@@ -324,8 +324,8 @@ export class EpicLogicalUnitExtractor {
    */
   private shareCommonSubjects(text1: string, text2: string): boolean {
     // Extract potential proper names/subjects
-    const names1 = text1.match(/\b[a-zāīūṛśṣṭḍṇṅñḥṃ]{3,}\b/gi) || [];
-    const names2 = text2.match(/\b[a-zāīūṛśṣṭḍṇṅñḥṃ]{3,}\b/gi) || [];
+    const names1: string[] = text1.match(/\b[a-zāīūṛśṣṭḍṇṅñḥṃ]{3,}\b/gi) || [];
+    const names2: string[] = text2.match(/\b[a-zāīūṛśṣṭḍṇṅñḥṃ]{3,}\b/gi) || [];
 
     // Check for overlap
     return names1.some(name => names2.includes(name));

@@ -1,9 +1,9 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { X, RefreshCw, ArrowLeft } from 'lucide-react';
-import TraditionalWisdomDisplay from './TraditionalWisdomDisplay';
-import AudioIconButton from './audio/AudioIconButton';
+import TraditionalWisdomDisplay from '../TraditionalWisdomDisplay';
+import AudioIconButton from '../audio/AudioIconButton';
 import { TransliterationService } from '@/lib/services/transliterationService';
 
 interface TodaysWisdomData {
@@ -22,6 +22,10 @@ interface TodaysWisdomData {
   type: 'story' | 'verse' | 'teaching';
   sourceName: string;
   encouragement: string;
+  selectedSource?: string;
+  selectionMethod?: string;
+  selectedSourceInfo?: { displayName: string; [key: string]: any; };
+  message?: string;
 }
 
 interface SacredReadingViewProps {
@@ -38,12 +42,13 @@ export default function SacredReadingView({ onClose, onBack }: SacredReadingView
   const [availableSources, setAvailableSources] = useState<Array<{folderName: string, displayName: string}>>([]);
   const [sourcesLoading, setSourcesLoading] = useState<boolean>(false);
 
-  // Cache management functions
-  const getCacheKey = () => `mygurukul_wisdom_${new Date().toDateString()}`;
+  // Cache management functions - wrapped in useCallback for stability
+  const getCacheKey = useCallback(() => `mygurukul_wisdom_${new Date().toDateString()}`, []);
   
-  const getCachedWisdom = (): TodaysWisdomData | null => {
+  const getCachedWisdom = useCallback((): TodaysWisdomData | null => {
     try {
-      const cached = localStorage.getItem(getCacheKey());
+      const cacheKey = getCacheKey();
+      const cached = localStorage.getItem(cacheKey);
       if (cached) {
         const parsedData = JSON.parse(cached);
         if (parsedData.data && parsedData.timestamp) {
@@ -52,26 +57,28 @@ export default function SacredReadingView({ onClose, onBack }: SacredReadingView
       }
     } catch (error) {
       console.error('Error reading cached wisdom:', error);
-      localStorage.removeItem(getCacheKey());
+      const cacheKey = getCacheKey();
+      localStorage.removeItem(cacheKey);
     }
     return null;
-  };
+  }, [getCacheKey]);
 
-  const setCachedWisdom = (wisdomData: TodaysWisdomData) => {
+  const setCachedWisdom = useCallback((wisdomData: TodaysWisdomData) => {
     try {
+      const cacheKey = getCacheKey();
       const cacheData = {
         data: wisdomData,
         timestamp: new Date().toISOString(),
         date: new Date().toDateString()
       };
-      localStorage.setItem(getCacheKey(), JSON.stringify(cacheData));
+      localStorage.setItem(cacheKey, JSON.stringify(cacheData));
     } catch (error) {
       console.error('Error caching wisdom:', error);
     }
-  };
+  }, [getCacheKey]);
 
   // Function to fetch Today's Wisdom with caching
-  const fetchTodaysWisdom = async (forceRefresh: boolean = false) => {
+  const fetchTodaysWisdom = useCallback(async (forceRefresh: boolean = false) => {
     // Check cache first unless force refresh
     if (!forceRefresh) {
       const cachedWisdom = getCachedWisdom();
@@ -132,9 +139,9 @@ export default function SacredReadingView({ onClose, onBack }: SacredReadingView
     } finally {
       setIsLoadingWisdom(false);
     }
-  };
+  }, [selectedSource, getCachedWisdom, setCachedWisdom]);
 
-  const loadAvailableSources = async () => {
+  const loadAvailableSources = useCallback(async () => {
     try {
       setSourcesLoading(true);
       const response = await fetch('/api/todays-wisdom', {
@@ -154,7 +161,7 @@ export default function SacredReadingView({ onClose, onBack }: SacredReadingView
     } finally {
       setSourcesLoading(false);
     }
-  };
+  }, []);
 
   // Auto-load wisdom on mount with caching
   useEffect(() => {
@@ -167,11 +174,11 @@ export default function SacredReadingView({ onClose, onBack }: SacredReadingView
         fetchTodaysWisdom(false);
       }
     }
-  }, []);
+  }, [todaysWisdom, fetchTodaysWisdom, getCachedWisdom]);
 
   useEffect(() => {
     loadAvailableSources();
-  }, []);
+  }, [loadAvailableSources]);
 
   // Loading State Component
   const WisdomLoadingState = () => (
@@ -193,7 +200,7 @@ export default function SacredReadingView({ onClose, onBack }: SacredReadingView
         Gathering Sacred Wisdom
       </h3>
       <p className="text-amber-600 text-sm animate-pulse">
-        Preparing today's divine guidance for your spiritual journey...
+        Preparing today&apos;s divine guidance for your spiritual journey...
       </p>
     </div>
   );
@@ -202,7 +209,7 @@ export default function SacredReadingView({ onClose, onBack }: SacredReadingView
   const WisdomErrorState = () => (
     <div className="bg-red-50 border border-red-200 rounded-xl p-6 text-center">
       <div className="text-red-600 text-4xl mb-4">⚠️</div>
-      <h3 className="text-red-800 font-semibold mb-2">Unable to Load Today's Wisdom</h3>
+      <h3 className="text-red-800 font-semibold mb-2">Unable to Load Today&apos;s Wisdom</h3>
       <p className="text-red-700 text-sm mb-4">{wisdomError}</p>
       <button
         onClick={() => fetchTodaysWisdom(true)}
@@ -245,7 +252,7 @@ export default function SacredReadingView({ onClose, onBack }: SacredReadingView
         <div className="text-center py-8">
           <div className="text-6xl mb-4">🕉️</div>
           <h1 className="text-3xl font-bold mb-2" style={{ color: '#D4AF37' }}>
-            Today's Sacred Reading
+            Today&apos;s Sacred Reading
           </h1>
           <p className="text-amber-600 text-lg">
             Begin your day with divine wisdom from ancient scriptures
@@ -330,7 +337,7 @@ export default function SacredReadingView({ onClose, onBack }: SacredReadingView
                   >
                     <div className="flex items-center space-x-2">
                       <span>🙏</span>
-                      <span>Guru's Interpretation</span>
+                      <span>Guru&apos;s Interpretation</span>
                     </div>
                   </button>
                 </div>
@@ -385,7 +392,7 @@ export default function SacredReadingView({ onClose, onBack }: SacredReadingView
                     <div className="absolute inset-0 bg-white/40 rounded-lg"></div>
                     
                     <div className="relative z-10 text-gray-800 leading-relaxed text-lg font-serif italic text-center drop-shadow-sm break-words">
-                      "{todaysWisdom.rawText}"
+                      &quot;{todaysWisdom.rawText}&quot;
                     </div>
                     
                     <div className="absolute top-2 right-2 z-20">
@@ -438,11 +445,11 @@ export default function SacredReadingView({ onClose, onBack }: SacredReadingView
                     </div>
                     
                     <div className="relative z-10 text-gray-800 leading-relaxed text-xl font-serif text-center drop-shadow-sm break-words" style={{ fontFamily: 'Noto Sans Devanagari, serif' }}>
-                      "{TransliterationService.transliterate(todaysWisdom.rawText, {
+                      &quot;{TransliterationService.transliterate(todaysWisdom.rawText, {
                         devanagariPreferred: true,
                         preserveNumbers: true,
                         handleMixed: true
-                      }).result}"
+                      }).result}&quot;
                     </div>
                     
                     <div className="absolute top-2 right-2 z-20">

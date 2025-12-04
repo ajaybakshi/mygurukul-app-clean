@@ -258,15 +258,15 @@ export async function POST(request: NextRequest) {
         
         // Check if response has search results with Sanskrit
         if (data.answer && data.answer.steps) {
-          data.answer.steps.forEach((step, stepIndex) => {
+          data.answer.steps.forEach((step: any, stepIndex: number) => {
             if (step.actions) {
-              step.actions.forEach((action, actionIndex) => {
+              step.actions.forEach((action: any, actionIndex: number) => {
                 if (action.searchAction && action.observation && action.observation.searchResults) {
                   console.log(`📚 Step ${stepIndex}, Action ${actionIndex} - Search Query: "${action.searchAction.query}"`)
                   
-                  action.observation.searchResults.forEach((result, resultIndex) => {
+                  action.observation.searchResults.forEach((result: any, resultIndex: number) => {
                     if (result.snippetInfo) {
-                      result.snippetInfo.forEach((snippet, snippetIndex) => {
+                      result.snippetInfo.forEach((snippet: any, snippetIndex: number) => {
                         if (snippet.snippet.includes('Sanskrit Transliteration:') || snippet.snippet.includes('sahasra̱') || snippet.snippet.includes('indra̍ḥ') || snippet.snippet.includes('||')) {
                           console.log(`🔤 SANSKRIT FOUND in Result ${resultIndex}, Snippet ${snippetIndex}:`)
                           console.log(`   Document: ${result.title}`)

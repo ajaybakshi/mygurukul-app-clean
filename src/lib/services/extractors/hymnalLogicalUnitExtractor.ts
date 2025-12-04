@@ -160,8 +160,8 @@ export class HymnalLogicalUnitExtractor {
         continue;
       }
 
-      let reference: string;
-      let text: string;
+      let reference: string = '';
+      let text: string = '';
 
       // Look for Vedic reference patterns
       const vedicPatterns = [

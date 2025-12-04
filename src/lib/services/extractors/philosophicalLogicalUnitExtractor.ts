@@ -142,8 +142,8 @@ export class PhilosophicalLogicalUnitExtractor {
         continue;
       }
 
-      let reference: string;
-      let text: string;
+      let reference: string = '';
+      let text: string = '';
 
       // Look for Upanishad reference patterns
       const upanishadPatterns = [
@@ -518,7 +518,7 @@ export class PhilosophicalLogicalUnitExtractor {
     }
 
     const lastVerseRef = verses[verses.length - 1].reference;
-    let lastVerseNum: string;
+    let lastVerseNum: string = '';
 
     // Handle different reference formats to extract the last verse number
     const refPatterns = [

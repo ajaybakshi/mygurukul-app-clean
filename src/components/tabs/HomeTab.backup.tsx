@@ -39,7 +39,7 @@ const HomeTab: React.FC<HomeTabProps> = ({ className = '', onAsk, onNavigate }) 
           {/* Section 1: Today's Wisdom (1 column) */}
           <div className="md:col-span-1">
             <div className="bg-gradient-to-br from-orange-50 to-amber-50 border border-orange-200 rounded-lg p-6 shadow-md hover:shadow-lg transition-shadow duration-300 h-full">
-              <h2 className="text-xl font-bold text-orange-800 mb-4">Today's Wisdom</h2>
+              <h2 className="text-xl font-bold text-orange-800 mb-4">Today&apos;s Wisdom</h2>
               
               {/* Sanskrit Quote */}
               <div className="bg-white/60 rounded-lg p-4 border border-orange-200 mb-4">
@@ -50,10 +50,10 @@ const HomeTab: React.FC<HomeTabProps> = ({ className = '', onAsk, onNavigate }) 
                   सत्यमेव जयते नानृतं
                 </p>
                 <p className="text-base text-orange-700 italic mb-2">
-                  "Satyameva Jayate Nanrtam"
+                  &quot;Satyameva Jayate Nanrtam&quot;
                 </p>
                 <p className="text-sm text-orange-600">
-                  "Truth alone triumphs; not falsehood."
+                  &quot;Truth alone triumphs; not falsehood.&quot;
                 </p>
               </div>
               

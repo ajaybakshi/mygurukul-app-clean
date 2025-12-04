@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo, useRef, useEffect } from 'react';
+import React, { useState, useMemo, useRef, useEffect, useCallback } from 'react';
 import { ChevronDown, ChevronUp, BookOpen } from 'lucide-react';
 import { ClientTimestamp } from './ClientTimestamp';
 import { CitationTooltip } from './CitationTooltip';
@@ -43,14 +43,23 @@ export const GuideMessageBubble: React.FC<GuideMessageBubbleProps> = ({
   references = [],
   timestamp,
 }) => {
-  // Safety check: ensure answerText is a string
-  const safeAnswerText = typeof answerText === 'string' ? answerText : String(answerText || '');
+  // Safety check: ensure answerText is a string - memoized for stability
+  const safeAnswerText = useMemo(() => 
+    typeof answerText === 'string' ? answerText : String(answerText || ''),
+    [answerText]
+  );
   
-  // Safety check: ensure citations is an array
-  const safeCitations = Array.isArray(citations) ? citations : [];
+  // Safety check: ensure citations is an array - memoized for stability
+  const safeCitations = useMemo(() => 
+    Array.isArray(citations) ? citations : [],
+    [citations]
+  );
   
-  // Safety check: ensure references is an array
-  const safeReferences = Array.isArray(references) ? references : [];
+  // Safety check: ensure references is an array - memoized for stability
+  const safeReferences = useMemo(() => 
+    Array.isArray(references) ? references : [],
+    [references]
+  );
   
   const [isSourcesExpanded, setIsSourcesExpanded] = useState(false);
   const [hoveredCitationIndex, setHoveredCitationIndex] = useState<number | null>(null);
@@ -255,8 +264,8 @@ export const GuideMessageBubble: React.FC<GuideMessageBubbleProps> = ({
   }, [safeCitations, safeReferences]);
 
   // Extract the parts and validCitations from parsedText with safety checks
-  const parsedParts = parsedText?.parts || [{ type: 'text', content: safeAnswerText || '' }];
-  const validCitationsForRender = parsedText?.validCitations || [];
+  const parsedParts = (parsedText as any)?.parts || [{ type: 'text', content: safeAnswerText || '' }];
+  const validCitationsForRender = (parsedText as any)?.validCitations || [];
 
   const sourcesCount = sources.length;
 

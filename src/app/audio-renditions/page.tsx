@@ -5,7 +5,7 @@
 
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { AudioGenerator } from '../../components/audio/AudioGenerator';
 import { AudioPlayer } from '../../components/audio/AudioPlayer';
 import { AudioRenditionList } from '../../components/audio/AudioRenditionList';
@@ -19,13 +19,10 @@ export default function AudioRenditionsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const storage = new AudioRenditionStorage();
+  const storageRef = React.useRef(new AudioRenditionStorage());
+  const storage = storageRef.current;
 
-  useEffect(() => {
-    loadRenditions();
-  }, []);
-
-  const loadRenditions = async () => {
+  const loadRenditions = useCallback(async () => {
     try {
       setIsLoading(true);
       const allRenditions = await storage.getAllRenditions();
@@ -36,7 +33,11 @@ export default function AudioRenditionsPage() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [storage]);
+
+  useEffect(() => {
+    loadRenditions();
+  }, [loadRenditions]);
 
   const handleGenerationComplete = async (rendition: AudioRendition) => {
     try {

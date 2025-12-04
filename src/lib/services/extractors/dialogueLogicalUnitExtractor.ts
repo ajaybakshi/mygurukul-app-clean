@@ -158,8 +158,8 @@ export class DialogueLogicalUnitExtractor {
         continue;
       }
 
-      let reference: string;
-      let text: string;
+      let reference: string = '';
+      let text: string = '';
 
       // Look for Bhagavad Gita reference patterns
       const gitaPatterns = [

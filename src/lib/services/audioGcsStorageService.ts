@@ -309,7 +309,7 @@ export class AudioGcsStorageService {
       console.log(`☁️ Retrieved audio rendition: ${renditionId}`);
       return {
         rendition,
-        audioBuffer: audioBuffer.buffer.slice(audioBuffer.byteOffset, audioBuffer.byteOffset + audioBuffer.byteLength)
+        audioBuffer: audioBuffer.buffer.slice(audioBuffer.byteOffset, audioBuffer.byteOffset + audioBuffer.byteLength) as ArrayBuffer
       };
 
     } catch (error) {
@@ -400,11 +400,11 @@ export class AudioGcsStorageService {
         const [metadata] = await file.getMetadata();
         fileInfos.push({
           name: file.name,
-          size: parseInt(metadata.size || '0'),
+          size: parseInt(String(metadata.size || '0')),
           created: new Date(metadata.timeCreated || ''),
           updated: new Date(metadata.updated || ''),
           contentType: metadata.contentType || '',
-          metadata: metadata.metadata || {},
+          metadata: (metadata.metadata as Record<string, string>) || {},
           storageClass: metadata.storageClass || 'STANDARD'
         });
       }
@@ -444,7 +444,7 @@ export class AudioGcsStorageService {
 
       for (const file of files) {
         const [metadata] = await file.getMetadata();
-        const size = parseInt(metadata.size || '0');
+        const size = parseInt(String(metadata.size || '0'));
         totalSize += size;
 
         if (file.name.startsWith(this.config.audioFolder)) {
@@ -511,7 +511,7 @@ export class AudioGcsStorageService {
         const createdDate = new Date(metadata.timeCreated || '');
         
         if (createdDate < cutoffDate) {
-          const size = parseInt(metadata.size || '0');
+          const size = parseInt(String(metadata.size || '0'));
           await file.delete();
           deletedCount++;
           freedSpace += size;

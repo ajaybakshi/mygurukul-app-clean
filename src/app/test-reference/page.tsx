@@ -79,7 +79,7 @@ export default function TestReferencePage() {
                     <h3 className="font-semibold text-orange-800">UI Simulation - TraditionalWisdomDisplay</h3>
                     <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
                       <div className="text-center border-b border-amber-300 pb-4 mb-4">
-                        <div className="text-amber-600 text-sm font-medium mb-2">🕉️ Today's Sacred Reading 🕉️</div>
+                        <div className="text-amber-600 text-sm font-medium mb-2">🕉️ Today&apos;s Sacred Reading 🕉️</div>
                         <h1 className="text-2xl font-bold text-gray-800">
                           {result.todaysWisdom.sourceName} Daily Wisdom
                         </h1>
@@ -118,7 +118,7 @@ export default function TestReferencePage() {
                         </div>
 
                         <div className="text-gray-800 leading-relaxed text-lg font-medium bg-white bg-opacity-40 p-4 rounded italic border-l-2 border-amber-300">
-                          "{result.todaysWisdom.rawText}"
+                          &quot;{result.todaysWisdom.rawText}&quot;
                         </div>
                       </div>
                     </div>
