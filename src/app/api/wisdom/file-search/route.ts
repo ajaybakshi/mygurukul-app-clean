@@ -9,6 +9,9 @@ import { GoogleGenAI } from '@google/genai';
 import { getFileSearchConfig } from '../../../../lib/fileSearchConfig';
 import { buildChatHistory, formatHistoryForLogging } from '../../../../lib/services/fileSearchChatHistory';
 
+export const dynamic = 'force-dynamic';
+export const maxDuration = 60; // Set max duration for Vercel Pro (or 300 for Enterprise if applicable)
+
 interface WisdomRequest {
   question: string;
   sessionId?: string;

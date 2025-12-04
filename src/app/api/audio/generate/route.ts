@@ -8,6 +8,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { SanskritCleanupService } from '../../../../lib/services/sanskritCleanupService';
 import { TransliterationService } from '../../../../lib/services/transliterationService';
 
+export const dynamic = 'force-dynamic';
+export const maxDuration = 60; // Set max duration for Vercel Pro (or 300 for Enterprise if applicable)
+
 export async function POST(request: NextRequest) {
   const startTime = Date.now();
   

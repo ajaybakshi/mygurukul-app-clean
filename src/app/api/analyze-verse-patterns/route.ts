@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { Storage } from '@google-cloud/storage';
 
+export const dynamic = 'force-dynamic';
+export const maxDuration = 60; // Set max duration for Vercel Pro (or 300 for Enterprise if applicable)
+
 // Initialize Google Cloud Storage using existing pattern
 function initializeStorage() {
   try {
