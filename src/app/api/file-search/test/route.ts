@@ -8,6 +8,9 @@ import { GoogleGenAI } from '@google/genai';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { getFileSearchConfig, validateFileSearchConfig } from '../../../../lib/fileSearchConfig';
 
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs'; // Ensures full Node.js env for heavy ops
+
 export async function GET(request: NextRequest) {
   const results: any = {
     timestamp: new Date().toISOString(),

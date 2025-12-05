@@ -6,6 +6,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getFileSearchConfig } from '../../../../../lib/fileSearchConfig';
 
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs'; // Ensures full Node.js env for heavy ops
+
 export async function DELETE(request: NextRequest) {
   try {
     const config = getFileSearchConfig();

@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs'; // Ensures full Node.js env for heavy ops
+
 /**
  * Mock data simulating corpus file metadata
  * In production, this would be replaced with actual file reading logic

@@ -5,6 +5,9 @@ import { writeApiLog, createLogData } from '@/lib/logger'
 import { categoryService } from '@/lib/database/categoryService'
 import { getDiscoveryPrompt, isDiscoveryEngineEnabled } from './discovery-prompts-config'
 
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs'; // Ensures full Node.js env for heavy ops
+
 export async function POST(request: NextRequest) {
   const startTime = Date.now()
   

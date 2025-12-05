@@ -1,4 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
+
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs'; // Ensures full Node.js env for heavy ops
 // Temporarily commented out for basic chat functionality
 // import {
 //   getLogStats,

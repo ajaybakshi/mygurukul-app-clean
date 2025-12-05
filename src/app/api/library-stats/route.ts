@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { getLibraryStats } from '@/utils/libraryStats';
 
 export const dynamic = 'force-dynamic'; // Disable static generation
+export const runtime = 'nodejs'; // Ensures full Node.js env for heavy ops
 export const revalidate = 3600; // Revalidate every 1 hour
 
 export async function GET() {

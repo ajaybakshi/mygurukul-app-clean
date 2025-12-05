@@ -3,6 +3,9 @@ import { Storage } from '@google-cloud/storage';
 import { crossCorpusWisdomService } from '../../../lib/services/crossCorpusWisdomService';
 import { gretilWisdomService } from '../../../lib/services/gretilWisdomService';
 
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs'; // Ensures full Node.js env for heavy ops
+
 interface TodaysWisdom {
   // Raw sacred text (what seeker reads first)
   rawText: string;

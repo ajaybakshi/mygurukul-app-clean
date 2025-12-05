@@ -8,6 +8,9 @@ import { gretilWisdomService } from '../../../lib/services/gretilWisdomService';
 import { gretilTextTypeClassifier } from '../../../lib/services/gretilTextTypeClassifier';
 import { GretilTextType } from '../../../types/gretil-types';
 
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs'; // Ensures full Node.js env for heavy ops
+
 export async function GET(request: NextRequest) {
   try {
     console.log('🔬 Starting Production Data Validation');

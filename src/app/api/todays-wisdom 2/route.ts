@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { Storage } from '@google-cloud/storage';
 
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs'; // Ensures full Node.js env for heavy ops
+
 interface TodaysWisdom {
   // Raw sacred text (what seeker reads first)
   rawText: string;

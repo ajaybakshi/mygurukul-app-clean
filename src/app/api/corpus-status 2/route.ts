@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { corpusChecker } from '@/lib/services/corpusChecker';
 
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs'; // Ensures full Node.js env for heavy ops
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();

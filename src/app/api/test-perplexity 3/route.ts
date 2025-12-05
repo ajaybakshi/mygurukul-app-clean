@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { perplexitySearch, testPerplexityConnection, PERPLEXITY_CONFIG } from '@/lib/perplexitySearch'
 
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs'; // Ensures full Node.js env for heavy ops
+
 export async function GET(request: NextRequest) {
   try {
     console.log('🧪 Testing Perplexity Search API Endpoint')

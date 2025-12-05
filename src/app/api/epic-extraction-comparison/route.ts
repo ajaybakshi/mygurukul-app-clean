@@ -7,6 +7,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { gretilWisdomService } from '../../../lib/services/gretilWisdomService';
 import { epicLogicalUnitExtractor } from '../../../lib/services/extractors/epicLogicalUnitExtractor';
 
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs'; // Ensures full Node.js env for heavy ops
+
 export async function GET(request: NextRequest) {
   try {
     console.log('🔬 Epic Extraction Comparison - BEFORE vs AFTER');

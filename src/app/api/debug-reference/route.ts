@@ -2,6 +2,9 @@ import { NextResponse } from 'next/server';
 import { crossCorpusWisdomService } from '../../../lib/services/crossCorpusWisdomService';
 import { Storage } from '@google-cloud/storage';
 
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs'; // Ensures full Node.js env for heavy ops
+
 // Initialize Google Cloud Storage
 function initializeStorage() {
   try {

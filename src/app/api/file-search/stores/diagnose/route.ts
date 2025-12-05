@@ -8,6 +8,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { GoogleGenAI } from '@google/genai';
 import { getFileSearchConfig } from '../../../../../lib/fileSearchConfig';
 
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs'; // Ensures full Node.js env for heavy ops
+
 export async function GET(request: NextRequest) {
   const startTime = Date.now();
   const results: any = {

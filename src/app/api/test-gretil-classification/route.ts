@@ -7,6 +7,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { gretilTextTypeClassifier } from '../../../lib/services/gretilTextTypeClassifier';
 import { GretilTextType } from '../../../types/gretil-types';
 
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs'; // Ensures full Node.js env for heavy ops
+
 // Sample texts for testing (extracted from actual Gretil corpus)
 const SAMPLE_TEXTS = {
   // EPIC - Ramayana sample

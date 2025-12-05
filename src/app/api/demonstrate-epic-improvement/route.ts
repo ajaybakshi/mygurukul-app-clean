@@ -6,6 +6,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { gretilWisdomService } from '../../../lib/services/gretilWisdomService';
 
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs'; // Ensures full Node.js env for heavy ops
+
 export async function GET(request: NextRequest) {
   try {
     console.log('🎯 Demonstrating Epic Logical Unit Extraction Improvement');

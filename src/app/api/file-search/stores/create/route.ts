@@ -7,6 +7,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { GoogleGenAI } from '@google/genai';
 import { getFileSearchConfig, getCategoryDisplayName } from '../../../../../lib/fileSearchConfig';
 
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs'; // Ensures full Node.js env for heavy ops
+
 export async function POST(request: NextRequest) {
   try {
     const config = getFileSearchConfig();
