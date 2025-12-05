@@ -4,6 +4,11 @@ import React, { useState, useEffect, Suspense, ErrorInfo, Component } from 'reac
 import { useSearchParams } from 'next/navigation';
 import { Home, MessageSquare, BookOpen, User, AlertTriangle } from 'lucide-react';
 
+// Import SEO components
+import SEOHead from '@/components/SEOHead';
+import SchemaMarkup from '@/components/SchemaMarkup';
+import { seoConfig } from '@/lib/seoConfig';
+
 // Import our tab components
 import HomeTab from '@/components/tabs/HomeTab';
 import AskTab from '@/components/tabs/AskTab';
@@ -153,9 +158,29 @@ const SubmitPageContent: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-50 via-white to-amber-50/50">
-      {/* Sacred background pattern */}
-      <div className="absolute inset-0 opacity-5 pointer-events-none">
+    <>
+      <SEOHead
+        title={seoConfig.pages.home.title}
+        description={seoConfig.pages.home.description}
+        url={`${seoConfig.url}${seoConfig.pages.home.path}`}
+        keywords={seoConfig.keywords}
+      />
+      
+      <SchemaMarkup type="Organization" />
+      <SchemaMarkup type="WebSite" />
+      <SchemaMarkup 
+        type="Collection" 
+        data={{
+          categories: [
+            'Vedas', 'Upanishads', 'Puranas', 'Ayurveda',
+            'Darshanas', 'Epics', 'Poetry', 'Sastras'
+          ]
+        }}
+      />
+      
+      <div className="min-h-screen bg-gradient-to-br from-amber-50 via-white to-amber-50/50">
+        {/* Sacred background pattern */}
+        <div className="absolute inset-0 opacity-5 pointer-events-none">
         <div 
           className="w-full h-full"
           style={{
@@ -265,6 +290,7 @@ const SubmitPageContent: React.FC = () => {
         </div>
       </div>
     </div>
+    </>
   );
 };
 

@@ -1,0 +1,12 @@
+User-agent: *
+Allow: /
+Allow: /library
+Allow: /?tab=ask
+Disallow: /_next/
+Disallow: /api/
+Disallow: /*.json$
+
+User-agent: AdsBot-Google
+Allow: /
+
+Sitemap: https://www.mygurukul.org/sitemap.xml

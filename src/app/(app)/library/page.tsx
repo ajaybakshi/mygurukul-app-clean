@@ -4,6 +4,9 @@ import { useState, useEffect } from 'react';
 import type { Category } from '@/types/library';
 import { getOrganizedLibrary, hasChapterManifestSync } from '@/lib/libraryService';
 import CategoryRow from '@/components/library/CategoryRow';
+import SEOHead from '@/components/SEOHead';
+import SchemaMarkup from '@/components/SchemaMarkup';
+import { seoConfig } from '@/lib/seoConfig';
 
 export default function LibraryPage() {
   const [categories, setCategories] = useState<Category[]>([]);
@@ -58,7 +61,26 @@ export default function LibraryPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <>
+      <SEOHead
+        title={seoConfig.pages.library.title}
+        description={seoConfig.pages.library.description}
+        url={`${seoConfig.url}/library`}
+        keywords={seoConfig.keywords}
+      />
+      
+      <SchemaMarkup type="Organization" />
+      <SchemaMarkup 
+        type="Collection"
+        data={{
+          categories: [
+            'Vedas', 'Upanishads', 'Puranas', 'Ayurveda',
+            'Darshanas', 'Epics', 'Poetry', 'Sastras', 'Shastras'
+          ]
+        }}
+      />
+      
+      <div className="container mx-auto px-4 py-8">
       <div className="mb-8">
         <h1 className="text-4xl font-bold mb-4">The Sacred Archive</h1>
         
@@ -83,6 +105,7 @@ export default function LibraryPage() {
         </p>
       )}
     </div>
+    </>
   );
 }
 

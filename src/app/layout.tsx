@@ -1,16 +1,28 @@
 import type { Metadata, Viewport } from 'next'
 import { Suspense } from 'react'
 import './globals.css'
+import { seoConfig } from '@/lib/seoConfig'
 import AppHeader from '@/components/AppHeader'
 import BottomNavigation from '@/components/BottomNavigation'
 import { ChakraProvider } from '@chakra-ui/react'
 import { Analytics } from '@vercel/analytics/react'
 
 export const metadata: Metadata = {
-  title: 'MyGurukul - Spiritual Q&A',
-  description: 'Your spiritual journey starts here. Ask questions, find wisdom, and grow with the MyGurukul community.',
-  keywords: 'spiritual, Q&A, wisdom, meditation, mindfulness, gurukul',
-  authors: [{ name: 'MyGurukul Team' }],
+  title: seoConfig.title,
+  description: seoConfig.description,
+  keywords: seoConfig.keywords,
+  authors: [{ name: seoConfig.author }],
+  metadataBase: new URL('https://www.mygurukul.org'),
+  openGraph: {
+    title: seoConfig.title,
+    description: seoConfig.description,
+    url: seoConfig.url,
+    siteName: 'MyGurukul',
+    type: 'website',
+  },
+  verification: {
+    google: 'e10867c4f5029cb7',
+  },
 }
 
 export const viewport: Viewport = {
