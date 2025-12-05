@@ -84,7 +84,7 @@ export default function SEOHead({
       googleVerificationMeta.setAttribute('name', 'google-site-verification');
       document.head.appendChild(googleVerificationMeta);
     }
-    googleVerificationMeta.setAttribute('content', 'e10867c4f5029cb7');
+    googleVerificationMeta.setAttribute('content', 'O2_cqCi1Hsvodgl0uJuyz1ezFKVqEJlrf6ULF8rHIwc');
 
     // Bing Webmaster Tools verification  
     let bingVerificationMeta = document.querySelector('meta[name="msvalidate.01"]');
