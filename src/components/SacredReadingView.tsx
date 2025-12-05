@@ -230,7 +230,7 @@ export default function SacredReadingView({ onClose, onBack }: SacredReadingView
 
   // If onBack is provided, render inline; otherwise render as modal
   const content = (
-    <div className="min-h-screen bg-gradient-to-br from-amber-50 via-white to-amber-50/50">
+    <div className="bg-gradient-to-br from-amber-50 via-white to-amber-50/50 pb-20">
       {/* Sacred background pattern */}
       <div className="absolute inset-0 opacity-5 pointer-events-none">
         <div 
@@ -243,7 +243,7 @@ export default function SacredReadingView({ onClose, onBack }: SacredReadingView
         />
       </div>
 
-      <div className="relative z-10 max-w-4xl mx-auto p-6 space-y-8">
+      <div className="relative z-10 max-w-4xl mx-auto pt-24 sm:pt-28 pb-6 px-6 space-y-8">
         {/* Back Button - always show when not in modal mode, or when onBack is provided */}
         {(!onClose || onBack) && (
           <button
@@ -533,7 +533,7 @@ export default function SacredReadingView({ onClose, onBack }: SacredReadingView
   // If onBack is provided, render inline; otherwise render as modal
   if (onBack) {
     return (
-      <div className="max-w-6xl mx-auto p-4 space-y-6 animate-in fade-in duration-500 bg-stone-50 min-h-screen">
+      <div className="max-w-6xl mx-auto p-4 space-y-6 animate-in fade-in duration-500 bg-stone-50 pb-20">
         {content}
       </div>
     );

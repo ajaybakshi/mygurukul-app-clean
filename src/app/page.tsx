@@ -178,7 +178,7 @@ const SubmitPageContent: React.FC = () => {
         }}
       />
       
-      <div className="min-h-screen bg-gradient-to-br from-amber-50 via-white to-amber-50/50">
+      <div className="relative bg-gradient-to-br from-amber-50 via-white to-amber-50/50 pb-20">
         {/* Sacred background pattern */}
         <div className="absolute inset-0 opacity-5 pointer-events-none">
         <div 
@@ -192,7 +192,7 @@ const SubmitPageContent: React.FC = () => {
       </div>
 
       {/* Tab content area */}
-      <div className="relative z-10">
+      <div className="relative z-10 pt-2 sm:pt-4">
         {CurrentComponent && (
           <TabErrorBoundary tabName={currentTab.name}>
             {activeTab === 'home' ? (
@@ -247,48 +247,6 @@ const SubmitPageContent: React.FC = () => {
         )}
       </div>
 
-      {/* Sacred footer with spiritual guidance */}
-      <div className="relative z-50 bg-white/80 backdrop-blur-md border-t border-amber-200 mt-8">
-        <div className="max-w-6xl mx-auto px-6 py-4">
-          <div className="text-center">
-            <h3 className="font-bold text-amber-800 mb-2">🕉️ Your Spiritual Journey</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-sm text-amber-600">
-              <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
-                <div className="font-semibold text-amber-800 mb-1">Sacred Reading</div>
-                <div>Start your day with divine wisdom from ancient scriptures like the Ramayana</div>
-              </div>
-              <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
-                <div className="font-semibold text-amber-800 mb-1">Spiritual Guidance</div>
-                <div>Ask questions and receive AI-powered wisdom from sacred texts and teachings</div>
-              </div>
-              <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
-                <div className="font-semibold text-amber-800 mb-1">Sacred Library</div>
-                <div>Explore your collection of spiritual sources and wisdom texts</div>
-              </div>
-              {/* SPRINT 1: UI Restructuring - Spiritual Path section hidden (not deleted) */}
-              {/* <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
-                <div className="font-semibold text-amber-800 mb-1">Spiritual Path</div>
-                <div>Track your journey, preferences, and personal spiritual growth</div>
-              </div> */}
-            </div>
-            
-            <div className="mt-4 p-4 bg-gradient-to-r from-amber-100 to-amber-50 border border-amber-200 rounded-lg">
-              <div className="text-amber-800 font-semibold mb-2">🌟 Enhanced Experience</div>
-              <div className="text-amber-700 text-sm">
-                All your spiritual journey data is preserved as you navigate between tabs. 
-                Start with today&apos;s wisdom, then continue your discussion for deeper insights.
-              </div>
-            </div>
-            
-            <div className="mt-4 text-center text-sm text-amber-600 font-serif">
-              <div>May this wisdom guide your path to spiritual enlightenment</div>
-              <div className="mt-2 text-amber-500">
-                🕉️ In the tradition of Guru-Shishya परंपरा 🕉️
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
     </div>
     </>
   );

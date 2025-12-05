@@ -49,30 +49,30 @@ export default function AppHeader() {
   }
 
   return (
-    <div className="relative z-50 bg-white/80 backdrop-blur-md border-b border-amber-200 shadow-lg">
-      <div className="max-w-6xl mx-auto px-6 py-4">
+    <div className="sticky top-0 z-50 bg-white border-b border-amber-200 shadow-lg backdrop-blur-md">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 sm:py-4">
         {/* Top nav */}
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex-1"></div>
+        <div className="flex items-center justify-between mb-3 sm:mb-4">
+          <div className="flex-1 hidden sm:block"></div>
           
           <div className="text-center flex-1">
-            <h1 className="text-2xl font-bold" style={{ color: '#D4AF37' }}>
+            <h1 className="text-lg sm:text-2xl font-bold" style={{ color: '#D4AF37' }}>
               🕉️ MyGurukul - Spiritual Guidance
             </h1>
-            <p className="text-amber-600 text-sm">
+            <p className="text-amber-600 text-xs sm:text-sm hidden sm:block">
               Your journey to wisdom through ancient sacred texts
             </p>
           </div>
           
-          <div className="text-amber-600 text-sm flex-1 text-right">
+          <div className="text-amber-600 text-xs sm:text-sm flex-1 text-right hidden md:block">
             Active: <span className="font-semibold">{currentTabName}</span>
           </div>
         </div>
 
         {/* Tab navigation with spiritual golden theme */}
         <div className="flex justify-center">
-          <div className="bg-amber-100/50 backdrop-blur-sm border border-amber-200 rounded-xl p-2 shadow-md">
-            <div className="flex space-x-2">
+          <div className="bg-amber-100/50 backdrop-blur-sm border border-amber-200 rounded-xl p-1 sm:p-2 shadow-md w-full sm:w-auto">
+            <div className="flex space-x-1 sm:space-x-2 justify-center">
               {tabs.map((tab) => {
                 const isActive = tab.id === activeTab;
                 
@@ -80,7 +80,7 @@ export default function AppHeader() {
                   <Link
                     key={tab.id}
                     href={tab.href}
-                    className={`group flex flex-col items-center space-y-1 px-4 py-3 rounded-lg transition-all duration-300 font-medium min-w-[100px] ${
+                    className={`group flex flex-col items-center space-y-1 px-2 sm:px-4 py-2 sm:py-3 rounded-lg transition-all duration-300 font-medium min-w-[80px] sm:min-w-[100px] flex-1 sm:flex-none ${
                       isActive
                         ? 'bg-gradient-to-r from-amber-200 to-amber-100 text-amber-800 shadow-md transform scale-105'
                         : 'text-amber-600 hover:bg-amber-50/50 hover:text-amber-700'

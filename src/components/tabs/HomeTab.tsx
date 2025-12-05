@@ -115,7 +115,7 @@ export default function HomeTab({ onAsk, onNavigate }: HomeTabProps) {
   // Render Hub (Bento Dashboard)
   return (
     <div 
-      className="max-w-6xl mx-auto py-6 px-4 space-y-6 animate-in fade-in duration-500 bg-stone-50 min-h-screen"
+      className="max-w-6xl mx-auto pt-6 pb-6 px-4 space-y-6 animate-in fade-in duration-500 bg-stone-50 min-h-screen"
       style={{
         backgroundImage: `
           radial-gradient(circle at 20% 30%, rgba(251, 191, 36, 0.08) 0%, transparent 50%),
