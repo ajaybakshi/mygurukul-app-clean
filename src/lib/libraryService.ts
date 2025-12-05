@@ -136,39 +136,50 @@ function normalizeScriptureIdForManifest(scriptureId: string): string {
 export async function fetchChapterManifest(
   scriptureId: string
 ): Promise<ChapterManifest | null> {
+  // Normalize the ID to match manifest file naming
+  const normalizedId = normalizeScriptureIdForManifest(scriptureId);
+  
+  console.log(`[Manifest Debug] Fetching manifest for scriptureId: "${scriptureId}" (normalized: "${normalizedId}")`);
+  
+  // First, try to load from public/data/chapter-manifests/ (synced from Gurukul_Library)
+  const localManifestUrl = `/data/chapter-manifests/${normalizedId}.json`;
+  
+  console.log(`[Manifest Debug] Attempting local fetch from: ${localManifestUrl}`);
+  
   try {
-    // Normalize the ID to match manifest file naming
-    const normalizedId = normalizeScriptureIdForManifest(scriptureId);
+    const localResponse = await fetch(localManifestUrl, {
+      cache: 'no-store',
+    });
     
-    console.log(`[Manifest Debug] Fetching manifest for scriptureId: "${scriptureId}" (normalized: "${normalizedId}")`);
+    console.log(`[Manifest Debug] Local fetch response - Success: ${localResponse.ok}, Status: ${localResponse.status}, Source: ${localManifestUrl}`);
     
-    // First, try to load from public/data/chapter-manifests/ (synced from Gurukul_Library)
-    const localManifestUrl = `/data/chapter-manifests/${normalizedId}.json`;
-    
-    console.log(`[Manifest Debug] Attempting local fetch from: ${localManifestUrl}`);
-    
-    try {
-      const localResponse = await fetch(localManifestUrl, {
-        cache: 'no-store',
-      });
-      
-      console.log(`[Manifest Debug] Local fetch response - Success: ${localResponse.ok}, Status: ${localResponse.status}, Source: ${localManifestUrl}`);
-      
-      if (localResponse.ok) {
+    if (localResponse.ok) {
+      try {
         const manifest: ChapterManifest = await localResponse.json();
         console.log(`[Manifest Debug] ✅ Successfully loaded from LOCAL public folder: ${localManifestUrl}`);
         console.log(`[LibraryService] Loaded manifest from public folder for "${scriptureId}" (normalized: "${normalizedId}"): ${manifest.totalChapters} chapters`);
         return manifest;
-      } else {
-        console.log(`[Manifest Debug] Local manifest not found (status ${localResponse.status}), trying GCS fallback...`);
+      } catch (parseError) {
+        console.warn(`[Manifest Debug] Failed to parse local manifest JSON, trying GCS fallback...`);
       }
-    } catch (localError) {
-      console.log(`[Manifest Debug] Local fetch error: ${localError instanceof Error ? localError.message : String(localError)}, trying GCS fallback...`);
+    } else {
+      console.log(`[Manifest Debug] Local manifest not found (status ${localResponse.status}), trying GCS fallback...`);
     }
-    
-    // Fallback to GCS
-    const manifestUrl = `${MANIFEST_BASE_URL}/${normalizedId}_chapter_manifest.json`;
-    
+  } catch (localError) {
+    console.log(`[Manifest Debug] Local fetch error: ${localError instanceof Error ? localError.message : String(localError)}, trying GCS fallback...`);
+  }
+  
+  // Fallback to GCS - construct exact URL matching working example
+  // Working example: https://storage.googleapis.com/mygurukul-sacred-texts-corpus/Metadata/Bhagvata_Purana_chapter_manifest.json
+  // MANIFEST_BASE_URL = 'https://storage.googleapis.com/mygurukul-sacred-texts-corpus/Metadata'
+  // So we need: MANIFEST_BASE_URL + '/' + normalizedId + '_chapter_manifest.json'
+  const manifestUrl = `${MANIFEST_BASE_URL}/${normalizedId}_chapter_manifest.json`;
+  
+  // Log the exact GCS path being accessed (for debugging)
+  console.log(`[GCS Path Debug] Exact GCS path: Metadata/${normalizedId}_chapter_manifest.json`);
+  console.log(`[GCS Path Debug] Full URL (should match working example): ${manifestUrl}`);
+  
+  try {
     // Add cache-busting timestamp to ensure fresh manifest
     const cacheBuster = `?t=${Date.now()}`;
     const urlWithCacheBuster = `${manifestUrl}${cacheBuster}`;
@@ -194,9 +205,13 @@ export async function fetchChapterManifest(
     console.log(`[LibraryService] Successfully loaded manifest from GCS for ${scriptureId}: ${manifest.totalChapters} chapters`);
     
     return manifest;
-  } catch (error) {
-    console.error(`[Manifest Debug] ❌ Error fetching chapter manifest for ${scriptureId}:`, error);
-    console.error(`[LibraryService] Error fetching chapter manifest for ${scriptureId}:`, error);
+  } catch (gcsError) {
+    console.error(`[Manifest Debug] ❌ GCS fetch error for ${scriptureId}:`, gcsError);
+    console.error(`[LibraryService] Error fetching chapter manifest from GCS for ${scriptureId}:`, gcsError);
+    if (gcsError instanceof Error) {
+      console.error(`[LibraryService] Error message: ${gcsError.message}`);
+      console.error(`[LibraryService] Error stack: ${gcsError.stack}`);
+    }
     return null;
   }
 }
