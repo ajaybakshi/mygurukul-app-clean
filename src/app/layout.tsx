@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next'
 import './globals.css'
 import BottomNavigation from '@/components/BottomNavigation'
 import { ChakraProvider } from '@chakra-ui/react'
+import { Analytics } from '@vercel/analytics/react'
 
 export const metadata: Metadata = {
   title: 'MyGurukul - Spiritual Q&A',
@@ -29,6 +30,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <BottomNavigation />
           </div>
         </ChakraProvider>
+        <Analytics />
       </body>
     </html>
   )

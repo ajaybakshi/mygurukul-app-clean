@@ -40,6 +40,10 @@ Thumbs.db
 Gurukul_Library/
 gurukul-rag-pipeline/
 
+# NOTE: public/data/chapter-manifests/ is NOT ignored
+# This folder contains synced chapter manifests that are committed to git
+# Run: node scripts/sync-manifests.js to sync from Gurukul_Library
+
 # Large file types
 *.pdf
 
