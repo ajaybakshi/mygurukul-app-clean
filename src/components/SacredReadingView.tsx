@@ -42,6 +42,14 @@ export default function SacredReadingView({ onClose, onBack }: SacredReadingView
   const [availableSources, setAvailableSources] = useState<Array<{folderName: string, displayName: string}>>([]);
   const [sourcesLoading, setSourcesLoading] = useState<boolean>(false);
 
+  // Force hard navigation to library tab (bypasses React Router)
+  const handleForceNav = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    // Force hard navigation to the library tab
+    window.location.href = '/?tab=library';
+  };
+
   // Cache management functions - wrapped in useCallback for stability
   const getCacheKey = useCallback(() => `mygurukul_wisdom_${new Date().toDateString()}`, []);
   
@@ -236,15 +244,15 @@ export default function SacredReadingView({ onClose, onBack }: SacredReadingView
       </div>
 
       <div className="relative z-10 max-w-4xl mx-auto p-6 space-y-8">
-        {/* Back Button - shown when onBack is provided */}
-        {onBack && (
+        {/* Back Button - always show when not in modal mode, or when onBack is provided */}
+        {(!onClose || onBack) && (
           <button
-            onClick={onBack}
+            onClick={handleForceNav}
             className="flex items-center gap-2 text-amber-700 hover:text-amber-800 font-medium transition-colors mb-4"
             style={{ fontFamily: 'Playfair Display, serif' }}
           >
             <ArrowLeft size={18} />
-            <span>← Back to Home</span>
+            <span>← Back to Library</span>
           </button>
         )}
 

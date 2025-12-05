@@ -22,3 +22,4 @@ export const UserMessageBubble: React.FC<UserMessageBubbleProps> = ({ text, time
   );
 };
 
+

@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
+import Link from 'next/link';
 import { fetchChapterManifest } from '@/lib/libraryService';
 import type { ChapterManifest, SectionMetadata, ChapterMetadata } from '@/types/library';
 import ChapterInsightsModal from '@/components/library/ChapterInsightsModal';
@@ -273,7 +274,6 @@ function highlightMatches(text: string, query: string): string {
 
 export default function ChapterBrowserPage() {
   const params = useParams();
-  const router = useRouter();
   const scriptureId = params.scriptureId as string;
 
   const [manifest, setManifest] = useState<ChapterManifest | null>(null);
@@ -430,10 +430,6 @@ export default function ChapterBrowserPage() {
     });
   };
 
-  const handleBack = () => {
-    router.back();
-  };
-
   const handleViewPDF = (pdfUrl: string) => {
     const httpsUrl = convertGcsUrlToHttps(pdfUrl);
     window.open(httpsUrl, '_blank', 'noopener,noreferrer');
@@ -463,12 +459,12 @@ export default function ChapterBrowserPage() {
           <p className="text-gray-600 dark:text-gray-400 mb-6">
             {error || 'Chapter manifest not found for this scripture.'}
           </p>
-          <button
-            onClick={handleBack}
-            className="w-full px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors font-medium"
+          <Link
+            href="/library"
+            className="w-full inline-block px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors font-medium text-center"
           >
             ← Back to Library
-          </button>
+          </Link>
         </div>
       </div>
     );
@@ -480,15 +476,15 @@ export default function ChapterBrowserPage() {
       {/* Header */}
       <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-10 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <button
-            onClick={handleBack}
+          <Link
+            href="/library"
             className="flex items-center text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 mb-3 transition-colors"
           >
             <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
             Back to Library
-          </button>
+          </Link>
 
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
             {manifest.scriptureName}
@@ -756,15 +752,15 @@ export default function ChapterBrowserPage() {
 
         {/* Footer - Back to Library */}
         <div className="mt-12 text-center">
-          <button
-            onClick={handleBack}
+          <Link
+            href="/library"
             className="inline-flex items-center px-6 py-3 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors font-medium"
           >
             <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
             Back to Library
-          </button>
+          </Link>
         </div>
       </div>
     </div>

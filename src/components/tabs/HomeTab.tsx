@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { BookOpen, Sparkles, Send, ArrowRight, CheckCircle, MessageSquare, Library } from 'lucide-react';
 import SacredReadingView from '@/components/SacredReadingView';
 import AskTab from '@/components/tabs/AskTab';
@@ -99,7 +100,8 @@ export default function HomeTab({ onAsk, onNavigate }: HomeTabProps) {
 
   // Render based on currentView
   if (currentView === 'wisdom') {
-    return <SacredReadingView onBack={() => setCurrentView('hub')} />;
+    // Don't pass onBack - let SacredReadingView use TabContext to switch to library tab
+    return <SacredReadingView />;
   }
 
   if (currentView === 'chat') {
@@ -309,13 +311,13 @@ export default function HomeTab({ onAsk, onNavigate }: HomeTabProps) {
           </div>
         </div>
         
-        <button
-          onClick={() => setCurrentView('library')}
+        <Link
+          href="/library"
           className="w-full py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-xl font-medium transition-all flex items-center justify-center gap-2 shadow-md hover:shadow-lg"
           style={{ fontFamily: 'Playfair Display, serif' }}
         >
           Explore Library <ArrowRight size={16} />
-        </button>
+        </Link>
       </div>
     </div>
   );

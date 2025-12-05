@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState, ErrorInfo, Component } from 'react';
+import React, { useState, useEffect, Suspense, ErrorInfo, Component } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { Home, MessageSquare, BookOpen, User, AlertTriangle } from 'lucide-react';
 
 // Import our tab components
@@ -118,12 +119,38 @@ class TabErrorBoundary extends Component<
 const SubmitPageContent: React.FC = () => {
   const tabContext = useTabContext();
   const { activeTab, switchTab, setQuestion } = tabContext;
+  const searchParams = useSearchParams();
   
   // State for initial question from HomeTab
   const [initialQuestion, setInitialQuestion] = useState<string>('');
 
+  // Sync URL params with tab state
+  useEffect(() => {
+    const tabParam = searchParams.get('tab');
+    if (tabParam) {
+      // Only switch if the param differs from current activeTab to avoid loops
+      if (tabParam !== activeTab) {
+        console.log('[page.tsx] URL param tab=', tabParam, 'differs from activeTab=', activeTab, '- switching tab');
+        switchTab(tabParam);
+      } else {
+        console.log('[page.tsx] URL param tab=', tabParam, 'matches activeTab - no switch needed');
+      }
+    }
+  }, [searchParams, activeTab, switchTab]);
+
   const currentTab = tabs.find(tab => tab.id === activeTab);
   const CurrentComponent = currentTab?.component;
+
+  // Debug logging
+  console.log('[page.tsx] Render - activeTab:', activeTab);
+  console.log('[page.tsx] currentTab found:', currentTab?.id, currentTab?.name);
+  console.log('[page.tsx] CurrentComponent:', CurrentComponent?.name || 'undefined');
+  
+  // Verify library tab rendering
+  if (activeTab === 'library') {
+    console.log('[page.tsx] ✅ activeTab is "library" - LibraryPage should render');
+    console.log('[page.tsx] CurrentComponent === LibraryPage?', CurrentComponent === LibraryPage);
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-amber-50 via-white to-amber-50/50">
@@ -139,82 +166,43 @@ const SubmitPageContent: React.FC = () => {
         />
       </div>
 
-      {/* Fixed header with navigation */}
-      <div className="relative z-50 bg-white/80 backdrop-blur-md border-b border-amber-200 shadow-lg">
-        <div className="max-w-6xl mx-auto px-6 py-4">
-          {/* Top nav */}
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex-1"></div>
-            
-            <div className="text-center flex-1">
-              <h1 className="text-2xl font-bold" style={{ color: '#D4AF37' }}>
-                🕉️ MyGurukul - Spiritual Guidance
-              </h1>
-              <p className="text-amber-600 text-sm">
-                Your journey to wisdom through ancient sacred texts
-              </p>
-            </div>
-            
-            <div className="text-amber-600 text-sm flex-1 text-right">
-              Active: <span className="font-semibold">{currentTab?.name}</span>
-              {tabContext.sessionId && (
-                <div className="text-xs mt-1">
-                  Session: {tabContext.sessionId.substring(0, 8)}...
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Tab navigation with spiritual golden theme */}
-          <div className="flex justify-center">
-            <div className="bg-amber-100/50 backdrop-blur-sm border border-amber-200 rounded-xl p-2 shadow-md">
-              <div className="flex space-x-2">
-                {tabs.map((tab) => (
-                  <button
-                    key={tab.id}
-                    onClick={() => switchTab(tab.id)}
-                    className={`group flex flex-col items-center space-y-1 px-4 py-3 rounded-lg transition-all duration-300 font-medium min-w-[100px] ${
-                      activeTab === tab.id
-                        ? 'bg-gradient-to-r from-amber-200 to-amber-100 text-amber-800 shadow-md transform scale-105'
-                        : 'text-amber-600 hover:bg-amber-50/50 hover:text-amber-700'
-                    }`}
-                    style={activeTab === tab.id ? { color: '#D4AF37' } : {}}
-                    title={tab.description}
-                  >
-                    <div className={`transition-all duration-300 ${
-                      activeTab === tab.id ? 'transform scale-110' : 'group-hover:scale-105'
-                    }`}>
-                      {tab.icon}
-                    </div>
-                    <span className="text-xs text-center leading-tight">{tab.name}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
       {/* Tab content area */}
       <div className="relative z-10">
         {CurrentComponent && (
           <TabErrorBoundary tabName={currentTab.name}>
             {activeTab === 'home' ? (
-              <HomeTab 
-                onNavigate={(tab) => switchTab(tab)}
-                onAsk={(question) => {
-                  setInitialQuestion(question);
-                  setQuestion(question);
-                  switchTab('ask');
-                }}
-              />
+              (() => {
+                console.log('[page.tsx] Rendering HomeTab');
+                return (
+                  <HomeTab 
+                    key="home"
+                    onNavigate={(tab) => switchTab(tab)}
+                    onAsk={(question) => {
+                      setInitialQuestion(question);
+                      setQuestion(question);
+                      switchTab('ask');
+                    }}
+                  />
+                );
+              })()
             ) : activeTab === 'ask' ? (
-              <AskTab 
-                initialQuestion={initialQuestion} 
-                key={initialQuestion} // Force re-render when question changes
-              />
+              (() => {
+                console.log('[page.tsx] Rendering AskTab');
+                return (
+                  <AskTab 
+                    key="ask"
+                    initialQuestion={initialQuestion} 
+                  />
+                );
+              })()
             ) : (
-              <CurrentComponent />
+              (() => {
+                console.log('[page.tsx] Rendering CurrentComponent (fallback) - activeTab:', activeTab);
+                if (activeTab === 'library') {
+                  console.log('[page.tsx] ✅ Rendering LibraryPage component');
+                }
+                return <CurrentComponent key={activeTab} />;
+              })()
             )}
           </TabErrorBoundary>
         )}
@@ -284,7 +272,9 @@ const SubmitPageContent: React.FC = () => {
 export default function HomePage() {
   return (
     <TabProvider initialTab="home">
-      <SubmitPageContent />
+      <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
+        <SubmitPageContent />
+      </Suspense>
     </TabProvider>
   );
 }
