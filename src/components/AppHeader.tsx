@@ -10,7 +10,7 @@ const tabs = [
     id: 'home',
     name: 'Sacred Reading',
     icon: <Home className="w-5 h-5" />,
-    href: '/',
+    href: '/?view=wisdom',
     description: 'Begin with today\'s divine wisdom'
   },
   {
@@ -43,6 +43,9 @@ export default function AppHeader() {
   } else if (pathname === '/submit' || searchParams.get('tab') === 'ask') {
     activeTab = 'ask';
     currentTabName = 'Spiritual Guidance';
+  } else if (searchParams.get('view') === 'wisdom') {
+    activeTab = 'home';
+    currentTabName = 'Sacred Reading';
   } else {
     activeTab = 'home';
     currentTabName = 'Sacred Reading';

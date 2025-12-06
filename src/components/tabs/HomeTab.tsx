@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { BookOpen, Sparkles, Send, ArrowRight, CheckCircle, MessageSquare, Library } from 'lucide-react';
 import SacredReadingView from '@/components/SacredReadingView';
 import AskTab from '@/components/tabs/AskTab';
@@ -29,6 +30,8 @@ const libraryBooks = [
 type CurrentView = 'hub' | 'wisdom' | 'chat' | 'library';
 
 export default function HomeTab({ onAsk, onNavigate }: HomeTabProps) {
+  const searchParams = useSearchParams();
+  const router = useRouter();
   const [currentView, setCurrentView] = useState<CurrentView>('hub');
   const [inputVal, setInputVal] = useState('');
   const [libraryStats, setLibraryStats] = useState<LibraryStats>({
@@ -38,6 +41,14 @@ export default function HomeTab({ onAsk, onNavigate }: HomeTabProps) {
     scriptureTypes: []
   });
   const [statsLoading, setStatsLoading] = useState(true);
+
+  // Check for view=wisdom URL parameter on mount
+  useEffect(() => {
+    const viewParam = searchParams.get('view');
+    if (viewParam === 'wisdom') {
+      setCurrentView('wisdom');
+    }
+  }, [searchParams]);
 
   // Fetch library statistics
   useEffect(() => {
@@ -234,7 +245,7 @@ export default function HomeTab({ onAsk, onNavigate }: HomeTabProps) {
             </div>
           </div>
           <button 
-            onClick={() => setCurrentView('wisdom')}
+            onClick={() => router.push('/?view=wisdom')}
             className="w-full py-3 bg-spiritual-500 hover:bg-spiritual-600 text-white rounded-xl font-medium transition-all flex items-center justify-center gap-2 shadow-md hover:shadow-lg"
             style={{ fontFamily: 'Playfair Display, serif' }}
           >
