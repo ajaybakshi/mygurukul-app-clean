@@ -55,7 +55,7 @@ interface LogicalUnit {
   unitType?: 'epic' | 'philosophical' | 'dialogue' | 'hymnal' | 'narrative';
 }
 
-interface GretilMetadata {
+export interface GretilMetadata {
   title: string; // Required field - extracted from filename
   transformationTitle?: string; // Optional - from header if available
   dataEntry?: string;
@@ -84,13 +84,13 @@ interface GretilMetadata {
   narrativeUnit?: any;
 }
 
-interface ChapterReference {
+export interface ChapterReference {
   book?: number;
   chapter: number;
   section?: number;
 }
 
-interface VerseReference {
+export interface VerseReference {
   verse: number;
   subVerse?: string;
   fullReference: string;
