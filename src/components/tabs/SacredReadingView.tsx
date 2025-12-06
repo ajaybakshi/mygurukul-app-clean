@@ -391,6 +391,12 @@ export default function SacredReadingView({ onClose, onBack }: SacredReadingView
                   >
                     <div className="absolute inset-0 bg-white/40 rounded-lg"></div>
                     
+                    <div className="relative z-10 text-center mb-3">
+                      <h3 className="text-amber-800 font-semibold text-sm drop-shadow-sm">
+                        📜 Sanskrit (IAST)
+                      </h3>
+                    </div>
+                    
                     <div className="relative z-10 text-gray-800 leading-relaxed text-lg font-serif italic text-center drop-shadow-sm break-words">
                       &quot;{todaysWisdom.rawText}&quot;
                     </div>
@@ -415,6 +421,16 @@ export default function SacredReadingView({ onClose, onBack }: SacredReadingView
                       />
                     </div>
                   </div>
+
+                  {/* Scripture Reference Display */}
+                  {todaysWisdom.rawTextAnnotation?.technicalReference && (
+                    <div className="mt-4 mb-4 text-center">
+                      <div className="inline-flex items-center space-x-2 bg-gradient-to-r from-amber-100 to-orange-100 text-amber-900 px-4 py-2 rounded-lg border border-amber-300 shadow-sm">
+                        <span className="text-sm font-semibold">📖 Reference:</span>
+                        <span className="text-sm font-mono font-bold">{todaysWisdom.rawTextAnnotation.technicalReference}</span>
+                      </div>
+                    </div>
+                  )}
 
                   {/* Sanskrit Devanagari Section */}
                   <div 

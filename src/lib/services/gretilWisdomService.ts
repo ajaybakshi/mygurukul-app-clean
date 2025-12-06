@@ -8,6 +8,7 @@ import { hymnalLogicalUnitExtractor, HymnalLogicalUnitExtractor } from './extrac
 import { narrativeLogicalUnitExtractor, NarrativeLogicalUnitExtractor } from './extractors/narrativeLogicalUnitExtractor';
 import { BoundaryExtractor } from './boundaryExtractor';
 import { ScripturePatternService } from './scripturePatternService';
+import { htmlGretilParser } from './htmlGretilParser';
 
 interface ParsedLogicalUnit {
   cleanText: string;
@@ -147,22 +148,44 @@ class GretilWisdomService {
         .getFiles({ prefix: `${this.gretilFolder}/` });
   
       const sources: GretilWisdomSource[] = [];
+      const processedNames = new Set<string>(); // Track processed base names to prioritize HTML
       
+      // First pass: Process HTML files (prioritize over TXT)
       for (const file of files) {
         const fileName = file.name.split('/').pop();
-        // Only process .txt files directly in Gretil_Originals/ (no subfolders)
-        if (fileName && fileName.endsWith('.txt') && fileName !== '.txt' && !file.name.includes('/', file.name.indexOf('/') + 1)) {
-          const source = this.categorizeGretilText(fileName);
+        if (fileName && (fileName.endsWith('.html') || fileName.endsWith('.htm')) && 
+            fileName !== '.html' && fileName !== '.htm' && 
+            !file.name.includes('/', file.name.indexOf('/') + 1)) {
+          const baseName = fileName.replace(/\.(html|htm)$/i, '');
+          const source = this.categorizeGretilText(baseName);
           if (source) {
-            // Use actual filename as the identifier
             source.folderName = fileName;
             sources.push(source);
-            console.log(`Added Gretil source: ${fileName} -> ${source.displayName} (${source.category})`);
+            processedNames.add(baseName.toLowerCase());
+            console.log(`Added HTML Gretil source: ${fileName} -> ${source.displayName} (${source.category})`);
+          }
+        }
+      }
+      
+      // Second pass: Process TXT files (only if HTML version doesn't exist)
+      for (const file of files) {
+        const fileName = file.name.split('/').pop();
+        if (fileName && fileName.endsWith('.txt') && fileName !== '.txt' && 
+            !file.name.includes('/', file.name.indexOf('/') + 1)) {
+          const baseName = fileName.replace(/\.txt$/i, '');
+          // Only add TXT if HTML version doesn't exist
+          if (!processedNames.has(baseName.toLowerCase())) {
+            const source = this.categorizeGretilText(fileName);
+            if (source) {
+              source.folderName = fileName;
+              sources.push(source);
+              console.log(`Added TXT Gretil source: ${fileName} -> ${source.displayName} (${source.category})`);
+            }
           }
         }
       }
   
-      console.log(`Total Gretil sources found: ${sources.length}`);
+      console.log(`Total Gretil sources found: ${sources.length} (HTML prioritized over TXT)`);
       return sources.sort((a, b) => a.displayName.localeCompare(b.displayName));
   
     } catch (error) {
@@ -173,7 +196,8 @@ class GretilWisdomService {
   
 
   private categorizeGretilText(fileName: string): GretilWisdomSource | null {
-    const name = fileName.replace('.txt', '').toLowerCase();
+    // Handle both .txt and .html/.htm files
+    const name = fileName.replace(/\.(txt|html|htm)$/i, '').toLowerCase();
 
     // Use enhanced classifier for better categorization (will be populated with content later)
     // For now, use filename-based classification with legacy fallback
@@ -248,7 +272,7 @@ class GretilWisdomService {
 
   private formatDisplayName(fileName: string): string {
     return fileName
-      .replace('.txt', '')
+      .replace(/\.(txt|html|htm)$/i, '')
       .replace(/_/g, ' ')  // Handle underscore-based naming
       .replace(/-/g, ' ')  // Also handle hyphens
       .replace(/sample/gi, '')
@@ -263,6 +287,14 @@ class GretilWisdomService {
     try {
       console.log(`=== DEBUGGING: Starting extraction from ${sourceName} ===`);
       console.log(`🔍 Source file: ${sourceName}`);
+
+      // Check if this is an HTML file
+      const isHtmlFile = sourceName.toLowerCase().endsWith('.html') || sourceName.toLowerCase().endsWith('.htm');
+      
+      if (isHtmlFile) {
+        console.log(`🌐 Detected HTML file, using HTML parser`);
+        return await this.extractWisdomFromHtmlSource(sourceName);
+      }
 
       const storage = this.initializeStorage();
       const filePath = `${this.gretilFolder}/${sourceName}`;
@@ -1102,6 +1134,109 @@ class GretilWisdomService {
       'other': 'Sacred Texts'
     };
     return categoryMap[textType] || 'Sacred Texts';
+  }
+
+  /**
+   * Extract wisdom from HTML source file
+   * Uses HTML parser to extract clean scripture content, excluding non-scripture sections
+   */
+  private async extractWisdomFromHtmlSource(sourceName: string): Promise<ExtractedWisdom | null> {
+    try {
+      console.log(`🌐 Starting HTML extraction from ${sourceName}`);
+      
+      const storage = this.initializeStorage();
+      const filePath = `${this.gretilFolder}/${sourceName}`;
+      const file = storage.bucket(this.bucketName).file(filePath);
+
+      const [content] = await file.download();
+      const htmlContent = content.toString('utf-8');
+
+      console.log(`📊 HTML file size: ${htmlContent.length} characters`);
+
+      // Parse HTML content using HTML parser
+      const parsedContent = htmlGretilParser.parseHtmlContent(htmlContent, sourceName);
+
+      if (!parsedContent.scriptureText || parsedContent.scriptureText.trim().length === 0) {
+        console.log(`⚠️ No scripture text extracted from HTML file ${sourceName}`);
+        return null;
+      }
+
+      // Get source categorization
+      const baseName = sourceName.replace(/\.(html|htm)$/i, '');
+      const source = this.categorizeGretilText(baseName);
+      
+      // Classify text type for metadata
+      const textClassification = this.enhancedClassifyText(sourceName, parsedContent.scriptureText);
+      
+      // Build metadata
+      const metadata: GretilMetadata = {
+        title: parsedContent.headerMetadata?.title || source?.displayName || baseName,
+        ...parsedContent.headerMetadata,
+        textType: source?.textType || 'other',
+        enhancedTextType: textClassification.textType,
+        textTypeConfidence: textClassification.confidence
+      };
+
+      // Extract a random verse/section from the scripture text
+      const scriptureSections = parsedContent.scriptureText
+        .split(/[|]{2,}|\s{3,}/)
+        .filter(section => section.trim().length > 50 && section.trim().length < 500);
+      
+      if (scriptureSections.length === 0) {
+        // Fallback: use first meaningful chunk
+        const chunks = parsedContent.scriptureText.match(/.{100,300}/g) || [];
+        if (chunks.length > 0) {
+          scriptureSections.push(...chunks);
+        } else {
+          scriptureSections.push(parsedContent.scriptureText.substring(0, 300));
+        }
+      }
+
+      // Select random section
+      const randomIndex = Math.floor(Math.random() * scriptureSections.length);
+      const selectedText = scriptureSections[randomIndex].trim();
+
+      // Extract reference if available
+      let reference = 'Sacred Text';
+      let technicalReference: string | undefined = undefined;
+      if (parsedContent.scriptureReferences.length > 0) {
+        const randomRefIndex = Math.floor(Math.random() * parsedContent.scriptureReferences.length);
+        reference = parsedContent.scriptureReferences[randomRefIndex].reference;
+        technicalReference = parsedContent.scriptureReferences[randomRefIndex].reference;
+      }
+
+      console.log(`✅ HTML extraction successful: ${selectedText.length} chars, reference: ${reference}`);
+
+      // Update metadata with technical reference
+      if (technicalReference && metadata) {
+        metadata.verseNumber = {
+          verse: 1,
+          fullReference: technicalReference
+        };
+      }
+
+      return {
+        sanskrit: selectedText,
+        reference: reference,
+        textName: metadata.title,
+        category: source?.category || this.mapTextTypeToCategory(metadata.textType || 'other'),
+        estimatedVerses: scriptureSections.length,
+        metadata: {
+          ...metadata,
+          verseNumber: technicalReference ? {
+            verse: 1,
+            fullReference: technicalReference
+          } : undefined
+        }
+      };
+
+    } catch (error) {
+      console.error(`❌ Error extracting wisdom from HTML source ${sourceName}:`, error);
+      // Fallback to TXT extraction if HTML fails
+      const txtFileName = sourceName.replace(/\.(html|htm)$/i, '.txt');
+      console.log(`🔄 Falling back to TXT extraction: ${txtFileName}`);
+      return this.extractWisdomFromGretilSourceFallback(txtFileName);
+    }
   }
 
   private extractWisdomFromGretilSourceFallback(sourceName: string): Promise<ExtractedWisdom | null> {

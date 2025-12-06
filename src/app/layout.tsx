@@ -13,6 +13,11 @@ export const metadata: Metadata = {
   keywords: seoConfig.keywords,
   authors: [{ name: seoConfig.author }],
   metadataBase: new URL('https://www.mygurukul.org'),
+  icons: {
+    icon: '/icon.svg',
+    shortcut: '/icon.svg',
+    apple: '/icon.svg',
+  },
   openGraph: {
     title: seoConfig.title,
     description: seoConfig.description,

@@ -113,7 +113,9 @@ async function getAllFilesFromFolder(folderName: string): Promise<{ fileName: st
     
     for (const file of files) {
       try {
-        if (file.name.endsWith('.txt') || file.name.endsWith('.json')) {
+        // Accept HTML files in addition to TXT and JSON
+        if (file.name.endsWith('.txt') || file.name.endsWith('.json') || 
+            file.name.endsWith('.html') || file.name.endsWith('.htm')) {
           const [data] = await file.download();
           const content = data.toString('utf8');
           

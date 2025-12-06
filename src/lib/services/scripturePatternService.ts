@@ -406,13 +406,23 @@ export class ScripturePatternService {
   /**
    * UNIVERSAL EXTRACTION METHOD
    * Extract clean verse text using scripture-specific patterns
+   * Handles both TXT and HTML formats
    */
   extractVerseText(line: string, scriptureFile: string): string {
     if (!this.initialized) {
       this.initialize();
     }
     
-    const config = SCRIPTURE_PATTERNS[scriptureFile];
+    // Check if this is HTML content
+    const isHtmlContent = line.includes('<') && (line.includes('<p>') || line.includes('<div>') || line.includes('</'));
+    
+    if (isHtmlContent) {
+      return this.extractVerseTextFromHtml(line, scriptureFile);
+    }
+    
+    // Handle TXT format (existing logic)
+    const baseFileName = scriptureFile.replace(/\.(html|htm)$/i, '.txt');
+    const config = SCRIPTURE_PATTERNS[baseFileName] || SCRIPTURE_PATTERNS[scriptureFile];
     if (!config) {
       console.error(`❌ MISSING PATTERN FOR: ${scriptureFile}`);
       return line; // Fail safe
@@ -429,6 +439,52 @@ export class ScripturePatternService {
     cleaned = cleaned
       .replace(/\s+/g, ' ')  // Normalize whitespace
       .trim();
+    
+    return cleaned;
+  }
+
+  /**
+   * Extract clean verse text from HTML content
+   * Removes HTML tags, extracts references separately, validates Sanskrit content
+   */
+  private extractVerseTextFromHtml(htmlLine: string, scriptureFile: string): string {
+    // Remove HTML tags
+    let cleaned = htmlLine
+      .replace(/<[^>]+>/g, ' ') // Remove all HTML tags
+      .replace(/&nbsp;/g, ' ')
+      .replace(/&amp;/g, '&')
+      .replace(/&lt;/g, '<')
+      .replace(/&gt;/g, '>')
+      .replace(/&quot;/g, '"')
+      .replace(/&#39;/g, "'");
+    
+    // Remove scripture reference patterns (like /AP_1.001ab/)
+    cleaned = cleaned.replace(/\/[A-Z][A-Za-z_]+[\d,\.]+[a-z]*\//g, '');
+    
+    // Get base filename for pattern matching
+    const baseFileName = scriptureFile.replace(/\.(html|htm)$/i, '.txt');
+    const config = SCRIPTURE_PATTERNS[baseFileName] || SCRIPTURE_PATTERNS[scriptureFile];
+    
+    if (config) {
+      // Apply scripture-specific patterns
+      config.patterns.forEach(pattern => {
+        cleaned = cleaned.replace(pattern, '');
+      });
+    }
+    
+    // Additional universal cleaning
+    cleaned = cleaned
+      .replace(/\s+/g, ' ')  // Normalize whitespace
+      .trim();
+    
+    // Validate that we have Sanskrit content
+    const hasSanskrit = /[āīūṛḷēōṃḥśṣṇṭḍṅñ]/.test(cleaned) || /[\u0900-\u097F]/.test(cleaned);
+    
+    if (!hasSanskrit && cleaned.length > 50) {
+      // Likely non-scripture content, return empty or minimal
+      console.log(`⚠️ HTML extraction: No Sanskrit content detected in line`);
+      return '';
+    }
     
     return cleaned;
   }

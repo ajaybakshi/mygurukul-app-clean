@@ -1,0 +1,202 @@
+Notes
+
+Short blurb to be available as a popup
+
+1. Caraka Samhita - how to deal with multiple volumes (and other such cases); Update Sanskrit htm
+
+2. Sushruta - How to deal with multiple volumes; Set OK
+
+3. BrahmaSutra - Update SKT
+
+4. Mimansa Sutra - Read English not working - downloading DS store file; SKT update
+
+5. NyayaSutra - Multiple English Volumes; SKT update
+
+6. Samkhya Sutra - Update SKT
+
+7. Samkhya Karak - Correct spelling on Scripture card; Update SKT txt
+
+8. Vaiseshika Sutra - SKT update
+
+9. Bhagavad Gita - SKT update
+
+10. Ramayana - SKT Update
+
+11. Harivamsha SKT update
+
+12. Mahabharata - all OK
+
+13 GitaGovinda SKT update
+
+14. Harsacarita SKT update
+
+15. Kadambari - SKT PDF and replace English PDF
+
+16. Meghaduta - SKT update
+
+17. Raghuvamsa - SKT update
+
+18. Bhavada Purana SKT PDF
+
+19. Agni Purana SKT update
+
+20. Brahma Purana - English has 4 volumes; SKT update
+
+21. Brahmanda Purana English in 5 Volumes; SKT update
+
+22. DeviBhagvatam SKT update
+
+23. Garuda Purana - 2 volumes in English; SKT Update
+
+24. Kurma Purana - SKT Update
+
+25. Linga Purana SKT Update
+
+26. Markandya Purana SKT Update
+
+27. Matsya Purana replace English PDF & SKT update
+
+28. Narada Purana English has 5 volumes; SKT Update
+
+29. Narasimha Purana - English OK, SKT Update
+
+30. Siva Purana - English has 4 volumes; SKT Update
+
+31. Skanda Purana has 20 volumes (!) in English & SKT Update
+
+32. Vamana Purana SKT Update
+
+33. Vayu Purana has 2 volumes in English; SKT Update
+
+34. Vishnu Purana has 5 volumes in English; SKT update
+
+35. ArthaSastra SKT Update
+
+36. Kama Sutra - English PDF link not working; SKT Update
+
+37. Manusmriti English Link not working (https://storage.googleapis.com/mygurukul-sacred-texts-corpus/Gurukul_Library/Primary_Texts/Sastras/DharmaShastra/Manu_Smriti/Manusmriti_Buhler_English.pdf); SKT Update
+
+38. Natyasastra SKT Update
+
+39. Pancatantra SKT Update
+
+40. Vastu Sastra English has 2 volumes; SKT OK
+
+41. Vedanga Jyotisa SKT Update - PDF
+
+42. Astadhyayi by Panini - SKT update
+
+43. Hitopdesa SKT update
+
+44. NaradaSmriti SKT update
+
+45. Pancatantra by Visnu Sharma is a duplicate
+
+46. Aiteraya Upanishad SKT update
+
+47. Brhadaranyaka Upanishad SKT update
+
+48. Chandogya Upanishad SKT Update
+
+49. Isa Upanishad SKT Update
+
+50. Maitri Upanishad - both English and SKT Updates required
+
+51. Mandukya Upanishad SKT update
+
+52. Prasna Upanishad SKT Update
+
+53. Siva Upanishad SKT update
+
+54. Svetasvatara Upanishad SKT update
+
+55. Taittiriya Upanishad SKT Update
+
+56. Atharva Veda SKT Update; ENG has 2 volumes
+
+57. Rg Veda has 2 volumes English; SKT Update
+
+58. Sama Veda SKT Update
+
+59. Yajur Veda SKT is PDF
+
+60. Aryabhatia SKT update
+
+61. Bijaganita English Link not working; SKT update
+
+62. Brahmasputhasiddhanta Link not working; SKT update
+
+63. Brihajjataka link not working; SKT update
+
+64. BrhatSamhita Link not working, SKT update
+
+65. Dhanurveda - only English available - link not working
+
+66. Gandharv Veda only SKT is available - both links not working
+
+67. Laghukaumudi Eng link not working; SKT update
+
+68. Lilavati - Eng link not working, SKT update
+
+69. Surya Siddanta - ENG 2 options, SKT update
+
+70. Yogasutra SKT update
+
+71. Gheranda Samhita Folder structure NA - SKT Update
+
+72. Hatha Yoga - Folder structure NA; SKT update
+
+73. Yoga Sutra scripture card duplicate
+
+74. Yajnavalkya Yoga - PDF link not working SKT not available
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
