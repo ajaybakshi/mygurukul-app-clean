@@ -3,7 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
-import { Home, MessageSquare, BookOpen } from 'lucide-react';
+import { Home, MessageSquare, BookOpen, Mail } from 'lucide-react';
 
 const tabs = [
   {
@@ -52,7 +52,7 @@ export default function AppHeader() {
   }
 
   return (
-    <div className="sticky top-0 z-50 bg-white border-b border-amber-200 shadow-lg backdrop-blur-md">
+    <div className="sticky top-0 z-50 bg-white border-b border-amber-200 shadow-lg backdrop-blur-md app-header">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 sm:py-4">
         {/* Top nav */}
         <div className="flex items-center justify-between mb-3 sm:mb-4">
@@ -67,14 +67,21 @@ export default function AppHeader() {
             </p>
           </div>
           
-          <div className="text-amber-600 text-xs sm:text-sm flex-1 text-right hidden md:block">
-            Active: <span className="font-semibold">{currentTabName}</span>
+          <div className="flex-1 text-right hidden md:block">
+            <a
+              href="mailto:mygurukul.ai@gmail.com"
+              className="inline-flex items-center gap-2 text-amber-600 hover:text-amber-800 font-medium text-sm transition-all duration-200 hover:underline"
+              style={{ color: '#D4AF37' }}
+            >
+              <Mail className="w-4 h-4" />
+              <span>Contact Us</span>
+            </a>
           </div>
         </div>
 
         {/* Tab navigation with spiritual golden theme */}
         <div className="flex justify-center">
-          <div className="bg-amber-100/50 backdrop-blur-sm border border-amber-200 rounded-xl p-1 sm:p-2 shadow-md w-full sm:w-auto">
+          <div className="bg-amber-100/50 backdrop-blur-sm border border-amber-200 rounded-xl p-1 sm:p-2 shadow-md w-full sm:w-auto tab-navigation">
             <div className="flex space-x-1 sm:space-x-2 justify-center">
               {tabs.map((tab) => {
                 const isActive = tab.id === activeTab;
@@ -83,7 +90,7 @@ export default function AppHeader() {
                   <Link
                     key={tab.id}
                     href={tab.href}
-                    className={`group flex flex-col items-center space-y-1 px-2 sm:px-4 py-2 sm:py-3 rounded-lg transition-all duration-300 font-medium min-w-[80px] sm:min-w-[100px] flex-1 sm:flex-none ${
+                    className={`group flex flex-col items-center space-y-1 px-2 sm:px-4 py-2 sm:py-3 rounded-lg transition-all duration-300 font-medium min-w-[80px] sm:min-w-[100px] flex-1 sm:flex-none tab-button ${
                       isActive
                         ? 'bg-gradient-to-r from-amber-200 to-amber-100 text-amber-800 shadow-md transform scale-105'
                         : 'text-amber-600 hover:bg-amber-50/50 hover:text-amber-700'
@@ -91,7 +98,7 @@ export default function AppHeader() {
                     style={isActive ? { color: '#D4AF37' } : {}}
                     title={tab.description}
                   >
-                    <div className={`transition-all duration-300 ${
+                    <div className={`transition-all duration-300 tab-icon ${
                       isActive ? 'transform scale-110' : 'group-hover:scale-105'
                     }`}>
                       {tab.icon}

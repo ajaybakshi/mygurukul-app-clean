@@ -295,7 +295,7 @@ const AskTab: React.FC<AskTabProps> = ({ className = '', initialQuestion, onBack
         />
       </div>
 
-      <div className="relative z-10 max-w-4xl mx-auto flex flex-col" style={{ height: 'calc(100vh - 60px)', minHeight: 0 }}>
+      <div className="relative z-10 max-w-4xl mx-auto flex flex-col ask-tab-container" style={{ height: 'calc(100vh - 60px)', minHeight: 0 }}>
         {/* Back Button - shown when onBack is provided */}
         {onBack && (
           <div className="flex-shrink-0 mb-2">
@@ -311,7 +311,7 @@ const AskTab: React.FC<AskTabProps> = ({ className = '', initialQuestion, onBack
         )}
 
         {/* Header */}
-        <div className="text-center py-2 flex-shrink-0">
+        <div className="text-center py-2 flex-shrink-0 ask-tab-header">
           <div className="text-3xl mb-2">💬</div>
           <h1 className="text-2xl font-bold mb-1" style={{ color: '#D4AF37' }}>
             Ask for Spiritual Guidance
@@ -363,7 +363,7 @@ const AskTab: React.FC<AskTabProps> = ({ className = '', initialQuestion, onBack
         </div>
 
         {/* Input Area - Above Chat */}
-        <div className="bg-white/80 backdrop-blur-sm p-3 flex-shrink-0 border-b border-amber-200">
+        <div className="bg-white/80 backdrop-blur-sm p-3 border-b border-amber-200 ask-tab-input">
           <form onSubmit={handleSubmit} className="space-y-2">
             {/* Category Dropdown - Hidden for now */}
             {/* <CategoryDropdown /> */}
@@ -422,7 +422,7 @@ const AskTab: React.FC<AskTabProps> = ({ className = '', initialQuestion, onBack
         {/* Chat Area - Scrollable */}
         <div 
           ref={chatContainerRef}
-          className="flex-1 overflow-y-auto px-4 py-6"
+          className="flex-1 overflow-y-auto px-4 py-6 ask-tab-chat"
           style={{ 
             maxHeight: '100%',
             minHeight: 0 // Important for flex children to respect parent constraints

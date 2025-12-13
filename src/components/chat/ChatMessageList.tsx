@@ -43,7 +43,7 @@ export const ChatMessageList: React.FC<ChatMessageListProps> = ({ messages, isLo
   }
 
   return (
-    <div className="space-y-1">
+    <div className="space-y-1 chat-message-list">
       {messages.map((message) => {
         if (message.sender === 'user') {
           return (

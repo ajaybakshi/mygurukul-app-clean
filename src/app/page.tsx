@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, Suspense, ErrorInfo, Component } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, usePathname } from 'next/navigation';
 import { Home, MessageSquare, BookOpen, User, AlertTriangle } from 'lucide-react';
 
 // Import SEO components
@@ -125,6 +125,7 @@ const SubmitPageContent: React.FC = () => {
   const tabContext = useTabContext();
   const { activeTab, switchTab, setQuestion } = tabContext;
   const searchParams = useSearchParams();
+  const pathname = usePathname();
   
   // State for initial question from HomeTab
   const [initialQuestion, setInitialQuestion] = useState<string>('');
@@ -132,16 +133,28 @@ const SubmitPageContent: React.FC = () => {
   // Sync URL params with tab state
   useEffect(() => {
     const tabParam = searchParams.get('tab');
+    const viewParam = searchParams.get('view');
+    
+    // Determine which tab should be active based on URL params
+    let targetTab: string | null = null;
+    
     if (tabParam) {
-      // Only switch if the param differs from current activeTab to avoid loops
-      if (tabParam !== activeTab) {
-        console.log('[page.tsx] URL param tab=', tabParam, 'differs from activeTab=', activeTab, '- switching tab');
-        switchTab(tabParam);
-      } else {
-        console.log('[page.tsx] URL param tab=', tabParam, 'matches activeTab - no switch needed');
-      }
+      // Direct tab parameter (e.g., ?tab=ask)
+      targetTab = tabParam;
+    } else if (viewParam === 'wisdom') {
+      // Sacred Reading uses ?view=wisdom
+      targetTab = 'home';
+    } else if (pathname === '/') {
+      // Default home page with no params should be 'home' tab
+      targetTab = 'home';
     }
-  }, [searchParams, activeTab, switchTab]);
+    
+    // Only switch if we have a target tab and it differs from current activeTab
+    if (targetTab && targetTab !== activeTab) {
+      console.log('[page.tsx] URL params indicate tab=', targetTab, 'current activeTab=', activeTab, '- switching tab');
+      switchTab(targetTab);
+    }
+  }, [searchParams.toString(), pathname, activeTab, switchTab]);
 
   const currentTab = tabs.find(tab => tab.id === activeTab);
   const CurrentComponent = currentTab?.component;

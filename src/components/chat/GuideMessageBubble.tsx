@@ -270,7 +270,7 @@ export const GuideMessageBubble: React.FC<GuideMessageBubbleProps> = ({
   const sourcesCount = sources.length;
 
   return (
-    <div className="flex justify-start mb-4">
+    <div className="flex justify-start mb-2 guide-message-bubble">
       <div className="max-w-[80%] bg-gradient-to-r from-white to-blue-50 border border-blue-100 rounded-r-lg rounded-tl-lg p-4 shadow-sm">
         <div className="text-xs font-medium text-blue-600 text-left mb-2 flex items-center gap-2">
           <span>🕉️</span>
