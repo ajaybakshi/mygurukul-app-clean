@@ -55,28 +55,39 @@ export default function AppHeader() {
     <div className="sticky top-0 z-50 bg-white border-b border-amber-200 shadow-lg backdrop-blur-md app-header">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 sm:py-4">
         {/* Top nav */}
-        <div className="flex items-center justify-between mb-3 sm:mb-4">
-          <div className="flex-1 hidden sm:block"></div>
+        <div className="relative grid grid-cols-3 items-center mb-3 sm:mb-4">
+          <div className="hidden sm:block"></div>
           
-          <div className="text-center flex-1">
+          <div className="text-center col-span-3 sm:col-span-1">
             <h1 className="text-lg sm:text-2xl font-bold" style={{ color: '#D4AF37' }}>
-              🕉️ MyGurukul - Spiritual Guidance
+              🕉️ My Gurukul
             </h1>
             <p className="text-amber-600 text-xs sm:text-sm hidden sm:block">
               Your journey to wisdom through ancient sacred texts
             </p>
           </div>
           
-          <div className="flex-1 text-right hidden md:block">
+          <div className="hidden sm:block text-right">
             <a
               href="mailto:mygurukul.ai@gmail.com"
               className="inline-flex items-center gap-2 text-amber-600 hover:text-amber-800 font-medium text-sm transition-all duration-200 hover:underline"
               style={{ color: '#D4AF37' }}
+              title="Contact Us - mygurukul.ai@gmail.com"
             >
               <Mail className="w-4 h-4" />
               <span>Contact Us</span>
             </a>
           </div>
+          
+          {/* Mobile Contact button - positioned absolutely */}
+          <a
+            href="mailto:mygurukul.ai@gmail.com"
+            className="sm:hidden absolute right-4 top-3 inline-flex items-center text-amber-600 hover:text-amber-800 font-medium text-xs transition-all duration-200 hover:underline"
+            style={{ color: '#D4AF37' }}
+            title="Contact Us - mygurukul.ai@gmail.com"
+          >
+            <Mail className="w-4 h-4" />
+          </a>
         </div>
 
         {/* Tab navigation with spiritual golden theme */}
