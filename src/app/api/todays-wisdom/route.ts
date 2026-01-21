@@ -312,22 +312,24 @@ function determineWisdomType(text: string): 'story' | 'verse' | 'teaching' {
 // Enhanced Perplexity integration for AI-powered wisdom enhancement
 async function createEnhancedWisdom(extractedContent: any, sourceName: string): Promise<string> {
   try {
-    const prompt = `You are a wise spiritual guide sharing wisdom from the ${sourceName}. Transform this passage into beautiful, meaningful daily wisdom for modern seekers.
+    const prompt = `Write a warm, flowing interpretation of this passage from the ${sourceName}. Help readers understand what this scripture teaches and how it applies to life today.
 
-CONTEXT PROVIDED:
+PASSAGE:
 ${extractedContent.combined}
 
-Please create engaging spiritual guidance that:
+TASK: Write 300-400 words of flowing prose that:
+- Explains the context and setting of this passage
+- Interprets what the scripture is teaching
+- Shows how this ancient wisdom applies to modern life
+- Ends with a reflective thought for the reader
 
-1. **Sets the Scene**: Use the character and place information to paint the picture
-2. **Tells the Story**: Weave the narrative into a flowing, engaging tale  
-3. **Reveals the Wisdom**: Extract the deeper spiritual lesson
-4. **Connects to Today**: Show how this applies to modern life challenges
-5. **Inspires Action**: End with gentle guidance for the reader's journey
+STYLE REQUIREMENTS:
+- Write in warm, accessible language
+- Use flowing paragraphs only - NO headers, NO bullet points, NO numbered lists, NO markdown
+- Write as one continuous piece, not divided into sections
+- Speak directly to the reader using "you" and "your"
 
-Format as a warm, compassionate response (300-450 words) that feels like personal guidance from a spiritual teacher. Begin with "In the sacred pages of the ${sourceName}, we discover..."
-
-Make it personal, relatable, and deeply inspiring - not academic or distant.`;
+Begin the interpretation directly without any preamble.`;
 
     console.log('Making Perplexity API call...');
     const response = await fetch('https://api.perplexity.ai/chat/completions', {

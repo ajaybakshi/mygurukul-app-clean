@@ -258,7 +258,7 @@ export async function callFileSearchWisdom(
   conversationHistory?: Array<{sender: 'user' | 'ai', text: string}>
 ): Promise<DiscoveryEngineResponse> {
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 second timeout
+  const timeoutId = setTimeout(() => controller.abort(), 90000); // 90 second timeout (server has 60s maxDuration)
 
   try {
     console.log('📚 Calling File Search Wisdom API with question:', question);
@@ -344,7 +344,7 @@ export async function callFileSearchWisdom(
 
     if (error instanceof Error) {
       if (error.name === 'AbortError') {
-        throw new DiscoveryEngineError('File Search request timed out after 60 seconds');
+        throw new DiscoveryEngineError('File Search request timed out. The service may be busy - please try again.');
       }
       throw new DiscoveryEngineError(`File Search network error: ${error.message}`);
     }
