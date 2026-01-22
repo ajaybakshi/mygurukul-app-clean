@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { Storage } from '@google-cloud/storage';
+import { GoogleGenAI } from '@google/genai';
 import { crossCorpusWisdomService } from '../../../lib/services/crossCorpusWisdomService';
 import { gretilWisdomService } from '../../../lib/services/gretilWisdomService';
+import { getFileSearchConfig } from '../../../lib/fileSearchConfig';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs'; // Ensures full Node.js env for heavy ops
@@ -309,59 +311,86 @@ function determineWisdomType(text: string): 'story' | 'verse' | 'teaching' {
   return 'teaching';
 }
 
-// Enhanced Perplexity integration for AI-powered wisdom enhancement
+// Gemini Flash integration for AI-powered wisdom enhancement
 async function createEnhancedWisdom(extractedContent: any, sourceName: string): Promise<string> {
   try {
-    const prompt = `Write a warm, flowing interpretation of this passage from the ${sourceName}. Help readers understand what this scripture teaches and how it applies to life today.
-
-PASSAGE:
-${extractedContent.combined}
-
-TASK: Write 300-400 words of flowing prose that:
-- Explains the context and setting of this passage
-- Interprets what the scripture is teaching
-- Shows how this ancient wisdom applies to modern life
-- Ends with a reflective thought for the reader
-
-STYLE REQUIREMENTS:
-- Write in warm, accessible language
-- Use flowing paragraphs only - NO headers, NO bullet points, NO numbered lists, NO markdown
-- Write as one continuous piece, not divided into sections
-- Speak directly to the reader using "you" and "your"
-
-Begin the interpretation directly without any preamble.`;
-
-    console.log('Making Perplexity API call...');
-    const response = await fetch('https://api.perplexity.ai/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${process.env.PERPLEXITY_API_KEY}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        model: 'sonar',
-        messages: [{ role: 'user', content: prompt }],
-        max_tokens: 600,
-        temperature: 0.7
-      })
-    });
-
-    console.log('Perplexity API response status:', response.status);
-    
-    if (response.ok) {
-      const data = await response.json();
-      console.log('Perplexity API response received, choices:', data.choices?.length || 0);
-      if (data.choices && data.choices[0] && data.choices[0].message) {
-        return data.choices[0].message.content;
-      } else {
-        console.log('Unexpected Perplexity API response format:', JSON.stringify(data, null, 2));
-        return extractedContent.narrative;
-      }
-    } else {
-      const errorText = await response.text();
-      console.log('Perplexity API error response:', errorText);
+    const config = getFileSearchConfig();
+    if (!config.apiKey) {
+      console.log('Gemini API key not configured, using fallback');
       return extractedContent.narrative;
     }
+
+    const prompt = `You are writing a spiritual interpretation for readers of the ${sourceName}.
+
+SCRIPTURE PASSAGE:
+${extractedContent.combined}
+
+INSTRUCTIONS:
+Write a complete interpretation of this passage. Your response MUST:
+1. Be exactly 300-400 words (this is mandatory - responses under 250 words are unacceptable)
+2. Start IMMEDIATELY with the content - NO greetings, NO "Welcome", NO "Let us explore"
+3. Use warm, accessible language in flowing paragraphs
+4. Explain the context and meaning of this scripture
+5. Show how this wisdom applies to modern life
+6. End with a reflective thought
+
+FORMAT RULES:
+- NO headers, NO bullet points, NO numbered lists
+- NO markdown formatting
+- Write as continuous flowing prose
+- Address the reader directly using "you" and "your"
+
+CRITICAL: Your first word must be part of the interpretation itself. Do NOT start with any form of greeting or introduction.
+
+Begin now:`;
+
+    console.log('Making Gemini Flash API call...');
+    const ai = new GoogleGenAI({ apiKey: config.apiKey });
+
+    // Retry logic for short responses
+    const maxRetries = 2;
+    let text = '';
+
+    for (let attempt = 0; attempt <= maxRetries; attempt++) {
+      const response = await ai.models.generateContent({
+        // Use gemini-2.0-flash (2.5 uses thinking mode which consumes tokens internally)
+        model: 'gemini-2.0-flash',
+        contents: prompt,
+        config: {
+          temperature: 0.8,
+          topP: 0.95,
+          maxOutputTokens: 2000,
+        }
+      });
+
+      text = response.text || '';
+      console.log(`Gemini attempt ${attempt + 1}: response length ${text.length} chars`);
+
+      // Check if response meets minimum length (1200 chars ≈ 200 words)
+      if (text.length >= 1200) {
+        break;
+      }
+
+      if (attempt < maxRetries) {
+        console.log('Response too short, retrying...');
+      }
+    }
+
+    // Accept responses >= 300 chars (meaningful interpretation)
+    if (text && text.length >= 300) {
+      // Strip any accidental preamble patterns
+      const preamblePatterns = [
+        /^(Welcome|Let us|Let's|Today|In this|Here|Greetings)[^.]*\.\s*/i,
+      ];
+      let cleanedText = text;
+      for (const pattern of preamblePatterns) {
+        cleanedText = cleanedText.replace(pattern, '');
+      }
+      return cleanedText.trim();
+    }
+
+    console.log('Gemini response still too short after retries, using fallback');
+    return extractedContent.narrative;
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     console.log('AI enhancement failed:', errorMessage);

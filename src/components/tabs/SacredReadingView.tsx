@@ -43,7 +43,8 @@ export default function SacredReadingView({ onClose, onBack }: SacredReadingView
   const [sourcesLoading, setSourcesLoading] = useState<boolean>(false);
 
   // Cache management functions - wrapped in useCallback for stability
-  const getCacheKey = useCallback(() => `mygurukul_wisdom_${new Date().toDateString()}`, []);
+  // Version 2: Invalidate cache after Gemini model fix (2.5-flash -> 2.0-flash)
+  const getCacheKey = useCallback(() => `mygurukul_wisdom_v2_${new Date().toDateString()}`, []);
   
   const getCachedWisdom = useCallback((): TodaysWisdomData | null => {
     try {
