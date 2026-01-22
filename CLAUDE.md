@@ -117,15 +117,35 @@ Always run `git status` before git operations. If git commands fail, stop and as
 
 ---
 
-## Recent Fixes (2026-01-21)
+## Recent Fixes (2026-01-22)
 
-### Guru's Interpretation - Fixed
+### Guru's Interpretation Truncated Output - Fixed
+
+**Issue:** Gemini 2.5 Flash was returning very short responses (~300 chars instead of ~2000 chars), causing the Guru's Interpretation to show raw Sanskrit text instead of the AI-generated interpretation.
+
+**Root Cause:** Gemini 2.5 Flash uses "thinking mode" by default, which consumes tokens internally for reasoning but doesn't output them, resulting in truncated visible responses.
+
+**Solution:**
+1. Switched from `gemini-2.5-flash` to `gemini-2.0-flash` (no thinking mode)
+2. Added retry logic (up to 3 attempts if response < 1200 chars)
+3. Added post-processing to strip preamble patterns ("Welcome", "Let us", etc.)
+4. Updated frontend cache key to `v2` to invalidate old cached broken data
+
+**Files:**
+- `src/app/api/todays-wisdom/route.ts` - `createEnhancedWisdom()` function (lines 314-398)
+- `src/components/tabs/SacredReadingView.tsx` - Cache key (line 46)
+
+---
+
+## Previous Fixes (2026-01-21)
+
+### Guru's Interpretation Persona Rejection - Fixed
 
 **Issue:** Perplexity's `sonar` model refused to roleplay as a "Guru", returning responses like "I cannot authentically roleplay as a Guru or spiritual teacher."
 
 **Solution:** Removed all persona framing from the prompt. Changed from "You are a wise Guru speaking to a seeker" to a pure task-based prompt: "Write a warm, flowing interpretation of this passage."
 
-**File:** `src/app/api/todays-wisdom/route.ts` - `createEnhancedWisdom()` function (lines 315-332)
+**File:** `src/app/api/todays-wisdom/route.ts` - `createEnhancedWisdom()` function
 
 **Key prompt requirements:**
 - NO persona/roleplay framing (triggers Perplexity refusal)
@@ -144,6 +164,11 @@ Always run `git status` before git operations. If git commands fail, stop and as
 
 ## Known Considerations
 
+### Gemini Model Selection
+- **Use `gemini-2.0-flash`** for text generation tasks (Today's Wisdom interpretation)
+- **Avoid `gemini-2.5-flash`** for direct output - it uses "thinking mode" which consumes tokens internally, producing truncated visible responses
+- If switching models, update the frontend cache key to invalidate old cached data
+
 ### Perplexity API Limitations
 - The `sonar` model refuses persona/roleplay requests
 - Frame prompts as tasks ("Write an interpretation") not personas ("You are a Guru")
@@ -153,3 +178,8 @@ Always run `git status` before git operations. If git commands fail, stop and as
 - Can be slow when searching multiple stores
 - 90s client timeout accommodates typical response times
 - If timeouts persist, consider reducing number of stores searched
+
+### Frontend Caching
+- Wisdom is cached in localStorage with key `mygurukul_wisdom_v{N}_{date}`
+- When fixing backend issues, bump the cache version (e.g., v2 -> v3) to force fresh data
+- Cache key defined in `src/components/tabs/SacredReadingView.tsx`
