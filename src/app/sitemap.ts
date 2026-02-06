@@ -58,6 +58,25 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.9,
     },
   ];
+
+  // Library category routes
+  const categories = [
+    'vedas',
+    'upanishads',
+    'puranas',
+    'ayurveda',
+    'darshanas',
+    'epics',
+    'poetry',
+    'sastras',
+  ];
+
+  const categoryRoutes: MetadataRoute.Sitemap = categories.map((category) => ({
+    url: `${baseUrl}/library?category=${category}`,
+    lastModified: currentDate,
+    changeFrequency: 'monthly' as const,
+    priority: 0.85,
+  }));
   
   // Dynamic book routes - map over all scriptures
   const dynamicRoutes: MetadataRoute.Sitemap = scriptures.map((scripture) => ({
@@ -67,7 +86,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.8,
   }));
   
-  // Combine static and dynamic routes
-  return [...staticRoutes, ...dynamicRoutes];
+  // Combine static, category, and dynamic routes
+  return [...staticRoutes, ...categoryRoutes, ...dynamicRoutes];
 }
 

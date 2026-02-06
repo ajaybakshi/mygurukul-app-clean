@@ -4,6 +4,7 @@ import React, { useState, useMemo, useRef, useEffect, useCallback } from 'react'
 import { ChevronDown, ChevronUp, BookOpen } from 'lucide-react';
 import { ClientTimestamp } from './ClientTimestamp';
 import { CitationTooltip } from './CitationTooltip';
+import ShareButton from '../ShareButton';
 
 interface Citation {
   startIndex: number;
@@ -430,8 +431,16 @@ export const GuideMessageBubble: React.FC<GuideMessageBubbleProps> = ({
           </div>
         )}
         
-        <div className="text-xs text-blue-500 text-left mt-3">
-          <ClientTimestamp timestamp={timestamp} />
+        <div className="flex items-center justify-between mt-3">
+          <div className="text-xs text-blue-500 text-left">
+            <ClientTimestamp timestamp={timestamp} />
+          </div>
+          <ShareButton
+            text={safeAnswerText}
+            title="Spiritual Guidance from MyGurukul"
+            variant="minimal"
+            compact={true}
+          />
         </div>
       </div>
     </div>

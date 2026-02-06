@@ -13,10 +13,12 @@ export default function SchemaMarkup({ type, data }: SchemaMarkupProps) {
       '@context': 'https://schema.org',
       '@type': 'Organization',
       name: 'MyGurukul',
-      description: 'AI-powered platform for exploring ancient Sanskrit wisdom',
+      description: 'AI-powered platform for exploring ancient Sanskrit wisdom with 79+ authentic texts including Vedas, Upanishads, Puranas, and Ayurveda',
       url: 'https://www.mygurukul.org',
-      logo: 'https://www.mygurukul.org/logo.png',
-      sameAs: [],
+      logo: 'https://www.mygurukul.org/icon.svg',
+      sameAs: [
+        'https://twitter.com/mygurukul',
+      ],
       contactPoint: {
         '@type': 'ContactPoint',
         contactType: 'Support',

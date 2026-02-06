@@ -183,3 +183,87 @@ Always run `git status` before git operations. If git commands fail, stop and as
 - Wisdom is cached in localStorage with key `mygurukul_wisdom_v{N}_{date}`
 - When fixing backend issues, bump the cache version (e.g., v2 -> v3) to force fresh data
 - Cache key defined in `src/components/tabs/SacredReadingView.tsx`
+
+---
+
+## Organic Growth Plan (2026-01-25)
+
+### Strategy Overview
+Organic growth through Twitter/X + Email Newsletter + SEO improvements. No paid ads.
+**Unique edge:** 79 authentic Sanskrit texts vs competitors' narrow focus.
+
+### Session 1 Complete - Technical Foundation
+
+#### 1. Social Sharing Features
+**New file:** `src/components/ShareButton.tsx`
+- Copy to clipboard (formatted text + URL)
+- Share to Twitter (pre-formatted with hashtags: #SanskritWisdom #Vedas #AncientWisdom #Dharma #MyGurukul)
+- Share to WhatsApp (mobile-friendly)
+- Native Web Share API support
+- Two modes: `compact` (expandable icon) and `full` (all buttons visible)
+
+**Modified files:**
+- `src/components/tabs/SacredReadingView.tsx` - Share buttons on Sacred Text & Interpretation tabs
+- `src/components/chat/GuideMessageBubble.tsx` - Compact share button on AI responses
+
+#### 2. Sitemap Enhancement
+**File:** `src/app/sitemap.ts`
+- Added 8 library category routes (vedas, upanishads, puranas, ayurveda, darshanas, epics, poetry, sastras)
+- Dynamic scripture routes from library manifest
+- Sitemap available at: `https://www.mygurukul.org/sitemap.xml`
+
+#### 3. Open Graph & Twitter Cards
+**New files:**
+- `src/app/opengraph-image.tsx` - Dynamic OG image (1200x630) with Om symbol
+- `src/app/twitter-image.tsx` - Twitter card image (1200x600)
+- `public/icon.svg` - App icon with Om symbol
+
+**Modified files:**
+- `src/app/layout.tsx` - Added Twitter card meta tags
+- `src/components/SchemaMarkup.tsx` - Added Twitter to sameAs, updated logo path
+- `src/app/page.tsx` - Added FAQ schema (4 common questions for SEO)
+
+---
+
+### Session 2 TODO - Twitter Bot & Email Capture
+
+#### Prerequisites (User Tasks)
+1. **Twitter Developer Account:**
+   - Create app at https://developer.twitter.com/
+   - Get: API Key, API Secret, Access Token, Access Token Secret
+   - Add to Vercel environment variables
+
+2. **Buttondown Account:**
+   - Sign up at https://buttondown.email/ (free tier: 100 subscribers)
+   - Get API key from Settings
+
+#### Implementation Tasks
+1. **Daily Wisdom Twitter Bot**
+   - New: `src/app/api/cron/daily-wisdom-tweet/route.ts` (Vercel Cron Job)
+   - New: `src/lib/twitterClient.ts` (Twitter API v2 client)
+   - Posts daily at 8am EST / 6:30pm IST
+   - Fetches from `/api/todays-wisdom`, formats tweet with hashtags
+
+2. **Email Capture Component**
+   - New: `src/components/EmailCapture.tsx`
+   - Modify: `src/app/page.tsx` (add below Today's Wisdom card)
+   - Buttondown API integration
+
+#### Environment Variables Needed
+```
+TWITTER_API_KEY=
+TWITTER_API_SECRET=
+TWITTER_ACCESS_TOKEN=
+TWITTER_ACCESS_TOKEN_SECRET=
+BUTTONDOWN_API_KEY=
+```
+
+---
+
+### Verification Checklist
+After deployment:
+- [ ] Test sharing buttons on mobile + desktop
+- [ ] Verify sitemap at `https://www.mygurukul.org/sitemap.xml`
+- [ ] Test Twitter cards with [Twitter Card Validator](https://cards-dev.twitter.com/validator)
+- [ ] Submit sitemap to Google Search Console
+- [ ] Test email signup flow end-to-end (after Session 2)

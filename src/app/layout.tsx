@@ -24,9 +24,20 @@ export const metadata: Metadata = {
     url: seoConfig.url,
     siteName: 'MyGurukul',
     type: 'website',
+    locale: 'en_US',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: seoConfig.title,
+    description: seoConfig.description,
+    creator: '@mygurukul',
+    site: '@mygurukul',
   },
   verification: {
     google: 'O2_cqCi1Hsvodgl0uJuyz1ezFKVqEJlrf6ULF8rHIwc',
+  },
+  other: {
+    'theme-color': '#D4AF37',
   },
 }
 

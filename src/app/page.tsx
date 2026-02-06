@@ -181,13 +181,36 @@ const SubmitPageContent: React.FC = () => {
       
       <SchemaMarkup type="Organization" />
       <SchemaMarkup type="WebSite" />
-      <SchemaMarkup 
-        type="Collection" 
+      <SchemaMarkup
+        type="Collection"
         data={{
           categories: [
             'Vedas', 'Upanishads', 'Puranas', 'Ayurveda',
             'Darshanas', 'Epics', 'Poetry', 'Sastras'
           ]
+        }}
+      />
+      <SchemaMarkup
+        type="FAQPage"
+        data={{
+          faqs: [
+            {
+              question: 'What is MyGurukul?',
+              answer: 'MyGurukul is an AI-powered platform that provides access to 79+ authentic Sanskrit texts including Vedas, Upanishads, Puranas, and Ayurveda with AI-enhanced interpretations and daily spiritual wisdom.',
+            },
+            {
+              question: 'What Sanskrit texts are available on MyGurukul?',
+              answer: 'MyGurukul offers access to Vedas (Rigveda, Atharvaveda), Upanishads (Isha, Kena, Mundaka), Puranas (Bhagavata, Vishnu), Epics (Ramayana, Mahabharata, Bhagavad Gita), Ayurveda texts (Charaka Samhita, Sushruta Samhita), and philosophical works (Yoga Sutras, Brahma Sutras).',
+            },
+            {
+              question: 'How does the AI spiritual guidance work?',
+              answer: 'Our AI searches through 79+ authentic Sanskrit texts to provide wisdom grounded in ancient scriptures. Ask any spiritual question and receive guidance with citations from original sources.',
+            },
+            {
+              question: 'Is MyGurukul free to use?',
+              answer: 'Yes, MyGurukul is free to use. Access daily wisdom, explore the sacred library, and receive AI-powered spiritual guidance at no cost.',
+            },
+          ],
         }}
       />
       

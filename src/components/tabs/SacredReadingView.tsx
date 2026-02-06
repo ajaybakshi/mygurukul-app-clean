@@ -4,6 +4,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { X, RefreshCw, ArrowLeft } from 'lucide-react';
 import TraditionalWisdomDisplay from '../TraditionalWisdomDisplay';
 import AudioIconButton from '../audio/AudioIconButton';
+import ShareButton from '../ShareButton';
 import { TransliterationService } from '@/lib/services/transliterationService';
 
 interface TodaysWisdomData {
@@ -493,6 +494,16 @@ export default function SacredReadingView({ onClose, onBack }: SacredReadingView
                       />
                     </div>
                   </div>
+
+                  {/* Share Sacred Text */}
+                  <div className="mt-6 flex justify-center">
+                    <ShareButton
+                      text={todaysWisdom.rawText}
+                      title="Sacred Wisdom from MyGurukul"
+                      source={todaysWisdom.selectedSourceInfo?.displayName || todaysWisdom.sourceName}
+                      variant="primary"
+                    />
+                  </div>
                 </div>
               )}
 
@@ -521,6 +532,16 @@ export default function SacredReadingView({ onClose, onBack }: SacredReadingView
                       Your Spiritual Journey
                     </div>
                     <p className="text-blue-700 leading-relaxed font-serif">{todaysWisdom.encouragement}</p>
+                  </div>
+
+                  {/* Share Interpretation */}
+                  <div className="mt-6 flex justify-center">
+                    <ShareButton
+                      text={todaysWisdom.wisdom}
+                      title="Spiritual Guidance from MyGurukul"
+                      source={todaysWisdom.selectedSourceInfo?.displayName || todaysWisdom.sourceName}
+                      variant="secondary"
+                    />
                   </div>
                 </div>
               )}
