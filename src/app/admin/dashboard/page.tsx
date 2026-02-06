@@ -2,6 +2,32 @@
 
 import { useState, useEffect } from 'react';
 
+// Full detail types for modal display
+interface WisdomDetail {
+  id: number;
+  date: string;
+  source: string;
+  chapter: string | null;
+  section: string | null;
+  textType: string | null;
+  rawText: string;
+  interpretation: string;
+  metadata: any;
+  createdAt: string;
+}
+
+interface ConversationDetail {
+  id: number;
+  sessionId: string;
+  question: string;
+  responseNarrative: string | null;
+  citations: any[] | null;
+  provider: string | null;
+  responseTimeMs: number | null;
+  grounded: boolean;
+  createdAt: string;
+}
+
 interface WisdomEntry {
   id: number;
   date: string;
@@ -57,11 +83,54 @@ export default function AdminDashboard() {
   const [conversationsData, setConversationsData] = useState<{ conversations: ConversationEntry[]; stats: any } | null>(null);
   const [metricsData, setMetricsData] = useState<{ health: MetricsHealth[]; recentErrors: ErrorEntry[]; summary: any; database: any } | null>(null);
 
+  // Modal states for detail view
+  const [selectedWisdom, setSelectedWisdom] = useState<WisdomDetail | null>(null);
+  const [selectedConversation, setSelectedConversation] = useState<ConversationDetail | null>(null);
+  const [modalLoading, setModalLoading] = useState(false);
+
   // Get token from URL
   const getToken = () => {
     if (typeof window === 'undefined') return '';
     const params = new URLSearchParams(window.location.search);
     return params.get('token') || '';
+  };
+
+  // Fetch wisdom detail for modal
+  const fetchWisdomDetail = async (id: number) => {
+    setModalLoading(true);
+    const token = getToken();
+    try {
+      const res = await fetch(`/api/admin/wisdom/${id}?token=${token}`);
+      if (!res.ok) throw new Error('Failed to fetch wisdom detail');
+      const data = await res.json();
+      setSelectedWisdom(data.data);
+    } catch (err) {
+      console.error('Error fetching wisdom detail:', err);
+    } finally {
+      setModalLoading(false);
+    }
+  };
+
+  // Fetch conversation detail for modal
+  const fetchConversationDetail = async (id: number) => {
+    setModalLoading(true);
+    const token = getToken();
+    try {
+      const res = await fetch(`/api/admin/conversations/${id}?token=${token}`);
+      if (!res.ok) throw new Error('Failed to fetch conversation detail');
+      const data = await res.json();
+      setSelectedConversation(data.data);
+    } catch (err) {
+      console.error('Error fetching conversation detail:', err);
+    } finally {
+      setModalLoading(false);
+    }
+  };
+
+  // Close modals
+  const closeModal = () => {
+    setSelectedWisdom(null);
+    setSelectedConversation(null);
   };
 
   // Fetch data based on active tab
@@ -282,7 +351,12 @@ export default function AdminDashboard() {
                   </thead>
                   <tbody>
                     {wisdomData.entries.map((w, i) => (
-                      <tr key={i} className="border-b border-gray-700/50">
+                      <tr
+                        key={i}
+                        className="border-b border-gray-700/50 cursor-pointer hover:bg-gray-700/30 transition-colors"
+                        onClick={() => fetchWisdomDetail(w.id)}
+                        title="Click to view full details"
+                      >
                         <td className="py-3">{w.date}</td>
                         <td className="py-3">{w.source}</td>
                         <td className="py-3">
@@ -342,7 +416,12 @@ export default function AdminDashboard() {
                   </thead>
                   <tbody>
                     {conversationsData.conversations.map((c, i) => (
-                      <tr key={i} className="border-b border-gray-700/50">
+                      <tr
+                        key={i}
+                        className="border-b border-gray-700/50 cursor-pointer hover:bg-gray-700/30 transition-colors"
+                        onClick={() => fetchConversationDetail(c.id)}
+                        title="Click to view full details"
+                      >
                         <td className="py-3 text-sm text-gray-400">
                           {new Date(c.createdAt).toLocaleTimeString()}
                         </td>
@@ -394,6 +473,147 @@ export default function AdminDashboard() {
           MyGurukul Admin Dashboard • Data refreshes on tab switch
         </div>
       </footer>
+
+      {/* Wisdom Detail Modal */}
+      {selectedWisdom && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4" onClick={closeModal}>
+          <div
+            className="bg-gray-800 rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto border border-gray-600"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="sticky top-0 bg-gray-800 border-b border-gray-700 px-6 py-4 flex justify-between items-center">
+              <h2 className="text-xl font-semibold text-amber-400">Wisdom Details</h2>
+              <button onClick={closeModal} className="text-gray-400 hover:text-white text-2xl">&times;</button>
+            </div>
+            {modalLoading ? (
+              <div className="p-8 text-center">
+                <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-amber-400 mx-auto"></div>
+              </div>
+            ) : (
+              <div className="p-6 space-y-6">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="bg-gray-900 rounded p-3">
+                    <p className="text-gray-400 text-xs">Date</p>
+                    <p className="text-gray-100">{selectedWisdom.date}</p>
+                  </div>
+                  <div className="bg-gray-900 rounded p-3">
+                    <p className="text-gray-400 text-xs">Source</p>
+                    <p className="text-amber-400">{selectedWisdom.source}</p>
+                  </div>
+                  <div className="bg-gray-900 rounded p-3">
+                    <p className="text-gray-400 text-xs">Chapter</p>
+                    <p className="text-gray-100">{selectedWisdom.chapter || 'N/A'}</p>
+                  </div>
+                  <div className="bg-gray-900 rounded p-3">
+                    <p className="text-gray-400 text-xs">Type</p>
+                    <p className="text-purple-400">{selectedWisdom.textType || 'N/A'}</p>
+                  </div>
+                </div>
+
+                <div className="bg-gray-900 rounded p-4">
+                  <h3 className="text-amber-400 font-semibold mb-2">📜 Raw Sanskrit Text</h3>
+                  <p className="text-gray-200 whitespace-pre-wrap font-serif leading-relaxed">{selectedWisdom.rawText}</p>
+                </div>
+
+                <div className="bg-gray-900 rounded p-4">
+                  <h3 className="text-blue-400 font-semibold mb-2">🙏 Guru&apos;s Interpretation</h3>
+                  <div className="text-gray-200 whitespace-pre-wrap leading-relaxed">
+                    {selectedWisdom.interpretation.split('\n\n').map((p, i) => (
+                      <p key={i} className="mb-3">{p}</p>
+                    ))}
+                  </div>
+                </div>
+
+                {selectedWisdom.metadata && (
+                  <div className="bg-gray-900 rounded p-4">
+                    <h3 className="text-gray-400 font-semibold mb-2">Metadata</h3>
+                    <pre className="text-gray-300 text-sm overflow-x-auto">{JSON.stringify(selectedWisdom.metadata, null, 2)}</pre>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Conversation Detail Modal */}
+      {selectedConversation && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4" onClick={closeModal}>
+          <div
+            className="bg-gray-800 rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto border border-gray-600"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="sticky top-0 bg-gray-800 border-b border-gray-700 px-6 py-4 flex justify-between items-center">
+              <h2 className="text-xl font-semibold text-blue-400">Conversation Details</h2>
+              <button onClick={closeModal} className="text-gray-400 hover:text-white text-2xl">&times;</button>
+            </div>
+            {modalLoading ? (
+              <div className="p-8 text-center">
+                <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-blue-400 mx-auto"></div>
+              </div>
+            ) : (
+              <div className="p-6 space-y-6">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="bg-gray-900 rounded p-3">
+                    <p className="text-gray-400 text-xs">Session ID</p>
+                    <p className="text-gray-100 font-mono text-sm truncate">{selectedConversation.sessionId}</p>
+                  </div>
+                  <div className="bg-gray-900 rounded p-3">
+                    <p className="text-gray-400 text-xs">Provider</p>
+                    <p className="text-blue-400">{selectedConversation.provider || 'N/A'}</p>
+                  </div>
+                  <div className="bg-gray-900 rounded p-3">
+                    <p className="text-gray-400 text-xs">Response Time</p>
+                    <p className="text-gray-100">{selectedConversation.responseTimeMs}ms</p>
+                  </div>
+                  <div className="bg-gray-900 rounded p-3">
+                    <p className="text-gray-400 text-xs">Grounded</p>
+                    <p className={selectedConversation.grounded ? 'text-green-400' : 'text-gray-500'}>
+                      {selectedConversation.grounded ? '✓ Yes' : '— No'}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="bg-gray-900 rounded p-4">
+                  <h3 className="text-amber-400 font-semibold mb-2">❓ User Question</h3>
+                  <p className="text-gray-200 whitespace-pre-wrap">{selectedConversation.question}</p>
+                </div>
+
+                <div className="bg-gray-900 rounded p-4">
+                  <h3 className="text-blue-400 font-semibold mb-2">💬 AI Response</h3>
+                  <div className="text-gray-200 whitespace-pre-wrap leading-relaxed">
+                    {selectedConversation.responseNarrative ? (
+                      selectedConversation.responseNarrative.split('\n\n').map((p, i) => (
+                        <p key={i} className="mb-3">{p}</p>
+                      ))
+                    ) : (
+                      <p className="text-gray-500 italic">No response recorded</p>
+                    )}
+                  </div>
+                </div>
+
+                {selectedConversation.citations && selectedConversation.citations.length > 0 && (
+                  <div className="bg-gray-900 rounded p-4">
+                    <h3 className="text-green-400 font-semibold mb-2">📚 Citations ({selectedConversation.citations.length})</h3>
+                    <div className="space-y-2">
+                      {selectedConversation.citations.map((c: any, i: number) => (
+                        <div key={i} className="bg-gray-800 rounded p-3 border-l-2 border-green-500">
+                          <p className="text-green-300 text-sm font-semibold">{c.source || 'Unknown Source'}</p>
+                          <p className="text-gray-300 text-sm mt-1">{c.text || 'No text available'}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                <div className="text-gray-500 text-xs text-right">
+                  Created: {new Date(selectedConversation.createdAt).toLocaleString()}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

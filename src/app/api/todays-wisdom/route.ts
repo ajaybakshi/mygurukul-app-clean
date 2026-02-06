@@ -550,10 +550,13 @@ function extractChapterInfo(fileName: string, metadata: string): { chapter: stri
 
 export async function POST(request: NextRequest) {
   let sourceName: string = '';
-  
+
   // Enhanced source selection using existing infrastructure
   let selectionMethod: 'user-specified' | 'random' | 'cross-corpus' = 'user-specified';
   let selectedSourceInfo: any = null;
+
+  // forceRefresh flag - declared at function scope so it's accessible in cache check
+  let forceRefresh = false;
 
   console.log('=== RANDOMIZATION DIAGNOSTIC START ===');
   console.log('🕐 Request timestamp:', new Date().toISOString());
@@ -561,7 +564,13 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     console.log('📥 Request body:', body);
-    
+
+    // Parse forceRefresh flag - if true, skip DB cache and generate fresh wisdom
+    forceRefresh = body.forceRefresh === true;
+    if (forceRefresh) {
+      console.log('🔄 Force refresh requested - will skip DB cache');
+    }
+
     if (body.sourceName && body.sourceName.trim()) {
       // Traditional single-source selection (backward compatibility)
       sourceName = body.sourceName.trim();
@@ -634,15 +643,17 @@ export async function POST(request: NextRequest) {
   console.log('  Selected source info:', selectedSourceInfo);
   console.log('  Selection timestamp:', new Date().toISOString());
 
-  // Check for cached wisdom in database
+  // Check for cached wisdom in database (skip if forceRefresh)
   const today = new Date();
   today.setHours(0, 0, 0, 0); // Normalize to start of day
 
   try {
-    console.log('🔍 Checking for cached wisdom in database...');
-    const cachedWisdom = await getWisdomByDate(today);
+    // Only check cache if NOT force refresh
+    if (!forceRefresh) {
+      console.log('🔍 Checking for cached wisdom in database...');
+      const cachedWisdom = await getWisdomByDate(today);
 
-    if (cachedWisdom) {
+      if (cachedWisdom) {
       console.log('✅ Found cached wisdom from database, returning cached response');
 
       // Convert DB format to API response format
@@ -697,9 +708,12 @@ export async function POST(request: NextRequest) {
         totalAvailableSources: availableSources.length,
         message: 'Wisdom served from database cache'
       });
-    }
+      }
 
-    console.log('📝 No cached wisdom found, generating new wisdom...');
+      console.log('📝 No cached wisdom found, generating new wisdom...');
+    } else {
+      console.log('🔄 Skipping cache check due to forceRefresh');
+    }
   } catch (cacheError) {
     // If cache check fails, continue with generation
     console.log('⚠️ Cache check failed, proceeding with generation:', cacheError);

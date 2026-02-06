@@ -99,9 +99,14 @@ export default function SacredReadingView({ onClose, onBack }: SacredReadingView
     }
 
     try {
-      const requestBody = selectedSource === 'random' 
-        ? {}
-        : { sourcePreference: selectedSource };
+      // Build request body with optional forceRefresh and sourcePreference
+      const requestBody: { sourcePreference?: string; forceRefresh?: boolean } = {};
+      if (selectedSource !== 'random') {
+        requestBody.sourcePreference = selectedSource;
+      }
+      if (forceRefresh) {
+        requestBody.forceRefresh = true;
+      }
 
       const response = await fetch('/api/todays-wisdom', {
         method: 'POST',

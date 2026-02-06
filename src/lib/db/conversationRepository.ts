@@ -14,6 +14,29 @@ import type {
 } from './schema';
 
 /**
+ * Get conversation by ID (for admin detail view)
+ * Returns full conversation without truncation
+ */
+export async function getConversationById(id: number): Promise<Conversation | null> {
+  try {
+    const result = await sql`
+      SELECT * FROM conversations
+      WHERE id = ${id}
+      LIMIT 1
+    `;
+
+    if (result.rows.length === 0) {
+      return null;
+    }
+
+    return mapRowToConversation(result.rows[0]);
+  } catch (error) {
+    console.error('Error fetching conversation by ID:', error);
+    return null;
+  }
+}
+
+/**
  * Save a conversation (fire-and-forget, non-blocking)
  * Wrapped in try-catch to never throw - logging failures shouldn't break API
  */

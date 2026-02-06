@@ -15,6 +15,29 @@ import type {
 } from './schema';
 
 /**
+ * Get wisdom by ID (for admin detail view)
+ * Returns full wisdom entry without truncation
+ */
+export async function getWisdomById(id: number): Promise<DailyWisdom | null> {
+  try {
+    const result = await sql`
+      SELECT * FROM daily_wisdom
+      WHERE id = ${id}
+      LIMIT 1
+    `;
+
+    if (result.rows.length === 0) {
+      return null;
+    }
+
+    return mapRowToWisdom(result.rows[0]);
+  } catch (error) {
+    console.error('Error fetching wisdom by ID:', error);
+    return null;
+  }
+}
+
+/**
  * Get wisdom by date (for cache check)
  * Returns null if no wisdom exists for that date
  */
