@@ -332,32 +332,37 @@ export async function POST(request: NextRequest) {
       )
       await writeApiLog(logData)
 
-      // Non-blocking DB logging (fire-and-forget)
+      // DB logging - await but don't block on errors
       const answerText = responseData.answer?.answerText || '';
       const citations = responseData.answer?.citations || [];
 
-      logApiMetric({
-        endpoint: '/api/discovery-engine',
-        session_id: responseData.sessionId || sessionId,
-        latency_ms: processingTime,
-        status_code: 200,
-        success: true,
-        request_metadata: {
-          category,
-          question_length: question.length,
-          has_session: !!googleSessionPath
-        }
-      }).catch(() => {});
-
-      logConversation({
-        session_id: responseData.sessionId || sessionId || `de-${Date.now()}`,
-        question,
-        response_narrative: answerText,
-        citations: citations.map((c: any) => ({ source: c.source, text: c.text })),
-        provider: 'discovery-engine',
-        response_time_ms: processingTime,
-        grounded: citations.length > 0
-      }).catch(() => {});
+      try {
+        await Promise.all([
+          logApiMetric({
+            endpoint: '/api/discovery-engine',
+            session_id: responseData.sessionId || sessionId,
+            latency_ms: processingTime,
+            status_code: 200,
+            success: true,
+            request_metadata: {
+              category,
+              question_length: question.length,
+              has_session: !!googleSessionPath
+            }
+          }),
+          logConversation({
+            session_id: responseData.sessionId || sessionId || `de-${Date.now()}`,
+            question,
+            response_narrative: answerText,
+            citations: citations.map((c: any) => ({ source: c.source, text: c.text })),
+            provider: 'discovery-engine',
+            response_time_ms: processingTime,
+            grounded: citations.length > 0
+          })
+        ]);
+      } catch (logError) {
+        console.error('DB logging failed (non-fatal):', logError);
+      }
 
       return NextResponse.json(responseData)
     } catch (error) {
@@ -435,14 +440,18 @@ export async function POST(request: NextRequest) {
     )
     await writeApiLog(errorLogData)
 
-    // Non-blocking error logging
-    logApiMetric({
-      endpoint: '/api/discovery-engine',
-      latency_ms: processingTime,
-      status_code: 400,
-      success: false,
-      error_message: errorMessage
-    }).catch(() => {});
+    // Error logging
+    try {
+      await logApiMetric({
+        endpoint: '/api/discovery-engine',
+        latency_ms: processingTime,
+        status_code: 400,
+        success: false,
+        error_message: errorMessage
+      });
+    } catch (logError) {
+      console.error('DB error logging failed:', logError);
+    }
 
     return NextResponse.json(
       { error: errorMessage },

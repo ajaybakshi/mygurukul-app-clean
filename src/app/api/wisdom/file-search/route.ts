@@ -454,29 +454,34 @@ Now, please answer this seeker's question using ONLY the wisdom from the uploade
     console.log(`📝 Response length: ${narrative.length} characters`);
     console.log(`📚 Citations: ${formattedCitations.length}`);
 
-    // Non-blocking DB logging (fire-and-forget)
-    logApiMetric({
-      endpoint: '/api/wisdom/file-search',
-      session_id: sessionId,
-      latency_ms: totalTime,
-      status_code: 200,
-      success: true,
-      request_metadata: {
-        category,
-        question_length: question.length,
-        stores_searched: fileSearchStoreNames.length
-      }
-    }).catch(() => {}); // Silently ignore logging errors
-
-    logConversation({
-      session_id: sessionId || `fs-${Date.now()}`,
-      question,
-      response_narrative: narrative,
-      citations: formattedCitations,
-      provider: 'file-search',
-      response_time_ms: totalTime,
-      grounded: formattedCitations.length > 0
-    }).catch(() => {}); // Silently ignore logging errors
+    // DB logging - await but don't block on errors
+    try {
+      await Promise.all([
+        logApiMetric({
+          endpoint: '/api/wisdom/file-search',
+          session_id: sessionId,
+          latency_ms: totalTime,
+          status_code: 200,
+          success: true,
+          request_metadata: {
+            category,
+            question_length: question.length,
+            stores_searched: fileSearchStoreNames.length
+          }
+        }),
+        logConversation({
+          session_id: sessionId || `fs-${Date.now()}`,
+          question,
+          response_narrative: narrative,
+          citations: formattedCitations,
+          provider: 'file-search',
+          response_time_ms: totalTime,
+          grounded: formattedCitations.length > 0
+        })
+      ]);
+    } catch (logError) {
+      console.error('DB logging failed (non-fatal):', logError);
+    }
     
     // GROUNDING VERIFICATION: Log grounding statistics
     const citationsWithTitles = formattedCitations.filter(c => c.source && c.source !== 'Unknown Source' && c.source !== 'Sacred Text').length;
@@ -583,15 +588,19 @@ Now, please answer this seeker's question using ONLY the wisdom from the uploade
     const totalTime = Date.now() - startTime;
     console.error('❌ File Search query failed:', error);
 
-    // Non-blocking error logging
-    logApiMetric({
-      endpoint: '/api/wisdom/file-search',
-      latency_ms: totalTime,
-      status_code: 500,
-      success: false,
-      error_message: error instanceof Error ? error.message : 'Unknown error',
-      request_metadata: { question_length: 0 }
-    }).catch(() => {});
+    // Error logging - await but don't block on errors
+    try {
+      await logApiMetric({
+        endpoint: '/api/wisdom/file-search',
+        latency_ms: totalTime,
+        status_code: 500,
+        success: false,
+        error_message: error instanceof Error ? error.message : 'Unknown error',
+        request_metadata: { question_length: 0 }
+      });
+    } catch (logError) {
+      console.error('DB error logging failed:', logError);
+    }
 
     // Handle 429 Rate Limit / Quota Exhausted errors
     const isRateLimitError = (error as any)?.status === 429 || 

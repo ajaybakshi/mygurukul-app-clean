@@ -672,13 +672,17 @@ export async function POST(request: NextRequest) {
       const availableSources = gretilSources.map(source => source.folderName);
 
       // Log cache hit metric
-      logApiMetric({
-        endpoint: '/api/todays-wisdom',
-        latency_ms: Date.now(),
-        status_code: 200,
-        success: true,
-        request_metadata: { from_cache: true, source_name: cachedWisdom.source_name }
-      }).catch(() => {});
+      try {
+        await logApiMetric({
+          endpoint: '/api/todays-wisdom',
+          latency_ms: Date.now(),
+          status_code: 200,
+          success: true,
+          request_metadata: { from_cache: true, source_name: cachedWisdom.source_name }
+        });
+      } catch (logError) {
+        console.error('DB cache hit logging failed:', logError);
+      }
 
       return NextResponse.json({
         success: true,
@@ -841,19 +845,23 @@ export async function POST(request: NextRequest) {
       message: responseData.message
     });
 
-    // Non-blocking metrics logging (fire-and-forget)
+    // Metrics logging - await but don't block on errors
     const processingTime = Date.now();
-    logApiMetric({
-      endpoint: '/api/todays-wisdom',
-      latency_ms: processingTime,
-      status_code: 200,
-      success: true,
-      request_metadata: {
-        source_name: sourceName,
-        selection_method: selectionMethod,
-        total_available_sources: availableSources.length
-      }
-    }).catch(() => {});
+    try {
+      await logApiMetric({
+        endpoint: '/api/todays-wisdom',
+        latency_ms: processingTime,
+        status_code: 200,
+        success: true,
+        request_metadata: {
+          source_name: sourceName,
+          selection_method: selectionMethod,
+          total_available_sources: availableSources.length
+        }
+      });
+    } catch (logError) {
+      console.error('DB metrics logging failed (non-fatal):', logError);
+    }
 
     // Save wisdom to database for caching (fire-and-forget)
     saveWisdom({
@@ -882,15 +890,19 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Today\'s Wisdom API error:', error);
 
-    // Non-blocking error logging
-    logApiMetric({
-      endpoint: '/api/todays-wisdom',
-      latency_ms: Date.now(),
-      status_code: 200, // Returns 200 with fallback wisdom
-      success: false,
-      error_message: error instanceof Error ? error.message : 'Unknown error',
-      request_metadata: { source_name: sourceName }
-    }).catch(() => {});
+    // Error logging
+    try {
+      await logApiMetric({
+        endpoint: '/api/todays-wisdom',
+        latency_ms: Date.now(),
+        status_code: 200, // Returns 200 with fallback wisdom
+        success: false,
+        error_message: error instanceof Error ? error.message : 'Unknown error',
+        request_metadata: { source_name: sourceName }
+      });
+    } catch (logError) {
+      console.error('DB error logging failed:', logError);
+    }
 
     return NextResponse.json(
       { 
