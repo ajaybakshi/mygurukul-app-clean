@@ -5,6 +5,7 @@ import { X, RefreshCw, ArrowLeft } from 'lucide-react';
 import TraditionalWisdomDisplay from '../TraditionalWisdomDisplay';
 import AudioIconButton from '../audio/AudioIconButton';
 import ShareButton from '../ShareButton';
+import { WisdomSkeleton } from '../ui/Skeleton';
 import { TransliterationService } from '@/lib/services/transliterationService';
 
 interface TodaysWisdomData {
@@ -182,30 +183,8 @@ export default function SacredReadingView({ onClose, onBack }: SacredReadingView
     loadAvailableSources();
   }, [loadAvailableSources]);
 
-  // Loading State Component
-  const WisdomLoadingState = () => (
-    <div className="flex flex-col items-center justify-center p-12 text-center">
-      <div className="relative mb-6">
-        <div 
-          className="w-16 h-16 border-4 border-amber-200 rounded-full animate-spin"
-          style={{ 
-            borderTopColor: '#D4AF37',
-            borderRightColor: '#D4AF37'
-          }}
-        />
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="text-2xl animate-pulse">🕉️</div>
-        </div>
-      </div>
-      
-      <h3 className="text-lg font-semibold text-amber-800 mb-2">
-        Gathering Sacred Wisdom
-      </h3>
-      <p className="text-amber-600 text-sm animate-pulse">
-        Preparing today&apos;s divine guidance for your spiritual journey...
-      </p>
-    </div>
-  );
+  // Loading State Component — content-aware skeleton
+  const WisdomLoadingState = () => <WisdomSkeleton />;
 
   // Error State Component
   const WisdomErrorState = () => (
@@ -237,7 +216,7 @@ export default function SacredReadingView({ onClose, onBack }: SacredReadingView
         />
       </div>
 
-      <div className="relative z-10 max-w-4xl mx-auto pt-24 sm:pt-28 pb-6 px-6 space-y-8">
+      <div className="relative z-10 max-w-4xl mx-auto pt-6 sm:pt-8 pb-6 px-6 space-y-8">
         {/* Back Button - shown when onBack is provided */}
         {onBack && (
           <button

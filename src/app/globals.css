@@ -2,8 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-
 :root {
   --foreground-rgb: 51, 51, 51;
   --background-start-rgb: 253, 248, 225;
@@ -26,7 +24,7 @@ body {
       rgb(var(--background-end-rgb))
     )
     rgb(var(--background-start-rgb));
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-inter), system-ui, sans-serif;
   line-height: 1.6;
   /* Premium spiritual background pattern */
   background-image: 
@@ -203,5 +201,20 @@ body {
     transform: translateY(0);
     opacity: 1;
   }
+}
+
+@keyframes tabEnter {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-tabEnter {
+  animation: tabEnter 300ms ease-out;
 }
 

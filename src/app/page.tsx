@@ -151,24 +151,12 @@ const SubmitPageContent: React.FC = () => {
     
     // Only switch if we have a target tab and it differs from current activeTab
     if (targetTab && targetTab !== activeTab) {
-      console.log('[page.tsx] URL params indicate tab=', targetTab, 'current activeTab=', activeTab, '- switching tab');
       switchTab(targetTab);
     }
   }, [searchParams.toString(), pathname, activeTab, switchTab]);
 
   const currentTab = tabs.find(tab => tab.id === activeTab);
   const CurrentComponent = currentTab?.component;
-
-  // Debug logging
-  console.log('[page.tsx] Render - activeTab:', activeTab);
-  console.log('[page.tsx] currentTab found:', currentTab?.id, currentTab?.name);
-  console.log('[page.tsx] CurrentComponent:', CurrentComponent?.name || 'undefined');
-  
-  // Verify library tab rendering
-  if (activeTab === 'library') {
-    console.log('[page.tsx] ✅ activeTab is "library" - LibraryPage should render');
-    console.log('[page.tsx] CurrentComponent === LibraryPage?', CurrentComponent === LibraryPage);
-  }
 
   return (
     <>
@@ -231,40 +219,24 @@ const SubmitPageContent: React.FC = () => {
       <div className="relative z-10 pt-2 sm:pt-4">
         {CurrentComponent && (
           <TabErrorBoundary tabName={currentTab.name}>
+            <div key={activeTab} className="animate-tabEnter">
             {activeTab === 'home' ? (
-              (() => {
-                console.log('[page.tsx] Rendering HomeTab');
-                return (
-                  <HomeTab 
-                    key="home"
-                    onNavigate={(tab) => switchTab(tab)}
-                    onAsk={(question) => {
-                      setInitialQuestion(question);
-                      setQuestion(question);
-                      switchTab('ask');
-                    }}
-                  />
-                );
-              })()
+              <HomeTab
+                onNavigate={(tab) => switchTab(tab)}
+                onAsk={(question) => {
+                  setInitialQuestion(question);
+                  setQuestion(question);
+                  switchTab('ask');
+                }}
+              />
             ) : activeTab === 'ask' ? (
-              (() => {
-                console.log('[page.tsx] Rendering AskTab');
-                return (
-                  <AskTab 
-                    key="ask"
-                    initialQuestion={initialQuestion} 
-                  />
-                );
-              })()
+              <AskTab
+                initialQuestion={initialQuestion}
+              />
             ) : (
-              (() => {
-                console.log('[page.tsx] Rendering CurrentComponent (fallback) - activeTab:', activeTab);
-                if (activeTab === 'library') {
-                  console.log('[page.tsx] ✅ Rendering LibraryPage component');
-                }
-                return <CurrentComponent key={activeTab} />;
-              })()
+              <CurrentComponent />
             )}
+            </div>
           </TabErrorBoundary>
         )}
         

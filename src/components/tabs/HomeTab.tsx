@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { BookOpen, Sparkles, Send, ArrowRight, CheckCircle, MessageSquare, Library } from 'lucide-react';
-import SacredReadingView from '@/components/SacredReadingView';
+import SacredReadingView from '@/components/tabs/SacredReadingView';
 import AskTab from '@/components/tabs/AskTab';
 import LibraryTab from '@/components/tabs/LibraryTab';
 
@@ -58,42 +58,13 @@ export default function HomeTab({ onAsk, onNavigate }: HomeTabProps) {
         if (response.ok) {
           const stats = await response.json();
           setLibraryStats(stats);
-          console.log('Library stats loaded:', stats);
-        } else {
-          console.error('Failed to fetch library stats:', response.status);
         }
-      } catch (error) {
-        console.error('Error loading library stats:', error);
+      } catch {
       } finally {
         setStatsLoading(false);
       }
     }
     loadStats();
-  }, []);
-
-  // Load Google Fonts
-  useEffect(() => {
-    const link1 = document.createElement('link');
-    link1.rel = 'preconnect';
-    link1.href = 'https://fonts.googleapis.com';
-    document.head.appendChild(link1);
-
-    const link2 = document.createElement('link');
-    link2.rel = 'preconnect';
-    link2.href = 'https://fonts.gstatic.com';
-    link2.crossOrigin = 'anonymous';
-    document.head.appendChild(link2);
-
-    const link3 = document.createElement('link');
-    link3.href = 'https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Martel:wght@400;600;700&display=swap';
-    link3.rel = 'stylesheet';
-    document.head.appendChild(link3);
-
-    return () => {
-      document.head.removeChild(link1);
-      document.head.removeChild(link2);
-      document.head.removeChild(link3);
-    };
   }, []);
 
   const handleAsk = () => {

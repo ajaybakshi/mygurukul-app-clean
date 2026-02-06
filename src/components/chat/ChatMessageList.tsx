@@ -3,6 +3,7 @@
 import React from 'react';
 import { UserMessageBubble } from './UserMessageBubble';
 import { GuideMessageBubble } from './GuideMessageBubble';
+import { ChatTypingSkeleton } from '../ui/Skeleton';
 
 interface Message {
   id: number;
@@ -65,16 +66,7 @@ export const ChatMessageList: React.FC<ChatMessageListProps> = ({ messages, isLo
           );
         }
       })}
-      {isLoading && (
-        <div className="flex justify-start mb-4">
-          <div className="max-w-[80%] bg-gradient-to-r from-white to-blue-50 border border-blue-100 rounded-r-lg rounded-tl-lg p-4">
-            <div className="flex items-center gap-2 text-blue-600">
-              <div className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
-              <span className="text-sm">Seeking wisdom...</span>
-            </div>
-          </div>
-        </div>
-      )}
+      {isLoading && <ChatTypingSkeleton />}
     </div>
   );
 };

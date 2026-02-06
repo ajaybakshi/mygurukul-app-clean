@@ -37,8 +37,10 @@ module.exports = {
         }
       },
       fontFamily: {
-        sans: ['Inter', 'system-ui', 'sans-serif'],
-        serif: ['Georgia', 'serif'],
+        sans: ['var(--font-inter)', 'system-ui', 'sans-serif'],
+        serif: ['var(--font-playfair)', 'Georgia', 'serif'],
+        martel: ['var(--font-martel)', 'Georgia', 'serif'],
+        devanagari: ['var(--font-devanagari)', 'sans-serif'],
       },
       typography: {
         spiritual: {

@@ -80,10 +80,14 @@ const AskTab: React.FC<AskTabProps> = ({ className = '', initialQuestion, onBack
           }, 100);
         }
       } else if (lastMessage.sender === 'ai' && lastMessage.id !== lastAIMessageId.current) {
-        // New AI message added - don't auto-scroll, keep current position
-        // This allows reader to see the answer from the top and scroll at their own pace
+        // New AI message - scroll to the top of it so user reads from the beginning
         lastAIMessageId.current = lastMessage.id;
-        // Explicitly do NOT scroll - maintain current scroll position
+        setTimeout(() => {
+          const lastAiEl = chatContainerRef.current?.querySelector('.guide-message-bubble:last-of-type');
+          if (lastAiEl) {
+            lastAiEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        }, 150);
       }
       
       lastMessageCount.current = currentMessageCount;

@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { ChevronDown, ChevronRight, Search, BookOpen, Clock, CheckCircle, ArrowLeft } from 'lucide-react';
 import { categoryService } from '@/lib/database/categoryService';
 import { CategoryWithTexts, SacredText } from '@/types/categories';
+import { LibrarySkeleton } from '../ui/Skeleton';
 
 interface LibraryTabProps {
   className?: string;
@@ -260,26 +261,17 @@ const LibraryTab: React.FC<LibraryTabProps> = ({ className = '', onBack }) => {
               <span>← Back to Home</span>
             </button>
           )}
-          <div className="flex flex-col items-center justify-center py-20">
-            <div className="relative mb-6">
-              <div 
-                className="w-16 h-16 border-4 border-amber-200 rounded-full animate-spin"
-                style={{ 
-                  borderTopColor: '#D4AF37',
-                  borderRightColor: '#D4AF37'
-                }}
-              />
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="text-2xl animate-pulse">📚</div>
-              </div>
-            </div>
-            <h3 className="text-lg font-semibold text-amber-800 mb-2">
-              Loading Sacred Library
-            </h3>
-            <p className="text-amber-600 text-sm animate-pulse">
-              Gathering ancient wisdom collections...
+          {/* Header skeleton */}
+          <div className="text-center py-6">
+            <div className="text-5xl mb-4">📚</div>
+            <h1 className="text-3xl font-bold mb-2" style={{ color: '#D4AF37' }}>
+              Sacred Library
+            </h1>
+            <p className="text-amber-600 text-lg">
+              Loading ancient wisdom collections...
             </p>
           </div>
+          <LibrarySkeleton />
         </div>
       </div>
     );

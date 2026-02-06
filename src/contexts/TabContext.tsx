@@ -211,21 +211,12 @@ export const TabProvider: React.FC<TabProviderProps> = ({ children, initialTab =
 
   // Tab Actions
   const switchTab = useCallback((tabId: string, preserveState: boolean = true) => {
-    console.log('[TabContext] switchTab called with tabId:', tabId);
-    console.log('[TabContext] Current state.activeTab before update:', state.activeTab);
-    setState(prevState => {
-      console.log('[TabContext] Previous activeTab:', prevState.activeTab, '-> New activeTab:', tabId);
-      const newState = {
-        ...prevState,
-        activeTab: tabId,
-        // Clear validation errors when switching tabs
-        showValidationError: false,
-      };
-      console.log('[TabContext] ✅ setState called with new activeTab:', newState.activeTab);
-      return newState;
-    });
-    console.log('[TabContext] switchTab function completed');
-  }, [state.activeTab]);
+    setState(prevState => ({
+      ...prevState,
+      activeTab: tabId,
+      showValidationError: false,
+    }));
+  }, []);
 
   // Home Tab Actions
   const setTodaysWisdom = useCallback((wisdom: TodaysWisdomData | null) => {

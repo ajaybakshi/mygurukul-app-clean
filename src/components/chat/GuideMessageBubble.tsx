@@ -310,19 +310,8 @@ export const GuideMessageBubble: React.FC<GuideMessageBubbleProps> = ({
                   className="inline-block mx-1 px-1 bg-blue-100 text-blue-700 rounded cursor-pointer hover:bg-blue-200 hover:underline transition-colors font-medium"
                   onMouseEnter={(e) => {
                     if (citationText) {
-                      console.log('🖱️ Hovering over citation:', {
-                        index: citationIndex,
-                        hasText: !!citationText,
-                        textLength: citationText.length,
-                        textPreview: citationText.substring(0, 50)
-                      });
                       setHoveredCitationIndex(citationIndex);
                       setHoveredMarkerElement(e.currentTarget);
-                    } else {
-                      console.warn('⚠️ Citation has no text extract:', {
-                        index: citationIndex,
-                        citation: citation
-                      });
                     }
                   }}
                   onMouseLeave={() => {

@@ -2,19 +2,13 @@
 
 import Link from 'next/link'
 import { usePathname, useSearchParams } from 'next/navigation'
-import { Home, MessageCircle, BookOpen, BookText, User } from 'lucide-react'
+import { BookText, MessageCircle, BookOpen } from 'lucide-react'
 
 export default function BottomNavigation() {
   const pathname = usePathname()
   const searchParams = useSearchParams()
 
   const navItems = [
-    {
-      href: '/',
-      icon: Home,
-      label: 'Home',
-      id: 'home'
-    },
     {
       href: '/?view=wisdom',
       icon: BookText,
@@ -33,12 +27,6 @@ export default function BottomNavigation() {
       label: 'Sacred Library',
       id: 'library'
     },
-    // SPRINT 1: UI Restructuring - Profile tab hidden (not deleted)
-    // {
-    //   href: '/profile',
-    //   icon: User,
-    //   label: 'Profile'
-    // }
   ]
 
   return (
@@ -46,26 +34,20 @@ export default function BottomNavigation() {
       <div className="flex items-center justify-evenly px-2 py-2">
         {navItems.map((item) => {
           const Icon = item.icon
-          
-          // Determine active state based on route and query params
+
           let isActive = false;
-          if (item.id === 'home') {
-            // Home: pathname is / AND no tab or view params
-            isActive = pathname === '/' && !searchParams.get('tab') && !searchParams.get('view');
-          } else if (item.id === 'reading') {
-            // Sacred Reading: pathname is / AND view=wisdom param exists
-            isActive = pathname === '/' && searchParams.get('view') === 'wisdom';
+          if (item.id === 'reading') {
+            // Sacred Reading: home page without tab param, OR with view=wisdom
+            isActive = pathname === '/' && (!searchParams.get('tab') || searchParams.get('view') === 'wisdom');
           } else if (item.id === 'ask') {
-            // Spiritual Guidance: pathname is / AND tab=ask param exists, OR pathname is /submit
             isActive = (pathname === '/' && searchParams.get('tab') === 'ask') || pathname === '/submit';
           } else if (item.id === 'library') {
-            // Sacred Library: pathname starts with /library
             isActive = pathname === '/library' || pathname.startsWith('/library/');
           }
-          
+
           return (
             <Link
-              key={item.href}
+              key={item.id}
               href={item.href}
               className={`flex flex-col items-center justify-center flex-1 py-2 rounded-xl transition-all duration-200 ${
                 isActive

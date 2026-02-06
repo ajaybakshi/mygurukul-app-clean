@@ -2,124 +2,26 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { usePathname, useSearchParams } from 'next/navigation';
-import { Home, MessageSquare, BookOpen, Mail } from 'lucide-react';
-
-const tabs = [
-  {
-    id: 'home',
-    name: 'Sacred Reading',
-    icon: <Home className="w-5 h-5" />,
-    href: '/?view=wisdom',
-    description: 'Begin with today\'s divine wisdom'
-  },
-  {
-    id: 'ask',
-    name: 'Spiritual Guidance',
-    icon: <MessageSquare className="w-5 h-5" />,
-    href: '/?tab=ask',
-    description: 'Seek wisdom from ancient texts'
-  },
-  {
-    id: 'library',
-    name: 'Sacred Library',
-    icon: <BookOpen className="w-5 h-5" />,
-    href: '/library',
-    description: 'Explore spiritual sources'
-  },
-];
+import { Mail } from 'lucide-react';
 
 export default function AppHeader() {
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
-  
-  // Determine active tab based on route
-  let activeTab: string;
-  let currentTabName: string;
-  
-  if (pathname === '/library' || pathname.startsWith('/library/')) {
-    activeTab = 'library';
-    currentTabName = 'Sacred Library';
-  } else if (pathname === '/submit' || searchParams.get('tab') === 'ask') {
-    activeTab = 'ask';
-    currentTabName = 'Spiritual Guidance';
-  } else if (searchParams.get('view') === 'wisdom') {
-    activeTab = 'home';
-    currentTabName = 'Sacred Reading';
-  } else {
-    activeTab = 'home';
-    currentTabName = 'Sacred Reading';
-  }
-
   return (
-    <div className="sticky top-0 z-50 bg-white border-b border-amber-200 shadow-lg backdrop-blur-md app-header">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 sm:py-4">
-        {/* Top nav */}
-        <div className="relative grid grid-cols-3 items-center mb-3 sm:mb-4">
-          <div className="hidden sm:block"></div>
-          
-          <div className="text-center col-span-3 sm:col-span-1">
-            <h1 className="text-lg sm:text-2xl font-bold" style={{ color: '#D4AF37' }}>
-              🕉️ My Gurukul
-            </h1>
-            <p className="text-amber-600 text-xs sm:text-sm hidden sm:block">
-              Your journey to wisdom through ancient sacred texts
-            </p>
-          </div>
-          
-          <div className="hidden sm:block text-right">
-            <a
-              href="mailto:mygurukul.ai@gmail.com"
-              className="inline-flex items-center gap-2 text-amber-600 hover:text-amber-800 font-medium text-sm transition-all duration-200 hover:underline"
-              style={{ color: '#D4AF37' }}
-              title="Contact Us - mygurukul.ai@gmail.com"
-            >
-              <Mail className="w-4 h-4" />
-              <span>Contact Us</span>
-            </a>
-          </div>
-          
-          {/* Mobile Contact button - positioned absolutely */}
+    <div className="sticky top-0 z-50 bg-white/95 border-b border-amber-200 shadow-sm backdrop-blur-md app-header">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-2 sm:py-3">
+        <div className="flex items-center justify-between">
+          <Link href="/" className="text-lg sm:text-xl font-bold hover:opacity-80 transition-opacity" style={{ color: '#D4AF37' }}>
+            🕉️ My Gurukul
+          </Link>
+
           <a
             href="mailto:mygurukul.ai@gmail.com"
-            className="sm:hidden absolute right-4 top-3 inline-flex items-center text-amber-600 hover:text-amber-800 font-medium text-xs transition-all duration-200 hover:underline"
+            className="inline-flex items-center gap-1.5 text-amber-600 hover:text-amber-800 font-medium text-xs sm:text-sm transition-colors"
             style={{ color: '#D4AF37' }}
             title="Contact Us - mygurukul.ai@gmail.com"
           >
             <Mail className="w-4 h-4" />
+            <span className="hidden sm:inline">Contact Us</span>
           </a>
-        </div>
-
-        {/* Tab navigation with spiritual golden theme */}
-        <div className="flex justify-center">
-          <div className="bg-amber-100/50 backdrop-blur-sm border border-amber-200 rounded-xl p-1 sm:p-2 shadow-md w-full sm:w-auto tab-navigation">
-            <div className="flex space-x-1 sm:space-x-2 justify-center">
-              {tabs.map((tab) => {
-                const isActive = tab.id === activeTab;
-                
-                return (
-                  <Link
-                    key={tab.id}
-                    href={tab.href}
-                    className={`group flex flex-col items-center space-y-1 px-2 sm:px-4 py-2 sm:py-3 rounded-lg transition-all duration-300 font-medium min-w-[80px] sm:min-w-[100px] flex-1 sm:flex-none tab-button ${
-                      isActive
-                        ? 'bg-gradient-to-r from-amber-200 to-amber-100 text-amber-800 shadow-md transform scale-105'
-                        : 'text-amber-600 hover:bg-amber-50/50 hover:text-amber-700'
-                    }`}
-                    style={isActive ? { color: '#D4AF37' } : {}}
-                    title={tab.description}
-                  >
-                    <div className={`transition-all duration-300 tab-icon ${
-                      isActive ? 'transform scale-110' : 'group-hover:scale-105'
-                    }`}>
-                      {tab.icon}
-                    </div>
-                    <span className="text-xs text-center leading-tight">{tab.name}</span>
-                  </Link>
-                );
-              })}
-            </div>
-          </div>
         </div>
       </div>
     </div>
