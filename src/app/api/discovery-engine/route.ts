@@ -4,6 +4,8 @@ import { createSessionWithFallback, buildSessionPath, generateUserPseudoId } fro
 import { writeApiLog, createLogData } from '@/lib/logger'
 import { categoryService } from '@/lib/database/categoryService'
 import { getDiscoveryPrompt, isDiscoveryEngineEnabled } from './discovery-prompts-config'
+import { logConversation } from '@/lib/db/conversationRepository'
+import { logApiMetric } from '@/lib/db/metricsRepository'
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs'; // Ensures full Node.js env for heavy ops
@@ -329,7 +331,34 @@ export async function POST(request: NextRequest) {
         undefined // errors
       )
       await writeApiLog(logData)
-      
+
+      // Non-blocking DB logging (fire-and-forget)
+      const answerText = responseData.answer?.answerText || '';
+      const citations = responseData.answer?.citations || [];
+
+      logApiMetric({
+        endpoint: '/api/discovery-engine',
+        session_id: responseData.sessionId || sessionId,
+        latency_ms: processingTime,
+        status_code: 200,
+        success: true,
+        request_metadata: {
+          category,
+          question_length: question.length,
+          has_session: !!googleSessionPath
+        }
+      }).catch(() => {});
+
+      logConversation({
+        session_id: responseData.sessionId || sessionId || `de-${Date.now()}`,
+        question,
+        response_narrative: answerText,
+        citations: citations.map((c: any) => ({ source: c.source, text: c.text })),
+        provider: 'discovery-engine',
+        response_time_ms: processingTime,
+        grounded: citations.length > 0
+      }).catch(() => {});
+
       return NextResponse.json(responseData)
     } catch (error) {
       clearTimeout(timeoutId)
@@ -393,7 +422,7 @@ export async function POST(request: NextRequest) {
     }
   } catch (error) {
     console.log('Request parsing error:', error)
-    
+
     const processingTime = Date.now() - startTime
     const errorMessage = 'Invalid request body'
     const errorLogData = createLogData(
@@ -405,7 +434,16 @@ export async function POST(request: NextRequest) {
       [errorMessage]
     )
     await writeApiLog(errorLogData)
-    
+
+    // Non-blocking error logging
+    logApiMetric({
+      endpoint: '/api/discovery-engine',
+      latency_ms: processingTime,
+      status_code: 400,
+      success: false,
+      error_message: errorMessage
+    }).catch(() => {});
+
     return NextResponse.json(
       { error: errorMessage },
       { status: 400 }
