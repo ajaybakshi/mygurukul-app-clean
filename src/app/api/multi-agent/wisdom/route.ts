@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { v4 as uuidv4 } from 'uuid';
+import { logConversation } from '@/lib/db/conversationRepository';
+import { logApiMetric } from '@/lib/db/metricsRepository';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs'; // Ensures full Node.js env for heavy ops
@@ -157,6 +159,16 @@ export async function POST(request: NextRequest) {
           }
         }
 
+        // Non-blocking error logging
+        logApiMetric({
+          endpoint: '/api/multi-agent/wisdom',
+          latency_ms: collectorTime,
+          status_code: 503,
+          success: false,
+          error_message: collectorError instanceof Error ? collectorError.message : 'Unknown error',
+          request_metadata: { error_code: errorCode, stage: 'collector' }
+        }).catch(() => {});
+
         return NextResponse.json(
           {
             success: false,
@@ -258,6 +270,17 @@ export async function POST(request: NextRequest) {
         }
       }
 
+      // Non-blocking error logging
+      const synthErrorTime = Date.now() - synthesizerStartTime;
+      logApiMetric({
+        endpoint: '/api/multi-agent/wisdom',
+        latency_ms: synthErrorTime,
+        status_code: 503,
+        success: false,
+        error_message: synthesizerError instanceof Error ? synthesizerError.message : 'Unknown error',
+        request_metadata: { error_code: errorCode, stage: 'synthesizer' }
+      }).catch(() => {});
+
       return NextResponse.json(
         {
           success: false,
@@ -281,6 +304,31 @@ export async function POST(request: NextRequest) {
     } else {
       console.log(`📊 [${correlationId}] Performance: Synthesizer=${synthesizerTime}ms, Total=${totalTime}ms`);
     }
+
+    // Non-blocking DB logging (fire-and-forget)
+    logApiMetric({
+      endpoint: '/api/multi-agent/wisdom',
+      session_id: synthesizerResponse.data.sessionId,
+      latency_ms: totalTime,
+      status_code: 200,
+      success: true,
+      request_metadata: {
+        question_length: question.length,
+        is_new_session: isNewSession,
+        collector_time: collectorTime,
+        synthesizer_time: synthesizerTime
+      }
+    }).catch(() => {});
+
+    logConversation({
+      session_id: synthesizerResponse.data.sessionId,
+      question,
+      response_narrative: synthesizerResponse.data.narrative,
+      citations: synthesizerResponse.data.citations,
+      provider: 'multi-agent',
+      response_time_ms: totalTime,
+      grounded: (synthesizerResponse.data.citations?.length || 0) > 0
+    }).catch(() => {});
 
     const response: MultiAgentWisdomResponse = {
       success: true,
@@ -354,6 +402,16 @@ export async function POST(request: NextRequest) {
         errorCode = 'REQUEST_TIMEOUT';
       }
     }
+
+    // Non-blocking error logging
+    logApiMetric({
+      endpoint: '/api/multi-agent/wisdom',
+      latency_ms: totalTime,
+      status_code: 500,
+      success: false,
+      error_message: error instanceof Error ? error.message : 'Unknown error',
+      request_metadata: { error_code: errorCode }
+    }).catch(() => {});
 
     return NextResponse.json(
       {

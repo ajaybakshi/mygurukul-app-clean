@@ -4,6 +4,8 @@ import { GoogleGenAI } from '@google/genai';
 import { crossCorpusWisdomService } from '../../../lib/services/crossCorpusWisdomService';
 import { gretilWisdomService } from '../../../lib/services/gretilWisdomService';
 import { getFileSearchConfig } from '../../../lib/fileSearchConfig';
+import { logApiMetric } from '@/lib/db/metricsRepository';
+import { getWisdomByDate, saveWisdom } from '@/lib/db/wisdomRepository';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs'; // Ensures full Node.js env for heavy ops
@@ -632,6 +634,73 @@ export async function POST(request: NextRequest) {
   console.log('  Selected source info:', selectedSourceInfo);
   console.log('  Selection timestamp:', new Date().toISOString());
 
+  // Check for cached wisdom in database
+  const today = new Date();
+  today.setHours(0, 0, 0, 0); // Normalize to start of day
+
+  try {
+    console.log('🔍 Checking for cached wisdom in database...');
+    const cachedWisdom = await getWisdomByDate(today);
+
+    if (cachedWisdom) {
+      console.log('✅ Found cached wisdom from database, returning cached response');
+
+      // Convert DB format to API response format
+      const todaysWisdom: TodaysWisdom = {
+        rawText: cachedWisdom.raw_text,
+        rawTextAnnotation: {
+          chapter: cachedWisdom.chapter || 'Sacred Chapter',
+          section: cachedWisdom.section || 'Sacred Section',
+          source: cachedWisdom.source_name,
+          characters: cachedWisdom.metadata?.speaker,
+          theme: cachedWisdom.text_type || 'wisdom',
+          technicalReference: cachedWisdom.metadata?.verse_number
+        },
+        wisdom: cachedWisdom.interpretation,
+        context: `Daily wisdom from ${cachedWisdom.source_name}`,
+        type: 'verse',
+        sourceName: cachedWisdom.source_name,
+        timestamp: cachedWisdom.created_at.toISOString(),
+        encouragement: "This sacred wisdom offers guidance for your journey. What aspect resonates most deeply with you?",
+        sourceLocation: `From ${cachedWisdom.source_name}`,
+        filesSearched: [cachedWisdom.source_name],
+        metadata: `Cached: ${cachedWisdom.text_type || 'Narrative'}`
+      };
+
+      // Get available sources for frontend
+      const gretilSources = await gretilWisdomService.getAllAvailableGretilSources();
+      const availableSources = gretilSources.map(source => source.folderName);
+
+      // Log cache hit metric
+      logApiMetric({
+        endpoint: '/api/todays-wisdom',
+        latency_ms: Date.now(),
+        status_code: 200,
+        success: true,
+        request_metadata: { from_cache: true, source_name: cachedWisdom.source_name }
+      }).catch(() => {});
+
+      return NextResponse.json({
+        success: true,
+        todaysWisdom,
+        selectedSource: cachedWisdom.source_name,
+        selectionMethod: 'cached',
+        fromCache: true,
+        availableSources: availableSources.map(source => ({
+          folderName: source,
+          displayName: source.replace(/([A-Z])/g, ' $1').trim().replace(/^\w/, c => c.toUpperCase())
+        })),
+        totalAvailableSources: availableSources.length,
+        message: 'Wisdom served from database cache'
+      });
+    }
+
+    console.log('📝 No cached wisdom found, generating new wisdom...');
+  } catch (cacheError) {
+    // If cache check fails, continue with generation
+    console.log('⚠️ Cache check failed, proceeding with generation:', cacheError);
+  }
+
   try {
     console.log(`Today's Wisdom request for source: ${sourceName}`);
     
@@ -772,11 +841,57 @@ export async function POST(request: NextRequest) {
       message: responseData.message
     });
 
+    // Non-blocking metrics logging (fire-and-forget)
+    const processingTime = Date.now();
+    logApiMetric({
+      endpoint: '/api/todays-wisdom',
+      latency_ms: processingTime,
+      status_code: 200,
+      success: true,
+      request_metadata: {
+        source_name: sourceName,
+        selection_method: selectionMethod,
+        total_available_sources: availableSources.length
+      }
+    }).catch(() => {});
+
+    // Save wisdom to database for caching (fire-and-forget)
+    saveWisdom({
+      wisdom_date: today,
+      raw_text: todaysWisdom.rawText,
+      interpretation: todaysWisdom.wisdom,
+      source_name: todaysWisdom.sourceName,
+      chapter: todaysWisdom.rawTextAnnotation.chapter,
+      section: todaysWisdom.rawTextAnnotation.section,
+      text_type: extractedWisdom.metadata?.enhancedTextType || 'Narrative',
+      metadata: {
+        verse_number: todaysWisdom.rawTextAnnotation.technicalReference,
+        speaker: todaysWisdom.rawTextAnnotation.characters,
+        language: 'Sanskrit'
+      }
+    }).then(saved => {
+      if (saved) {
+        console.log('✅ Wisdom saved to database for future caching');
+      }
+    }).catch(err => {
+      console.log('⚠️ Failed to save wisdom to database:', err);
+    });
+
     return NextResponse.json(responseData);
 
   } catch (error) {
     console.error('Today\'s Wisdom API error:', error);
-    
+
+    // Non-blocking error logging
+    logApiMetric({
+      endpoint: '/api/todays-wisdom',
+      latency_ms: Date.now(),
+      status_code: 200, // Returns 200 with fallback wisdom
+      success: false,
+      error_message: error instanceof Error ? error.message : 'Unknown error',
+      request_metadata: { source_name: sourceName }
+    }).catch(() => {});
+
     return NextResponse.json(
       { 
         success: false,
