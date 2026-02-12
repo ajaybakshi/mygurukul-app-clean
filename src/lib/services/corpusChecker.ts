@@ -76,11 +76,13 @@ const FOLDER_MAPPING: { [key: string]: string } = {
 };
 
 export class CorpusChecker {
-  private storage: Storage;
+  private storage: Storage | null = null;
 
-  constructor() {
-    // Use the same robust initialization as Today's Wisdom
-    this.storage = initializeStorage();
+  private getStorage(): Storage {
+    if (!this.storage) {
+      this.storage = initializeStorage();
+    }
+    return this.storage;
   }
 
   async checkCorpusAvailability(cloudFolderPath: string): Promise<'available' | 'coming_soon'> {
@@ -94,8 +96,8 @@ export class CorpusChecker {
       
       console.log(`Checking corpus availability for: ${cloudFolderPath} -> ${actualFolderName}`);
       
-      const [files] = await this.storage.bucket(bucketName).getFiles({ 
-        prefix: `${actualFolderName}/` 
+      const [files] = await this.getStorage().bucket(bucketName).getFiles({
+        prefix: `${actualFolderName}/`
       });
       
       const status = files.length > 0 ? 'available' : 'coming_soon';
