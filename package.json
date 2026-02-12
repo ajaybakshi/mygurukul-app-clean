@@ -10,6 +10,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.74.0",
     "@google-cloud/discoveryengine": "^2.4.0",
     "@google-cloud/storage": "^7.17.0",
     "@google/genai": "^1.29.1",
@@ -19,6 +20,7 @@
     "@vercel/analytics": "^1.6.1",
     "@vercel/postgres": "^0.10.0",
     "detect-node-es": "^1.1.0",
+    "dotenv": "^17.2.4",
     "fast-xml-parser": "^5.2.5",
     "form-data": "^4.0.4",
     "google-auth-library": "^10.2.1",
@@ -29,7 +31,8 @@
     "react": "^18",
     "react-dom": "^18",
     "sanscript": "^0.0.2",
-    "uuid": "^9.0.0"
+    "uuid": "^9.0.0",
+    "voyageai": "^0.1.0"
   },
   "devDependencies": {
     "@types/node": "^20",

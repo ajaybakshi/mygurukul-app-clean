@@ -353,12 +353,17 @@ export async function callFileSearchWisdom(
   }
 }
 
+// Agentic Search Feature Flag
+const USE_AGENTIC_SEARCH = process.env.NEXT_PUBLIC_AGENTIC_SEARCH === 'true';
+
 /**
  * Unified Wisdom Engine Function - Production Q&A Entry Point
- * 
- * IMPORTANT: This function ONLY uses File Search (/api/wisdom/file-search) and
- * NEVER calls the Discovery Engine (/api/discovery-engine) to avoid placeholder responses.
- * This is the main entry point for all user Q&A queries from the Ask/Q&A tab.
+ *
+ * Routes between:
+ * 1. Agentic Search (Claude + Voyage + Amarakosha) — when NEXT_PUBLIC_AGENTIC_SEARCH=true
+ * 2. File Search (Gemini + Google RAG) — default production path
+ *
+ * Zero changes to existing File Search when agentic search is disabled.
  */
 export async function callWisdomEngine(
   question: string,
@@ -366,6 +371,15 @@ export async function callWisdomEngine(
   category?: string,
   conversationHistory?: Array<{sender: 'user' | 'ai', text: string}>
 ): Promise<DiscoveryEngineResponse> {
+  if (USE_AGENTIC_SEARCH) {
+    console.log('🧠 Agentic Wisdom Engine:', {
+      question: question.substring(0, 50) + '...',
+      sessionId: sessionId || 'new session',
+      historyLength: conversationHistory?.length || 0
+    });
+    return await callAgenticWisdom(question, sessionId, conversationHistory);
+  }
+
   console.log('📚 File Search Wisdom Engine:', {
     question: question.substring(0, 50) + '...',
     sessionId: sessionId || 'new session',
@@ -373,19 +387,110 @@ export async function callWisdomEngine(
     historyLength: conversationHistory?.length || 0
   });
 
-  // PRODUCTION PATH: Always use File Search - this is the ONLY path for user Q&A
-  // This ensures we never hit the disabled Discovery Engine placeholder response
-  // callDiscoveryEngine() is kept in this file for future experiments but is NOT used here
   return await callFileSearchWisdom(question, sessionId, category, conversationHistory);
-  
-  // Multi-Agent code disabled - kept for future reference
-  // if (USE_MULTI_AGENT) {
-  //   console.log('🚀 Using Multi-Agent Wisdom Engine');
-  //   return await callMultiAgentWisdom(question, sessionId, category);
-  // } else {
-  //   console.log('🔍 Using Traditional Discovery Engine');
-  //   return await callDiscoveryEngine(question, sessionId, category);
-  // }
+}
+
+/**
+ * Agentic Wisdom Function
+ * Calls the new /api/agentic-wisdom endpoint (non-streaming mode)
+ * and maps the response to the existing DiscoveryEngineResponse format.
+ *
+ * This function is ONLY called when NEXT_PUBLIC_AGENTIC_SEARCH=true.
+ * The existing callFileSearchWisdom is completely untouched.
+ */
+export async function callAgenticWisdom(
+  question: string,
+  sessionId?: string,
+  conversationHistory?: Array<{sender: 'user' | 'ai', text: string}>
+): Promise<DiscoveryEngineResponse> {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 90000); // 90s timeout
+
+  try {
+    const response = await fetch('/api/agentic-wisdom', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        question,
+        sessionId,
+        conversationHistory,
+        stream: false, // Use non-streaming for compatibility with existing UI
+      }),
+      signal: controller.signal,
+    });
+
+    clearTimeout(timeoutId);
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new DiscoveryEngineError(
+        errorData.error || `Agentic search failed: ${response.status}`,
+        response.status
+      );
+    }
+
+    const data = await response.json();
+
+    // Map agentic response to DiscoveryEngineResponse format
+    // The agentic API returns { data: { narrative, citations[], metadata } }
+    // citations have: { source, title, text, verse_refs, section, category }
+    const agenticCitations = data.data?.citations || [];
+
+    // Build rich source title: "Bhagavad Gita — Chapter 2 (BG 2.47, BG 2.48)"
+    const buildSourceTitle = (c: any): string => {
+      const parts: string[] = [];
+      parts.push(c.title || c.source || 'Sacred Text');
+      if (c.section) parts[0] += ` — ${c.section}`;
+      if (c.verse_refs?.length) parts[0] += ` (${c.verse_refs.join(', ')})`;
+      return parts[0];
+    };
+
+    const mappedResponse: DiscoveryEngineResponse = {
+      sessionId: data.data?.sessionId || sessionId,
+      answer: {
+        state: 'SUCCEEDED',
+        answerText: data.data?.narrative || '',
+        citations: agenticCitations.map((c: any, i: number) => ({
+          startIndex: 0,
+          endIndex: 0,
+          text: c.text || '',
+          sources: [{
+            referenceId: c.source || `agentic-${i}`,
+            title: buildSourceTitle(c),
+            uri: '',
+          }],
+        })),
+        references: agenticCitations.map((c: any) => ({
+          title: buildSourceTitle(c),
+          uri: '',
+          chunkInfo: {
+            content: c.text || '',
+            relevanceScore: 1.0,
+            documentMetadata: {
+              document: c.title || 'Sacred Text',
+              uri: '',
+              title: buildSourceTitle(c),
+            },
+          },
+        })),
+      },
+    };
+
+    return mappedResponse;
+  } catch (error) {
+    clearTimeout(timeoutId);
+
+    if (error instanceof DiscoveryEngineError) throw error;
+
+    if (error instanceof Error) {
+      if (error.name === 'AbortError') {
+        throw new DiscoveryEngineError('Agentic search timed out. Please try again.');
+      }
+      throw new DiscoveryEngineError(`Agentic search error: ${error.message}`);
+    }
+
+    throw new DiscoveryEngineError('Unknown agentic search error');
+  }
 }
 
 // File Search Response Mapping Functions

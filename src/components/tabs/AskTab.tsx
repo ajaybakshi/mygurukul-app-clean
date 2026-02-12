@@ -4,9 +4,13 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Send, RefreshCw, ArrowLeft } from 'lucide-react';
 import {
   callWisdomEngine,
+  callAgenticWisdom,
   DiscoveryEngineResponse,
   DiscoveryEngineError,
 } from "@/lib/discoveryEngine";
+
+// Agentic search feature flag (read at build time)
+const USE_AGENTIC_SEARCH = process.env.NEXT_PUBLIC_AGENTIC_SEARCH === 'true';
 import { ChatMessageList } from "@/components/chat/ChatMessageList";
 import { categoryService } from "@/lib/database/categoryService";
 import { TopicCategory } from "@/types/categories";
@@ -49,6 +53,7 @@ const AskTab: React.FC<AskTabProps> = ({ className = '', initialQuestion, onBack
 
   const [categories, setCategories] = useState<TopicCategory[]>(initialCategories);
   const [isClient, setIsClient] = useState(false);
+  const [agenticStatus, setAgenticStatus] = useState<string>('');
 
   // Refs for chat container and messages
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -134,6 +139,7 @@ const AskTab: React.FC<AskTabProps> = ({ className = '', initialQuestion, onBack
     setIsLoadingAI(true);
     setAiError(null);
     setAiResponse(null);
+    setAgenticStatus(USE_AGENTIC_SEARCH ? 'Understanding your question...' : '');
 
     try {
       // Add user question to message history
@@ -153,8 +159,16 @@ const AskTab: React.FC<AskTabProps> = ({ className = '', initialQuestion, onBack
       if (process.env.NODE_ENV === 'development') {
         console.log("Sending request with sessionId:", sessionId, "and category:", category);
         console.log("Including conversation history:", conversationHistory.length, "messages");
+        console.log("Using agentic search:", USE_AGENTIC_SEARCH);
       }
-      
+
+      // Show progressive status updates for agentic search
+      if (USE_AGENTIC_SEARCH) {
+        setTimeout(() => setAgenticStatus('Searching sacred texts...'), 2000);
+        setTimeout(() => setAgenticStatus('Reading passages...'), 8000);
+        setTimeout(() => setAgenticStatus('Synthesizing wisdom...'), 15000);
+      }
+
       const response = await callWisdomEngine(
         question,
         sessionId || undefined,
@@ -229,6 +243,7 @@ const AskTab: React.FC<AskTabProps> = ({ className = '', initialQuestion, onBack
     } finally {
       setIsSubmitting(false);
       setIsLoadingAI(false);
+      setAgenticStatus('');
     }
   };
 
@@ -433,6 +448,12 @@ const AskTab: React.FC<AskTabProps> = ({ className = '', initialQuestion, onBack
           }}
         >
           <ChatMessageList messages={messages} isLoading={isLoadingAI} error={aiError} />
+          {agenticStatus && isLoadingAI && (
+            <div className="flex items-center justify-center py-3 text-amber-700 text-sm">
+              <div className="w-2 h-2 bg-amber-500 rounded-full animate-pulse mr-2"></div>
+              {agenticStatus}
+            </div>
+          )}
           <div ref={messagesEndRef} />
         </div>
       </div>

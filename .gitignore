@@ -62,3 +62,19 @@ MANIFEST_UPDATE_SUMMARY.md
 MISSING_SCRIPTURES_ANALYSIS.md
 *_fix.js
 *_scan.js
+.vercel
+
+# Corpus data (large, managed separately)
+GRETIL-mirror/
+SARIT-corpus/
+data/
+
+# Dev/debug scripts
+scripts/agentic-search/
+
+# Backup files
+*.bak
+*.backup*
+
+# Env files not covered by .env*.local
+.env.vercel-pg
