@@ -301,10 +301,10 @@ const AskTab: React.FC<AskTabProps> = ({ className = '', initialQuestion, onBack
   };
 
   return (
-    <div className={`min-h-screen bg-gradient-to-br from-amber-50 via-white to-amber-50/50 ${className}`}>
+    <div className={`bg-gradient-to-br from-amber-50 via-white to-amber-50/50 ${className}`}>
       {/* Sacred background pattern */}
       <div className="absolute inset-0 opacity-5 pointer-events-none">
-        <div 
+        <div
           className="w-full h-full"
           style={{
             backgroundImage: `radial-gradient(circle at 20% 80%, rgba(212, 175, 55, 0.1) 0%, transparent 50%),
@@ -314,7 +314,7 @@ const AskTab: React.FC<AskTabProps> = ({ className = '', initialQuestion, onBack
         />
       </div>
 
-      <div className="relative z-10 max-w-4xl mx-auto flex flex-col ask-tab-container" style={{ height: 'calc(100vh - 60px)', minHeight: 0 }}>
+      <div className="relative z-10 max-w-4xl mx-auto flex flex-col ask-tab-container" style={{ height: 'calc(100vh - 120px)', minHeight: 0 }}>
         {/* Back Button - shown when onBack is provided */}
         {onBack && (
           <div className="flex-shrink-0 mb-2">
@@ -329,109 +329,93 @@ const AskTab: React.FC<AskTabProps> = ({ className = '', initialQuestion, onBack
           </div>
         )}
 
-        {/* Header */}
-        <div className="text-center py-2 flex-shrink-0 ask-tab-header">
-          <div className="text-3xl mb-2">💬</div>
-          <h1 className="text-2xl font-bold mb-1" style={{ color: '#D4AF37' }}>
-            Ask for Spiritual Guidance
-          </h1>
-          <p className="text-amber-600 text-sm">
-            Seek wisdom from ancient spiritual texts and receive AI-powered guidance
-          </p>
+        {/* Header - Full when empty, compact when chatting */}
+        {messages.length === 0 ? (
+          <div className="text-center py-2 flex-shrink-0 ask-tab-header">
+            <div className="text-3xl mb-2">💬</div>
+            <h1 className="text-2xl font-bold mb-1" style={{ color: '#D4AF37' }}>
+              Ask for Spiritual Guidance
+            </h1>
+            <p className="text-amber-600 text-sm">
+              Seek wisdom from ancient spiritual texts and receive AI-powered guidance
+            </p>
 
-          {/* Wisdom Context Indicator */}
-          {wisdomContext && (
-            <div className="mt-6">
-              <div className="inline-flex items-center bg-gradient-to-r from-blue-50 to-blue-100/50 px-4 py-2 rounded-full border border-blue-200/50 shadow-sm">
-                <span className="text-lg mr-2">🕉️</span>
-                <span className="text-base text-blue-700 font-medium">
-                  Discussing today&apos;s wisdom from {wisdomContext.sourceName}
-                </span>
+            {/* Wisdom Context Indicator */}
+            {wisdomContext && (
+              <div className="mt-6">
+                <div className="inline-flex items-center bg-gradient-to-r from-blue-50 to-blue-100/50 px-4 py-2 rounded-full border border-blue-200/50 shadow-sm">
+                  <span className="text-lg mr-2">🕉️</span>
+                  <span className="text-base text-blue-700 font-medium">
+                    Discussing today&apos;s wisdom from {wisdomContext.sourceName}
+                  </span>
+                </div>
               </div>
-            </div>
-          )}
-
-          {/* Session Status Indicator */}
-          {sessionId && (
-            <div className="mt-4">
-              <div className="inline-flex items-center bg-gradient-to-r from-amber-50 to-amber-100/50 px-4 py-2 rounded-full border border-amber-200/50 shadow-sm">
-                <span className="w-3 h-3 bg-amber-500 rounded-full mr-3 animate-pulse"></span>
-                <span className="text-base text-amber-700 font-medium">
-                  Continuing conversation
+            )}
+          </div>
+        ) : (
+          <div className="flex-shrink-0 flex items-center justify-between px-4 py-2 border-b border-amber-200 bg-white/60 backdrop-blur-sm ask-tab-header">
+            <div className="flex items-center gap-2">
+              <span className="text-lg">🕉️</span>
+              <span className="text-sm font-semibold" style={{ color: '#D4AF37' }}>Spiritual Guidance</span>
+              {wisdomContext && (
+                <span className="text-xs text-blue-600 hidden sm:inline">
+                  · {wisdomContext.sourceName}
                 </span>
-                <span className="ml-2 text-sm text-amber-600">
-                  ({sessionId.length > 20 ? `${sessionId.substring(0, 8)}...` : sessionId})
-                </span>
-              </div>
+              )}
             </div>
-          )}
-
-          {/* New Conversation Button */}
-          {sessionId && (
-            <div className="mt-4 flex justify-center">
+            {sessionId && (
               <button
                 onClick={handleNewConversation}
-                className="inline-flex items-center bg-gradient-to-r from-amber-500 to-amber-600 text-white px-6 py-3 rounded-lg font-medium transition-all duration-200 hover:from-amber-600 hover:to-amber-700 hover:shadow-lg hover:scale-105 shadow-md"
+                className="inline-flex items-center text-amber-700 hover:text-amber-800 text-xs font-medium gap-1 px-3 py-1.5 rounded-lg hover:bg-amber-100 transition-colors"
                 title="Start a new conversation"
               >
-                <RefreshCw className="w-5 h-5 mr-2" />
-                <span>New Conversation</span>
+                <RefreshCw className="w-3.5 h-3.5" />
+                <span>New</span>
               </button>
-            </div>
-          )}
-        </div>
+            )}
+          </div>
+        )}
 
         {/* Input Area - Above Chat */}
-        <div className="bg-white/80 backdrop-blur-sm p-3 border-b border-amber-200 ask-tab-input">
-          <form onSubmit={handleSubmit} className="space-y-2">
-            {/* Category Dropdown - Hidden for now */}
-            {/* <CategoryDropdown /> */}
-
-            <div className="border border-amber-200 rounded-lg p-2 shadow-sm">
-              <label className="block text-sm font-semibold text-amber-800 mb-1">
-                Your Spiritual Question
-              </label>
-              <textarea
-                key="question-textarea"
+        <div className="bg-white/80 backdrop-blur-sm px-3 py-2 border-b border-amber-200 flex-shrink-0 ask-tab-input">
+          <form onSubmit={handleSubmit}>
+            <div className="flex items-center gap-2">
+              <input
+                key="question-input"
+                type="text"
                 value={isClient ? question : ""}
                 onChange={(e) => {
                   setQuestion(e.target.value);
                   setShowValidationError(false);
                 }}
                 placeholder="Share your spiritual question or concern..."
-                className="w-full p-2 border border-amber-300 rounded-lg bg-gradient-to-r from-white to-amber-50/30 text-amber-900 placeholder-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent resize-none transition-all duration-200 hover:border-amber-400 text-sm leading-relaxed"
-                rows={1}
+                className="flex-1 p-2.5 border border-amber-300 rounded-lg bg-gradient-to-r from-white to-amber-50/30 text-amber-900 placeholder-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent transition-all duration-200 hover:border-amber-400 text-sm"
                 maxLength={500}
               />
-              <div className="flex items-center justify-between mt-1">
-                <div className="text-xs text-amber-600">
-                  {question.length}/500
-                </div>
-                <button
-                  key="submit-button"
-                  type="submit"
-                  disabled={isSubmitting || !isClient || !question.trim()}
-                  className="bg-gradient-to-r from-amber-500 to-amber-600 text-white py-2 px-4 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 hover:from-amber-600 hover:to-amber-700 hover:shadow-md touch-manipulation text-sm font-semibold border border-amber-400 shadow-sm focus:outline-none focus:ring-2 focus:ring-amber-300 focus:ring-opacity-50 flex items-center gap-2"
-                  aria-label="Submit spiritual question for AI guidance"
-                >
-                  {isSubmitting ? (
-                    <>
-                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                      <span>Seeking...</span>
-                    </>
-                  ) : (
-                    <>
-                      <Send className="w-4 h-4" />
-                      <span>Ask</span>
-                    </>
-                  )}
-                </button>
-              </div>
+              <button
+                key="submit-button"
+                type="submit"
+                disabled={isSubmitting || !isClient || !question.trim()}
+                className="bg-gradient-to-r from-amber-500 to-amber-600 text-white py-2.5 px-4 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 hover:from-amber-600 hover:to-amber-700 hover:shadow-md touch-manipulation text-sm font-semibold border border-amber-400 shadow-sm focus:outline-none focus:ring-2 focus:ring-amber-300 focus:ring-opacity-50 flex items-center gap-2 flex-shrink-0"
+                aria-label="Submit spiritual question for AI guidance"
+              >
+                {isSubmitting ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    <span>Seeking...</span>
+                  </>
+                ) : (
+                  <>
+                    <Send className="w-4 h-4" />
+                    <span>Ask</span>
+                  </>
+                )}
+              </button>
             </div>
 
             {/* Validation Error Message */}
             {showValidationError && (
-              <div className="p-2 bg-red-50 border border-red-200 rounded-lg text-red-700 text-xs text-center animate-pulse">
+              <div className="mt-2 p-2 bg-red-50 border border-red-200 rounded-lg text-red-700 text-xs text-center animate-pulse">
                 Please enter your question before seeking guidance.
               </div>
             )}
@@ -441,7 +425,7 @@ const AskTab: React.FC<AskTabProps> = ({ className = '', initialQuestion, onBack
         {/* Chat Area - Scrollable */}
         <div 
           ref={chatContainerRef}
-          className="flex-1 overflow-y-auto px-4 py-6 ask-tab-chat"
+          className="flex-1 overflow-y-auto px-4 py-2 ask-tab-chat"
           style={{ 
             maxHeight: '100%',
             minHeight: 0 // Important for flex children to respect parent constraints

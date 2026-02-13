@@ -45,7 +45,7 @@ export const ChatMessageList: React.FC<ChatMessageListProps> = ({ messages, isLo
 
   return (
     <div className="space-y-1 chat-message-list">
-      {messages.map((message) => {
+      {messages.map((message, index) => {
         if (message.sender === 'user') {
           return (
             <UserMessageBubble
@@ -55,6 +55,8 @@ export const ChatMessageList: React.FC<ChatMessageListProps> = ({ messages, isLo
             />
           );
         } else {
+          // Find the preceding user message as the question that triggered this answer
+          const precedingUserMessage = messages.slice(0, index).reverse().find(m => m.sender === 'user');
           return (
             <GuideMessageBubble
               key={message.id}
@@ -62,6 +64,7 @@ export const ChatMessageList: React.FC<ChatMessageListProps> = ({ messages, isLo
               citations={message.citations}
               references={message.references}
               timestamp={message.timestamp}
+              userQuestion={precedingUserMessage?.text}
             />
           );
         }

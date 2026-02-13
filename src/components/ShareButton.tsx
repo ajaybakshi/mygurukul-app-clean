@@ -10,6 +10,8 @@ interface ShareButtonProps {
   title?: string;
   /** Optional source reference */
   source?: string;
+  /** Optional user question that triggered this answer */
+  question?: string;
   /** Style variant */
   variant?: 'primary' | 'secondary' | 'minimal';
   /** Optional className for custom styling */
@@ -25,6 +27,7 @@ export default function ShareButton({
   text,
   title,
   source,
+  question,
   variant = 'primary',
   className = '',
   compact = false,
@@ -33,20 +36,27 @@ export default function ShareButton({
   const [isExpanded, setIsExpanded] = useState(false);
 
   // Format the shareable text
-  const formatShareText = (includeUrl: boolean = true): string => {
+  const formatShareText = (includeUrl: boolean = true, fullText: boolean = false): string => {
     let shareText = '';
 
     if (title) {
       shareText += `${title}\n\n`;
     }
 
-    // Truncate text if too long for social sharing
-    const maxLength = 200;
-    const truncatedText = text.length > maxLength
-      ? text.substring(0, maxLength).trim() + '...'
-      : text;
+    if (fullText && question) {
+      shareText += `Q: ${question}\n\n`;
+    }
 
-    shareText += `"${truncatedText}"`;
+    if (fullText) {
+      shareText += text;
+    } else {
+      // Truncate for social sharing previews
+      const maxLength = 200;
+      const truncatedText = text.length > maxLength
+        ? text.substring(0, maxLength).trim() + '...'
+        : text;
+      shareText += `"${truncatedText}"`;
+    }
 
     if (source) {
       shareText += `\n\n— ${source}`;
@@ -83,10 +93,10 @@ export default function ShareButton({
     return tweetText;
   };
 
-  // Copy to clipboard
+  // Copy to clipboard — full text, no truncation
   const handleCopy = async () => {
     try {
-      await navigator.clipboard.writeText(formatShareText(true));
+      await navigator.clipboard.writeText(formatShareText(true, true));
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
@@ -101,9 +111,9 @@ export default function ShareButton({
     window.open(twitterUrl, '_blank', 'noopener,noreferrer,width=550,height=420');
   };
 
-  // Share to WhatsApp
+  // Share to WhatsApp — full text (WhatsApp supports long messages)
   const handleWhatsAppShare = () => {
-    const shareText = formatShareText(true);
+    const shareText = formatShareText(true, true);
     const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(shareText)}`;
     window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
   };
@@ -114,7 +124,7 @@ export default function ShareButton({
       try {
         await navigator.share({
           title: title || 'Sacred Wisdom from MyGurukul',
-          text: formatShareText(false),
+          text: formatShareText(false, true),
           url: SITE_URL,
         });
       } catch (err) {

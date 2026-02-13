@@ -202,7 +202,7 @@ const SubmitPageContent: React.FC = () => {
         }}
       />
       
-      <div className="relative bg-gradient-to-br from-amber-50 via-white to-amber-50/50 pb-20">
+      <div className={`relative bg-gradient-to-br from-amber-50 via-white to-amber-50/50 ${activeTab === 'ask' ? '' : 'pb-20'}`}>
         {/* Sacred background pattern */}
         <div className="absolute inset-0 opacity-5 pointer-events-none">
         <div 

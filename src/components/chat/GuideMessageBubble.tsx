@@ -36,6 +36,7 @@ interface GuideMessageBubbleProps {
   citations?: Citation[];
   references?: Reference[];
   timestamp: Date | string;
+  userQuestion?: string;
 }
 
 export const GuideMessageBubble: React.FC<GuideMessageBubbleProps> = ({
@@ -43,6 +44,7 @@ export const GuideMessageBubble: React.FC<GuideMessageBubbleProps> = ({
   citations = [],
   references = [],
   timestamp,
+  userQuestion,
 }) => {
   // Safety check: ensure answerText is a string - memoized for stability
   const safeAnswerText = useMemo(() => 
@@ -427,6 +429,7 @@ export const GuideMessageBubble: React.FC<GuideMessageBubbleProps> = ({
           <ShareButton
             text={safeAnswerText}
             title="Spiritual Guidance from MyGurukul"
+            question={userQuestion}
             variant="minimal"
             compact={true}
           />

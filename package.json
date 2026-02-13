@@ -15,6 +15,7 @@
     "@google-cloud/storage": "^7.17.0",
     "@google/genai": "^1.29.1",
     "@google/generative-ai": "^0.24.1",
+    "@react-pdf/renderer": "^4.3.2",
     "@tailwindcss/typography": "^0.5.16",
     "@types/form-data": "^2.2.1",
     "@vercel/analytics": "^1.6.1",
@@ -28,7 +29,7 @@
     "next": "14.0.4",
     "next-seo": "^7.0.1",
     "node-cache": "^5.1.2",
-    "react": "^18",
+    "react": "^18.3.1",
     "react-dom": "^18",
     "sanscript": "^0.0.2",
     "uuid": "^9.0.0",
@@ -36,7 +37,7 @@
   },
   "devDependencies": {
     "@types/node": "^20",
-    "@types/react": "^18.3.24",
+    "@types/react": "^18.3.28",
     "@types/react-dom": "^18",
     "@types/uuid": "^9.0.0",
     "autoprefixer": "^10.0.1",
@@ -45,6 +46,7 @@
     "postcss": "^8",
     "postcss-selector-parser": "^7.1.0",
     "tailwindcss": "^3.3.0",
+    "tsx": "^4.21.0",
     "typescript": "^5"
   }
 }
