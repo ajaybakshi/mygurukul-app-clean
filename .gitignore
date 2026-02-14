@@ -44,8 +44,9 @@ gurukul-rag-pipeline/
 # This folder contains synced chapter manifests that are committed to git
 # Run: node scripts/sync-manifests.js to sync from Gurukul_Library
 
-# Large file types
+# Large file types (except wisdom PDFs which are deployed as static assets)
 *.pdf
+!public/wisdom-pdfs/*.pdf
 
 # Temporary/processing files
 *.tmp

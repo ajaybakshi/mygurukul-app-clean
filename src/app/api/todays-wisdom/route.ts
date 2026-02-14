@@ -6,6 +6,7 @@ import { gretilWisdomService } from '../../../lib/services/gretilWisdomService';
 import { getFileSearchConfig } from '../../../lib/fileSearchConfig';
 import { logApiMetric } from '@/lib/db/metricsRepository';
 import { getWisdomByDate, saveWisdom } from '@/lib/db/wisdomRepository';
+import * as wisdomBatchService from '@/lib/tei/wisdomBatchService';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs'; // Ensures full Node.js env for heavy ops
@@ -558,11 +559,156 @@ export async function POST(request: NextRequest) {
   // forceRefresh flag - declared at function scope so it's accessible in cache check
   let forceRefresh = false;
 
+  // ─── TEI Batch Path — check FIRST before any GCS/cache logic ───
+  const wisdomSource = process.env.WISDOM_SOURCE || 'gretil';
+
+  if (wisdomSource === 'tei') {
+    try {
+      // Parse body for optional sourceName / forceRefresh
+      const body = await request.json().catch(() => ({}));
+      const requestedSource = body.sourceName?.trim() || body.sourcePreference?.trim() || '';
+      forceRefresh = body.forceRefresh === true;
+
+      console.log('📦 TEI batch path (WISDOM_SOURCE=tei)');
+      const startTime = Date.now();
+
+      // Check DB cache first (unless forceRefresh)
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      if (!forceRefresh) {
+        try {
+          const cachedWisdom = await getWisdomByDate(today);
+          if (cachedWisdom && cachedWisdom.metadata?.tei_card_id) {
+            console.log('✅ TEI wisdom served from DB cache');
+            const availableTexts = wisdomBatchService.getAvailableTexts();
+            const todaysWisdom: TodaysWisdom = {
+              rawText: cachedWisdom.raw_text,
+              rawTextAnnotation: {
+                chapter: cachedWisdom.chapter || 'Sacred Chapter',
+                section: cachedWisdom.section || 'Sacred Section',
+                source: cachedWisdom.source_name,
+                theme: cachedWisdom.text_type || 'wisdom',
+                technicalReference: cachedWisdom.metadata?.verse_number,
+              },
+              wisdom: cachedWisdom.interpretation,
+              context: `Daily wisdom from ${cachedWisdom.source_name}`,
+              type: 'verse',
+              sourceName: cachedWisdom.source_name,
+              timestamp: cachedWisdom.created_at.toISOString(),
+              encouragement: "This sacred wisdom offers guidance for your journey. What aspect resonates most deeply with you?",
+            };
+            // Reconstruct pdfUrl from the stored card ID
+            const cachedCardId = cachedWisdom.metadata?.tei_card_id;
+            const cachedPdfUrl = cachedCardId ? `/wisdom-pdfs/${cachedCardId}.pdf` : undefined;
+
+            return NextResponse.json({
+              success: true,
+              todaysWisdom,
+              selectedSource: cachedWisdom.source_name,
+              selectionMethod: 'tei-cached',
+              pdfUrl: cachedPdfUrl,
+              fromCache: true,
+              availableSources: availableTexts.map(t => ({
+                folderName: t.id,
+                displayName: t.displayName,
+              })),
+              totalAvailableSources: availableTexts.length,
+              message: 'TEI wisdom served from database cache',
+            });
+          }
+        } catch (cacheErr) {
+          console.log('⚠️ TEI cache check failed (non-fatal):', cacheErr);
+        }
+      }
+
+      // Serve from pre-computed batch (async — restores used IDs from DB on cold start)
+      const card = await wisdomBatchService.getNextWisdomCard({
+        textId: requestedSource && requestedSource !== 'random' ? requestedSource : undefined,
+      });
+
+      const textMeta = wisdomBatchService.getTextMeta(card.textId);
+      const batchStatus = await wisdomBatchService.getBatchStatus();
+
+      const ref = card.reference;
+      const todaysWisdom: TodaysWisdom = {
+        rawText: card.iast,
+        rawTextAnnotation: {
+          chapter: ref.chapterTitle || `Chapter ${ref.chapter}`,
+          section: ref.technicalRef,
+          source: textMeta.displayName,
+          theme: textMeta.category,
+          technicalReference: ref.technicalRef,
+        },
+        wisdom: card.guruInterpretation,
+        context: `Daily wisdom from ${textMeta.displayName}`,
+        type: card.structureType === 'verse' ? 'verse' : 'teaching',
+        sourceName: textMeta.displayName,
+        timestamp: new Date().toISOString(),
+        encouragement: card.reflectionPrompt,
+      };
+
+      const latencyMs = Date.now() - startTime;
+      console.log(`✅ TEI batch served in ${latencyMs}ms — ${textMeta.displayName}`);
+
+      const availableTexts = wisdomBatchService.getAvailableTexts();
+
+      // Metrics + DB save (non-blocking)
+      logApiMetric({
+        endpoint: '/api/todays-wisdom',
+        latency_ms: latencyMs,
+        status_code: 200,
+        success: true,
+        request_metadata: {
+          source_name: textMeta.displayName,
+          selection_method: 'tei-batch',
+          batch_remaining: batchStatus.remaining,
+        },
+      }).catch(err => console.error('DB metrics logging failed:', err));
+
+      saveWisdom({
+        wisdom_date: today,
+        raw_text: card.iast,
+        interpretation: card.guruInterpretation,
+        source_name: textMeta.displayName,
+        chapter: ref.chapterTitle || `Chapter ${ref.chapter}`,
+        section: ref.technicalRef,
+        text_type: textMeta.category,
+        metadata: {
+          verse_number: ref.technicalRef,
+          language: 'Sanskrit',
+          tei_card_id: card.id,
+        },
+      }).catch(err => console.log('⚠️ Failed to save TEI wisdom to DB:', err));
+
+      return NextResponse.json({
+        success: true,
+        todaysWisdom,
+        selectedSource: textMeta.displayName,
+        selectionMethod: 'tei-batch',
+        pdfUrl: `/wisdom-pdfs/${card.pdfFileName}`,
+        batchStatus: { remaining: batchStatus.remaining, needsRefresh: batchStatus.needsRefresh },
+        availableSources: availableTexts.map(t => ({
+          folderName: t.id,
+          displayName: t.displayName,
+        })),
+        totalAvailableSources: availableTexts.length,
+        message: `Pre-computed wisdom from ${textMeta.displayName} (${latencyMs}ms)`,
+      });
+
+    } catch (teiError) {
+      console.error('❌ TEI batch error, falling through to GRETIL:', teiError);
+      // Fall through to GRETIL path below
+    }
+  }
+
+  // ─── GRETIL Path (legacy) — only reached when WISDOM_SOURCE !== 'tei' or TEI fails ───
+
   console.log('=== RANDOMIZATION DIAGNOSTIC START ===');
   console.log('🕐 Request timestamp:', new Date().toISOString());
 
   try {
-    const body = await request.json();
+    const body = await request.json().catch(() => ({}));
     console.log('📥 Request body:', body);
 
     // Parse forceRefresh flag - if true, skip DB cache and generate fresh wisdom
@@ -719,9 +865,10 @@ export async function POST(request: NextRequest) {
     console.log('⚠️ Cache check failed, proceeding with generation:', cacheError);
   }
 
+  // ─── GRETIL Path (legacy, 10-20s) ─────────────────────────────
   try {
     console.log(`Today's Wisdom request for source: ${sourceName}`);
-    
+
     // Before calling wisdom service
     console.log('Calling wisdom service with source:', sourceName);
     

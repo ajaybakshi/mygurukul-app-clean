@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { X, RefreshCw, ArrowLeft } from 'lucide-react';
+import { X, RefreshCw, ArrowLeft, Download } from 'lucide-react';
 import TraditionalWisdomDisplay from '../TraditionalWisdomDisplay';
 import AudioIconButton from '../audio/AudioIconButton';
 import ShareButton from '../ShareButton';
@@ -28,6 +28,7 @@ interface TodaysWisdomData {
   selectionMethod?: string;
   selectedSourceInfo?: { displayName: string; [key: string]: any; };
   message?: string;
+  pdfUrl?: string;
 }
 
 interface SacredReadingViewProps {
@@ -45,8 +46,8 @@ export default function SacredReadingView({ onClose, onBack }: SacredReadingView
   const [sourcesLoading, setSourcesLoading] = useState<boolean>(false);
 
   // Cache management functions - wrapped in useCallback for stability
-  // Version 2: Invalidate cache after Gemini model fix (2.5-flash -> 2.0-flash)
-  const getCacheKey = useCallback(() => `mygurukul_wisdom_v2_${new Date().toDateString()}`, []);
+  // Version 4: Invalidate cache for PDF download support
+  const getCacheKey = useCallback(() => `mygurukul_wisdom_v4_${new Date().toDateString()}`, []);
   
   const getCachedWisdom = useCallback((): TodaysWisdomData | null => {
     try {
@@ -124,7 +125,8 @@ export default function SacredReadingView({ onClose, onBack }: SacredReadingView
           selectedSource: data.selectedSource,
           selectionMethod: data.selectionMethod,
           selectedSourceInfo: data.selectedSourceInfo,
-          message: data.message
+          message: data.message,
+          pdfUrl: data.pdfUrl,
         };
         setTodaysWisdom(enhancedWisdom);
         setCachedWisdom(enhancedWisdom);
@@ -479,14 +481,30 @@ export default function SacredReadingView({ onClose, onBack }: SacredReadingView
                     </div>
                   </div>
 
-                  {/* Share Sacred Text */}
-                  <div className="mt-6 flex justify-center">
+                  {/* Share & Download */}
+                  <div className="mt-6 flex items-center justify-center gap-3">
                     <ShareButton
-                      text={todaysWisdom.rawText}
-                      title="Sacred Wisdom from MyGurukul"
+                      text={[
+                        `Sanskrit (IAST):\n${todaysWisdom.rawText}`,
+                        `Sanskrit (Devanagari):\n${TransliterationService.transliterate(todaysWisdom.rawText, { devanagariPreferred: true, preserveNumbers: true, handleMixed: true }).result}`,
+                        todaysWisdom.rawTextAnnotation?.technicalReference ? `Reference: ${todaysWisdom.rawTextAnnotation.technicalReference}` : '',
+                        `Guru's Wisdom:\n${todaysWisdom.wisdom}`,
+                      ].filter(Boolean).join('\n\n')}
+                      title={`Sacred Wisdom — ${todaysWisdom.selectedSourceInfo?.displayName || todaysWisdom.sourceName}`}
                       source={todaysWisdom.selectedSourceInfo?.displayName || todaysWisdom.sourceName}
                       variant="primary"
                     />
+                    {todaysWisdom.pdfUrl && (
+                      <a
+                        href={todaysWisdom.pdfUrl}
+                        download
+                        className="inline-flex items-center gap-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-300 hover:shadow-md hover:scale-105 active:scale-95 border border-amber-400 shadow-sm"
+                        title="Download wisdom card as PDF"
+                      >
+                        <Download size={16} />
+                        <span>PDF</span>
+                      </a>
+                    )}
                   </div>
                 </div>
               )}
@@ -518,14 +536,30 @@ export default function SacredReadingView({ onClose, onBack }: SacredReadingView
                     <p className="text-blue-700 leading-relaxed font-serif">{todaysWisdom.encouragement}</p>
                   </div>
 
-                  {/* Share Interpretation */}
-                  <div className="mt-6 flex justify-center">
+                  {/* Share & Download */}
+                  <div className="mt-6 flex items-center justify-center gap-3">
                     <ShareButton
-                      text={todaysWisdom.wisdom}
-                      title="Spiritual Guidance from MyGurukul"
+                      text={[
+                        `Sanskrit (IAST):\n${todaysWisdom.rawText}`,
+                        `Sanskrit (Devanagari):\n${TransliterationService.transliterate(todaysWisdom.rawText, { devanagariPreferred: true, preserveNumbers: true, handleMixed: true }).result}`,
+                        todaysWisdom.rawTextAnnotation?.technicalReference ? `Reference: ${todaysWisdom.rawTextAnnotation.technicalReference}` : '',
+                        `Guru's Wisdom:\n${todaysWisdom.wisdom}`,
+                      ].filter(Boolean).join('\n\n')}
+                      title={`Sacred Wisdom — ${todaysWisdom.selectedSourceInfo?.displayName || todaysWisdom.sourceName}`}
                       source={todaysWisdom.selectedSourceInfo?.displayName || todaysWisdom.sourceName}
                       variant="secondary"
                     />
+                    {todaysWisdom.pdfUrl && (
+                      <a
+                        href={todaysWisdom.pdfUrl}
+                        download
+                        className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-300 hover:shadow-md hover:scale-105 active:scale-95 border border-blue-400 shadow-sm"
+                        title="Download wisdom card as PDF"
+                      >
+                        <Download size={16} />
+                        <span>PDF</span>
+                      </a>
+                    )}
                   </div>
                 </div>
               )}

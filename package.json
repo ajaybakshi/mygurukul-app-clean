@@ -7,7 +7,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "build:wisdom-index": "tsx scripts/build-wisdom-index.ts",
+    "build:wisdom-batch": "tsx scripts/build-wisdom-batch.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.74.0",
