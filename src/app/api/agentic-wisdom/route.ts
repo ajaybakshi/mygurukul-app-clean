@@ -21,6 +21,8 @@ import { expandConcepts } from '@/lib/services/amarakoshaService';
 import { logConversation } from '@/lib/db/conversationRepository';
 import { logApiMetric } from '@/lib/db/metricsRepository';
 
+export type ConversationEntry = { sender: 'user' | 'ai'; text: string };
+
 export const maxDuration = 60; // Vercel Hobby plan
 
 export async function POST(req: NextRequest) {
@@ -33,6 +35,7 @@ export async function POST(req: NextRequest) {
     question = body.question;
     sessionId = body.sessionId;
     const useStreaming = body.stream ?? true;
+    const conversationHistory: ConversationEntry[] | undefined = body.conversationHistory;
 
     if (!question || typeof question !== 'string' || question.trim().length === 0) {
       return new Response(
@@ -42,12 +45,15 @@ export async function POST(req: NextRequest) {
     }
 
     console.log('[AgenticWisdom] Processing:', question.substring(0, 100));
+    if (conversationHistory?.length) {
+      console.log('[AgenticWisdom] Conversation history:', conversationHistory.length, 'messages');
+    }
 
     // ═══════════════════════════════════════════════
     // Stage 1: Classify intent + extract concepts [Haiku, ~1-2s]
     // ═══════════════════════════════════════════════
     console.log('[AgenticWisdom] Stage 1: Intent classification...');
-    const intent = await classifyIntent(question);
+    const intent = await classifyIntent(question, conversationHistory);
     console.log('[AgenticWisdom] Intent:', {
       type: intent.query_type,
       complexity: intent.complexity,
@@ -108,7 +114,7 @@ export async function POST(req: NextRequest) {
           controller.enqueue(encoder.encode(`data: ${metaEvent}\n\n`));
 
           // Pipe the synthesis stream
-          const synthesisStream = synthesizeStream(question, intent, searchResult);
+          const synthesisStream = synthesizeStream(question, intent, searchResult, conversationHistory);
           const reader = synthesisStream.getReader();
 
           while (true) {
@@ -142,6 +148,7 @@ export async function POST(req: NextRequest) {
                 query_length: question.length,
                 streaming: true,
                 passages_found: searchResult.passages.length,
+                conversation_history_length: conversationHistory?.length ?? 0,
               },
             }),
           ]).catch(err => console.error('[AgenticWisdom] DB logging failed (non-fatal):', err));
@@ -160,7 +167,7 @@ export async function POST(req: NextRequest) {
       });
     } else {
       // Non-streaming response (for testing / API consumers)
-      const responseText = await synthesize(question, intent, searchResult);
+      const responseText = await synthesize(question, intent, searchResult, conversationHistory);
       const elapsed = Date.now() - startTime;
       const resolvedSessionId = sessionId || `agentic-${Date.now()}`;
       console.log(`[AgenticWisdom] Complete in ${elapsed}ms`);
@@ -187,6 +194,7 @@ export async function POST(req: NextRequest) {
             query_length: question.length,
             streaming: false,
             passages_found: searchResult.passages.length,
+            conversation_history_length: conversationHistory?.length ?? 0,
           },
         }),
       ]).catch(err => console.error('[AgenticWisdom] DB logging failed (non-fatal):', err));

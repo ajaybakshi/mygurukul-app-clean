@@ -11,12 +11,35 @@
 import { getAnthropicClient, selectSynthesisModel } from './client';
 import type { QueryIntent } from './intentClassifier';
 import type { OrchestratorResult } from './orchestrator';
+import type { ConversationEntry } from '@/app/api/agentic-wisdom/route';
+import Anthropic from '@anthropic-ai/sdk';
 
-function buildSynthesisSystemPrompt(detectedLanguage: string): string {
+function buildHistoryMessages(conversationHistory?: ConversationEntry[]): Anthropic.MessageParam[] {
+  if (!conversationHistory || conversationHistory.length === 0) return [];
+  const messages: Anthropic.MessageParam[] = [];
+  for (const msg of conversationHistory) {
+    messages.push({
+      role: msg.sender === 'user' ? 'user' : 'assistant',
+      content: msg.text,
+    });
+  }
+  // Claude API requires first message to be 'user'
+  if (messages.length > 0 && messages[0].role !== 'user') {
+    messages.shift();
+  }
+  return messages;
+}
+
+function buildSynthesisSystemPrompt(detectedLanguage: string, hasHistory: boolean): string {
+  const continuityInstruction = hasHistory
+    ? `\n\nCONVERSATION CONTINUITY:\nYou are continuing an ongoing spiritual conversation. The seeker's earlier messages and your prior responses are included in the message history. Maintain continuity — reference prior discussion naturally. If the seeker says "this", "that story", "tell me more", etc., it refers to something from the previous messages.`
+    : '';
+
   return `You are a humble sevak (selfless servant) at MyGurukul. A seeker has asked a question,
 and the search agent has found relevant passages from the sacred Sanskrit texts.
 
 The seeker's language: ${detectedLanguage}
+${continuityInstruction}
 
 Your task: Synthesize these findings into a warm, grounded response IN THE SEEKER'S LANGUAGE.
 
@@ -75,7 +98,8 @@ function buildSynthesisMessage(
 export function synthesizeStream(
   question: string,
   intent: QueryIntent,
-  orchestratorResult: OrchestratorResult
+  orchestratorResult: OrchestratorResult,
+  conversationHistory?: ConversationEntry[]
 ): ReadableStream<Uint8Array> {
   const encoder = new TextEncoder();
 
@@ -84,14 +108,15 @@ export function synthesizeStream(
       try {
         const client = getAnthropicClient();
         const model = selectSynthesisModel(intent.complexity);
-        const systemPrompt = buildSynthesisSystemPrompt(intent.detected_language);
+        const systemPrompt = buildSynthesisSystemPrompt(intent.detected_language, !!conversationHistory?.length);
         const userMessage = buildSynthesisMessage(question, orchestratorResult);
+        const historyMessages = buildHistoryMessages(conversationHistory);
 
         const stream = client.messages.stream({
           model,
           max_tokens: 2048,
           system: systemPrompt,
-          messages: [{ role: 'user', content: userMessage }],
+          messages: [...historyMessages, { role: 'user', content: userMessage }],
         });
 
         // Stream text chunks as SSE events
@@ -135,18 +160,20 @@ export function synthesizeStream(
 export async function synthesize(
   question: string,
   intent: QueryIntent,
-  orchestratorResult: OrchestratorResult
+  orchestratorResult: OrchestratorResult,
+  conversationHistory?: ConversationEntry[]
 ): Promise<string> {
   const client = getAnthropicClient();
   const model = selectSynthesisModel(intent.complexity);
-  const systemPrompt = buildSynthesisSystemPrompt(intent.detected_language);
+  const systemPrompt = buildSynthesisSystemPrompt(intent.detected_language, !!conversationHistory?.length);
   const userMessage = buildSynthesisMessage(question, orchestratorResult);
+  const historyMessages = buildHistoryMessages(conversationHistory);
 
   const response = await client.messages.create({
     model,
     max_tokens: 2048,
     system: systemPrompt,
-    messages: [{ role: 'user', content: userMessage }],
+    messages: [...historyMessages, { role: 'user', content: userMessage }],
   });
 
   return response.content

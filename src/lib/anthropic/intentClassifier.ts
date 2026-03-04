@@ -11,6 +11,8 @@
  */
 
 import { getAnthropicClient, MODELS } from './client';
+import Anthropic from '@anthropic-ai/sdk';
+import type { ConversationEntry } from '@/app/api/agentic-wisdom/route';
 
 export interface QueryIntent {
   query_type:
@@ -90,14 +92,30 @@ Return ONLY valid JSON matching this exact schema:
  * Classify a user query using Haiku.
  * Fast (~1-2s) and cheap (~$0.001/call).
  */
-export async function classifyIntent(question: string): Promise<QueryIntent> {
+export async function classifyIntent(question: string, conversationHistory?: ConversationEntry[]): Promise<QueryIntent> {
   const client = getAnthropicClient();
+
+  // Build messages array with conversation history for context
+  const messages: Anthropic.MessageParam[] = [];
+  if (conversationHistory && conversationHistory.length > 0) {
+    for (const msg of conversationHistory) {
+      messages.push({
+        role: msg.sender === 'user' ? 'user' : 'assistant',
+        content: msg.text,
+      });
+    }
+    // Ensure messages start with 'user' (Claude API requirement)
+    if (messages.length > 0 && messages[0].role !== 'user') {
+      messages.shift();
+    }
+  }
+  messages.push({ role: 'user', content: question });
 
   const response = await client.messages.create({
     model: MODELS.CLASSIFIER,
     max_tokens: 512,
     system: CLASSIFIER_SYSTEM_PROMPT,
-    messages: [{ role: 'user', content: question }],
+    messages,
   });
 
   const text =
