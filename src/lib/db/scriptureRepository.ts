@@ -58,12 +58,12 @@ export async function hybridSearch(options: SearchOptions): Promise<SearchResult
     WITH semantic AS (
       SELECT c.id, c.text_id, c.chunk_index, c.chunk_text, c.chunk_text_summary,
              c.verse_refs, c.section,
-             ROW_NUMBER() OVER (ORDER BY c.embedding <=> $1::vector) AS rank
+             ROW_NUMBER() OVER (ORDER BY c.embedding <=> $1::halfvec(1024)) AS rank
       FROM scripture_chunks c
       JOIN scripture_texts t ON t.text_id = c.text_id
       WHERE ($2::text IS NULL OR c.text_id = $2)
         AND ($3::text IS NULL OR t.category = $3)
-      ORDER BY c.embedding <=> $1::vector
+      ORDER BY c.embedding <=> $1::halfvec(1024)
       LIMIT 30
     ),
     keyword AS (
