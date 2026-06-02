@@ -246,8 +246,8 @@ export async function POST(req: NextRequest) {
     const elapsed = Date.now() - startTime;
     console.error('[AgenticWisdom] Pipeline error:', error);
 
-    // Fire-and-forget: log the failure
-    logApiMetric({
+    // Await so the error metric persists before the instance is frozen.
+    await logApiMetric({
       endpoint: '/api/agentic-wisdom',
       session_id: sessionId,
       latency_ms: elapsed,

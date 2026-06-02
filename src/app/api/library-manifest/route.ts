@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
+import { withApiMetrics } from '@/lib/db/withApiMetrics';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs'; // Ensures full Node.js env for heavy ops
@@ -10,7 +11,7 @@ const MANIFEST_URL = 'https://storage.googleapis.com/mygurukul-sacred-texts-corp
 // Local fallback path for development
 const LOCAL_MANIFEST_PATH = path.join(process.cwd(), 'Gurukul_Library', 'library_manifest.json');
 
-export async function GET() {
+export const GET = withApiMetrics('/api/library-manifest', async () => {
   try {
     console.log('[API] Fetching library manifest from:', MANIFEST_URL);
     
@@ -120,11 +121,11 @@ export async function GET() {
     }
     
     return NextResponse.json(
-      { 
+      {
         error: 'Internal server error while fetching manifest',
         details: process.env.NODE_ENV === 'development' ? errorDetails : undefined,
       },
       { status: 500 }
     );
   }
-}
+});

@@ -7,11 +7,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { SanskritCleanupService } from '../../../../lib/services/sanskritCleanupService';
 import { TransliterationService } from '../../../../lib/services/transliterationService';
+import { withApiMetrics } from '@/lib/db/withApiMetrics';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60; // Set max duration for Vercel Pro (or 300 for Enterprise if applicable)
 
-export async function POST(request: NextRequest) {
+export const POST = withApiMetrics('/api/audio/generate', async (request: NextRequest) => {
   const startTime = Date.now();
   
   try {
@@ -122,7 +123,7 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
-}
+});
 
 /**
  * Handle OPTIONS request for CORS

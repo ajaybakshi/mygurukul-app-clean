@@ -653,33 +653,36 @@ export async function POST(request: NextRequest) {
 
       const availableTexts = wisdomBatchService.getAvailableTexts();
 
-      // Metrics + DB save (non-blocking)
-      logApiMetric({
-        endpoint: '/api/todays-wisdom',
-        latency_ms: latencyMs,
-        status_code: 200,
-        success: true,
-        request_metadata: {
+      // Metrics + DB save — await before returning so neither write is
+      // killed when Vercel freezes the instance after the response. Run in
+      // parallel to keep added latency to a single round-trip.
+      await Promise.all([
+        logApiMetric({
+          endpoint: '/api/todays-wisdom',
+          latency_ms: latencyMs,
+          status_code: 200,
+          success: true,
+          request_metadata: {
+            source_name: textMeta.displayName,
+            selection_method: 'tei-batch',
+            batch_remaining: batchStatus.remaining,
+          },
+        }).catch(err => console.error('DB metrics logging failed:', err)),
+        saveWisdom({
+          wisdom_date: today,
+          raw_text: card.iast,
+          interpretation: card.guruInterpretation,
           source_name: textMeta.displayName,
-          selection_method: 'tei-batch',
-          batch_remaining: batchStatus.remaining,
-        },
-      }).catch(err => console.error('DB metrics logging failed:', err));
-
-      saveWisdom({
-        wisdom_date: today,
-        raw_text: card.iast,
-        interpretation: card.guruInterpretation,
-        source_name: textMeta.displayName,
-        chapter: ref.chapterTitle || `Chapter ${ref.chapter}`,
-        section: ref.technicalRef,
-        text_type: textMeta.category,
-        metadata: {
-          verse_number: ref.technicalRef,
-          language: 'Sanskrit',
-          tei_card_id: card.id,
-        },
-      }).catch(err => console.log('⚠️ Failed to save TEI wisdom to DB:', err));
+          chapter: ref.chapterTitle || `Chapter ${ref.chapter}`,
+          section: ref.technicalRef,
+          text_type: textMeta.category,
+          metadata: {
+            verse_number: ref.technicalRef,
+            language: 'Sanskrit',
+            tei_card_id: card.id,
+          },
+        }).catch(err => console.log('⚠️ Failed to save TEI wisdom to DB:', err)),
+      ]);
 
       return NextResponse.json({
         success: true,
