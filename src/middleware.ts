@@ -10,8 +10,8 @@ import type { NextRequest } from 'next/server';
 export function middleware(request: NextRequest) {
   const { pathname, searchParams } = request.nextUrl;
 
-  // Only protect /admin routes
-  if (pathname.startsWith('/admin')) {
+  // Only protect /admin routes (pages) and /api/admin routes (data APIs)
+  if (pathname.startsWith('/admin') || pathname.startsWith('/api/admin')) {
     const token = searchParams.get('token');
     const adminToken = process.env.ADMIN_SECRET_TOKEN;
 
