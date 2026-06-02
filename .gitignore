@@ -79,3 +79,6 @@ scripts/agentic-search/
 
 # Env files not covered by .env*.local
 .env.vercel-pg
+
+# local admin token (never commit)
+.admin-token.local

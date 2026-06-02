@@ -1,6 +1,31 @@
 # MyGurukul — Status & Continuity Notes
 
-## Last Updated: 2026-04-15 — halfvec migration + dump/restore reclaim
+## Last Updated: 2026-06-02 — admin dashboard hardening + user analytics
+
+---
+
+## Admin Dashboard Hardening + Analytics (2026-06-02)
+
+### Context
+Ajay's admin token (`?token=…`) stopped working; investigation widened into auth, data-sync, and metrics work. All shipped to `main` and pushed; Vercel auto-deploys.
+
+### What shipped (4 commits)
+1. **`81ca781` — security: `/api/admin/*` was fully public.** Middleware matcher covered `/api/admin/:path*` but the guard only checked `pathname.startsWith('/admin')`, so every admin *API* (metrics, conversations, wisdom) served data with no token. Widened guard to `startsWith('/admin') || startsWith('/api/admin')`. Conversations (potential PII) were exposed for an unknown window — flagged to Ajay.
+2. **Admin token rotated** in Vercel env (`ADMIN_SECRET_TOKEN`, Prod + Dev; Preview left unset — CLI "all-branches" mode needs `--value` which the secret-guard blocks). New value saved locally in gitignored `.admin-token.local`. Repo now linked to Vercel project `mygurukul-final`.
+3. **`bd2b559` — conversation writes:** `agentic-wisdom` logged with an un-awaited `Promise.all` after the response; on Vercel the instance freezes once the stream closes, killing the in-flight INSERT. Newest DB row was 10 days stale despite traffic. Now awaited before `controller.close()` / `return`.
+4. **`a15d133` + `664ce85` — metrics + analytics:** same drop bug fixed in `todays-wisdom` (also dropped the `saveWisdom` daily-card write!) and `agentic-wisdom` error path; added reusable `withApiMetrics()` wrapper applied to `/api/audio/generate` + `/api/library-manifest`; new **User Analytics tab** (sessions, retention, queries/session, daily volume, provider mix — all from `conversations`, sessions-only, no IP/geo) via `analyticsRepository.ts` + `GET /api/admin/analytics`; **24h/7d/30d/90d window selector** on the Metrics tab (defaults 7d).
+
+### Key lesson (root cause of three separate "data not saving" symptoms)
+**Un-awaited DB writes after the response are killed when Vercel freezes the serverless instance.** Always `await` logging/persistence before returning (or before `controller.close()` for streams). This silently dropped conversations, daily-wisdom cards, and API metrics for ~weeks.
+
+### Verified
+- `tsc --noEmit`: 0 errors. `npm run build`: exit 0 (wrapped route exports validated).
+- Live DB checked via admin API: conversations newest row was 2026-05-23 pre-fix; `api_metrics` had 142 rows total but only 11 in last 30d.
+
+### Optional follow-ups (not started)
+- Raw per-call API log + response summaries (Ajay chose aggregated health view, not raw log).
+- Add Preview-env `ADMIN_SECRET_TOKEN`; instrument more routes via `withApiMetrics`.
+- Delete `.admin-token.local` once token is confirmed in use.
 
 ---
 
