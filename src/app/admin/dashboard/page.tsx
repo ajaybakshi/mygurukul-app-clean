@@ -71,7 +71,31 @@ interface ErrorEntry {
   createdAt: string;
 }
 
-type TabType = 'wisdom' | 'conversations' | 'metrics';
+interface AnalyticsData {
+  summary: {
+    total_conversations: number;
+    unique_sessions: number;
+    avg_queries_per_session: number;
+    grounded_rate: number;
+    avg_response_ms: number;
+  };
+  dailyVolume: { day: string; total: number; grounded: number }[];
+  newSessions: { day: string; new_sessions: number }[];
+  retention: { total_sessions: number; returning_sessions: number; one_time_sessions: number };
+  queriesPerSession: { bucket: string; sessions: number }[];
+  providerMix: { provider: string; total: number; avg_latency_ms: number; grounded: number }[];
+  popularQuestions: { question: string; count: number }[];
+}
+
+type TabType = 'metrics' | 'analytics' | 'wisdom' | 'conversations';
+
+// Metrics time-window options (hours)
+const WINDOW_OPTIONS: { label: string; hours: number }[] = [
+  { label: '24h', hours: 24 },
+  { label: '7d', hours: 168 },
+  { label: '30d', hours: 720 },
+  { label: '90d', hours: 2160 },
+];
 
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState<TabType>('metrics');
@@ -82,6 +106,11 @@ export default function AdminDashboard() {
   const [wisdomData, setWisdomData] = useState<{ entries: WisdomEntry[]; stats: any } | null>(null);
   const [conversationsData, setConversationsData] = useState<{ conversations: ConversationEntry[]; stats: any } | null>(null);
   const [metricsData, setMetricsData] = useState<{ health: MetricsHealth[]; recentErrors: ErrorEntry[]; summary: any; database: any } | null>(null);
+  const [analyticsData, setAnalyticsData] = useState<AnalyticsData | null>(null);
+
+  // Time windows
+  const [windowHours, setWindowHours] = useState(168); // metrics window — default 7d
+  const [analyticsDays, setAnalyticsDays] = useState(30); // analytics window — default 30d
 
   // Modal states for detail view
   const [selectedWisdom, setSelectedWisdom] = useState<WisdomDetail | null>(null);
@@ -152,10 +181,15 @@ export default function AdminDashboard() {
           const data = await res.json();
           setConversationsData(data.data);
         } else if (activeTab === 'metrics') {
-          const res = await fetch(`/api/admin/metrics?token=${token}`);
+          const res = await fetch(`/api/admin/metrics?token=${token}&hours=${windowHours}`);
           if (!res.ok) throw new Error('Failed to fetch metrics data');
           const data = await res.json();
           setMetricsData(data.data);
+        } else if (activeTab === 'analytics') {
+          const res = await fetch(`/api/admin/analytics?token=${token}&days=${analyticsDays}`);
+          if (!res.ok) throw new Error('Failed to fetch analytics data');
+          const data = await res.json();
+          setAnalyticsData(data.data);
         }
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Unknown error');
@@ -165,7 +199,7 @@ export default function AdminDashboard() {
     };
 
     fetchData();
-  }, [activeTab]);
+  }, [activeTab, windowHours, analyticsDays]);
 
   return (
     <div className="min-h-screen bg-gray-900 text-gray-100">
@@ -188,7 +222,7 @@ export default function AdminDashboard() {
       <nav className="bg-gray-800 border-b border-gray-700">
         <div className="max-w-7xl mx-auto px-6">
           <div className="flex gap-1">
-            {(['metrics', 'wisdom', 'conversations'] as TabType[]).map((tab) => (
+            {(['metrics', 'analytics', 'wisdom', 'conversations'] as TabType[]).map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
@@ -199,6 +233,7 @@ export default function AdminDashboard() {
                 }`}
               >
                 {tab === 'metrics' && '📊 API Metrics'}
+                {tab === 'analytics' && '📈 User Analytics'}
                 {tab === 'wisdom' && '🕉️ Daily Wisdom'}
                 {tab === 'conversations' && '💬 Conversations'}
               </button>
@@ -224,6 +259,24 @@ export default function AdminDashboard() {
         {/* Metrics Tab */}
         {!loading && activeTab === 'metrics' && metricsData && (
           <div className="space-y-6">
+            {/* Window selector */}
+            <div className="flex items-center justify-end gap-2">
+              <span className="text-sm text-gray-400">Window:</span>
+              {WINDOW_OPTIONS.map((opt) => (
+                <button
+                  key={opt.hours}
+                  onClick={() => setWindowHours(opt.hours)}
+                  className={`px-3 py-1 rounded text-sm transition-colors ${
+                    windowHours === opt.hours
+                      ? 'bg-amber-500 text-gray-900 font-medium'
+                      : 'bg-gray-800 text-gray-400 hover:text-gray-200 border border-gray-700'
+                  }`}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+
             {/* Database Status Card */}
             <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
               <h2 className="text-lg font-semibold text-amber-400 mb-4">Database Status</h2>
@@ -251,7 +304,9 @@ export default function AdminDashboard() {
 
             {/* API Health Table */}
             <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
-              <h2 className="text-lg font-semibold text-amber-400 mb-4">API Health (Last 24h)</h2>
+              <h2 className="text-lg font-semibold text-amber-400 mb-4">
+                API Health (Last {WINDOW_OPTIONS.find((o) => o.hours === windowHours)?.label || `${windowHours}h`})
+              </h2>
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead>
@@ -310,6 +365,205 @@ export default function AdminDashboard() {
                 )}
               </div>
             </div>
+          </div>
+        )}
+
+        {/* Analytics Tab */}
+        {!loading && activeTab === 'analytics' && analyticsData && (
+          <div className="space-y-6">
+            {/* Window selector */}
+            <div className="flex items-center justify-end gap-2">
+              <span className="text-sm text-gray-400">Window:</span>
+              {[
+                { label: '7d', days: 7 },
+                { label: '30d', days: 30 },
+                { label: '90d', days: 90 },
+                { label: '1y', days: 365 },
+              ].map((opt) => (
+                <button
+                  key={opt.days}
+                  onClick={() => setAnalyticsDays(opt.days)}
+                  className={`px-3 py-1 rounded text-sm transition-colors ${
+                    analyticsDays === opt.days
+                      ? 'bg-amber-500 text-gray-900 font-medium'
+                      : 'bg-gray-800 text-gray-400 hover:text-gray-200 border border-gray-700'
+                  }`}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+
+            {/* Summary stat cards */}
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+              <div className="bg-gray-800 rounded-lg p-4 border border-gray-700">
+                <p className="text-gray-400 text-sm">Unique Sessions</p>
+                <p className="text-2xl font-bold text-green-400">{analyticsData.summary.unique_sessions}</p>
+              </div>
+              <div className="bg-gray-800 rounded-lg p-4 border border-gray-700">
+                <p className="text-gray-400 text-sm">Conversations</p>
+                <p className="text-2xl font-bold text-blue-400">{analyticsData.summary.total_conversations}</p>
+              </div>
+              <div className="bg-gray-800 rounded-lg p-4 border border-gray-700">
+                <p className="text-gray-400 text-sm">Avg Q / Session</p>
+                <p className="text-2xl font-bold text-purple-400">{analyticsData.summary.avg_queries_per_session}</p>
+              </div>
+              <div className="bg-gray-800 rounded-lg p-4 border border-gray-700">
+                <p className="text-gray-400 text-sm">Grounded Rate</p>
+                <p className="text-2xl font-bold text-amber-400">{analyticsData.summary.grounded_rate}%</p>
+              </div>
+              <div className="bg-gray-800 rounded-lg p-4 border border-gray-700">
+                <p className="text-gray-400 text-sm">Avg Response</p>
+                <p className="text-2xl font-bold text-gray-300">{(analyticsData.summary.avg_response_ms / 1000).toFixed(1)}s</p>
+              </div>
+            </div>
+
+            {/* Retention + Queries-per-session */}
+            <div className="grid md:grid-cols-2 gap-6">
+              <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
+                <h2 className="text-lg font-semibold text-green-400 mb-4">Session Retention</h2>
+                {analyticsData.retention.total_sessions > 0 ? (
+                  <>
+                    <div className="flex h-6 rounded overflow-hidden mb-3">
+                      <div
+                        className="bg-green-500"
+                        style={{ width: `${(analyticsData.retention.returning_sessions / analyticsData.retention.total_sessions) * 100}%` }}
+                        title="Returning"
+                      />
+                      <div
+                        className="bg-gray-600"
+                        style={{ width: `${(analyticsData.retention.one_time_sessions / analyticsData.retention.total_sessions) * 100}%` }}
+                        title="One-time"
+                      />
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-green-400">
+                        ↩ Returning: {analyticsData.retention.returning_sessions}
+                        {' '}({Math.round((analyticsData.retention.returning_sessions / analyticsData.retention.total_sessions) * 100)}%)
+                      </span>
+                      <span className="text-gray-400">
+                        One-time: {analyticsData.retention.one_time_sessions}
+                      </span>
+                    </div>
+                    <p className="text-gray-500 text-xs mt-3">Returning = active on more than one day in this window.</p>
+                  </>
+                ) : (
+                  <p className="text-gray-500 text-center py-4">No sessions in this window</p>
+                )}
+              </div>
+
+              <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
+                <h2 className="text-lg font-semibold text-purple-400 mb-4">Questions per Session</h2>
+                <div className="space-y-2">
+                  {(() => {
+                    const max = Math.max(1, ...analyticsData.queriesPerSession.map((b) => b.sessions));
+                    return analyticsData.queriesPerSession.map((b) => (
+                      <div key={b.bucket} className="flex items-center gap-3">
+                        <span className="text-gray-400 text-sm w-10 text-right">{b.bucket}</span>
+                        <div className="flex-1 bg-gray-900 rounded h-5 overflow-hidden">
+                          <div className="bg-purple-500 h-full" style={{ width: `${(b.sessions / max) * 100}%` }} />
+                        </div>
+                        <span className="text-gray-300 text-sm w-10">{b.sessions}</span>
+                      </div>
+                    ));
+                  })()}
+                </div>
+              </div>
+            </div>
+
+            {/* Daily conversation volume */}
+            <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
+              <h2 className="text-lg font-semibold text-blue-400 mb-4">Daily Conversation Volume</h2>
+              {analyticsData.dailyVolume.length > 0 ? (
+                <div className="flex items-end gap-1 h-40">
+                  {(() => {
+                    const max = Math.max(1, ...analyticsData.dailyVolume.map((d) => d.total));
+                    return analyticsData.dailyVolume.map((d) => (
+                      <div key={d.day} className="flex-1 flex flex-col justify-end items-center group relative" title={`${d.day}: ${d.total} (${d.grounded} grounded)`}>
+                        <div className="w-full bg-blue-500/30 rounded-t relative" style={{ height: `${(d.total / max) * 100}%` }}>
+                          <div className="w-full bg-blue-500 rounded-t absolute bottom-0" style={{ height: `${d.total > 0 ? (d.grounded / d.total) * 100 : 0}%` }} />
+                        </div>
+                      </div>
+                    ));
+                  })()}
+                </div>
+              ) : (
+                <p className="text-gray-500 text-center py-8">No conversations in this window</p>
+              )}
+              <div className="flex gap-4 mt-3 text-xs text-gray-400">
+                <span><span className="inline-block w-3 h-3 bg-blue-500 rounded-sm mr-1 align-middle" />Grounded</span>
+                <span><span className="inline-block w-3 h-3 bg-blue-500/30 rounded-sm mr-1 align-middle" />Total</span>
+                <span className="ml-auto">{analyticsData.dailyVolume[0]?.day} → {analyticsData.dailyVolume[analyticsData.dailyVolume.length - 1]?.day}</span>
+              </div>
+            </div>
+
+            {/* New sessions per day */}
+            <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
+              <h2 className="text-lg font-semibold text-green-400 mb-4">New Sessions per Day</h2>
+              {analyticsData.newSessions.length > 0 ? (
+                <div className="flex items-end gap-1 h-32">
+                  {(() => {
+                    const max = Math.max(1, ...analyticsData.newSessions.map((d) => d.new_sessions));
+                    return analyticsData.newSessions.map((d) => (
+                      <div key={d.day} className="flex-1 flex flex-col justify-end items-center" title={`${d.day}: ${d.new_sessions} new`}>
+                        <div className="w-full bg-green-500 rounded-t" style={{ height: `${(d.new_sessions / max) * 100}%` }} />
+                      </div>
+                    ));
+                  })()}
+                </div>
+              ) : (
+                <p className="text-gray-500 text-center py-8">No new sessions in this window</p>
+              )}
+            </div>
+
+            {/* Provider mix */}
+            <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
+              <h2 className="text-lg font-semibold text-amber-400 mb-4">Provider Mix</h2>
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="text-left text-gray-400 text-sm border-b border-gray-700">
+                      <th className="pb-3">Provider</th>
+                      <th className="pb-3">Conversations</th>
+                      <th className="pb-3">Grounded</th>
+                      <th className="pb-3">Avg Latency</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {analyticsData.providerMix.map((p) => (
+                      <tr key={p.provider} className="border-b border-gray-700/50">
+                        <td className="py-3"><span className="px-2 py-1 bg-blue-900/30 text-blue-400 rounded text-xs">{p.provider}</span></td>
+                        <td className="py-3">{p.total}</td>
+                        <td className="py-3 text-gray-300">{p.total > 0 ? Math.round((p.grounded / p.total) * 100) : 0}%</td>
+                        <td className="py-3">{(p.avg_latency_ms / 1000).toFixed(1)}s</td>
+                      </tr>
+                    ))}
+                    {analyticsData.providerMix.length === 0 && (
+                      <tr><td colSpan={4} className="py-8 text-center text-gray-500">No data in this window</td></tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* Popular questions */}
+            {analyticsData.popularQuestions?.length > 0 && (
+              <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
+                <h2 className="text-lg font-semibold text-purple-400 mb-4">Top Questions (all time)</h2>
+                <div className="space-y-2">
+                  {analyticsData.popularQuestions.map((q, i) => (
+                    <div key={i} className="flex justify-between items-center bg-gray-900 rounded p-3">
+                      <p className="text-sm truncate max-w-lg">{q.question}</p>
+                      <span className="text-purple-400 font-medium">{q.count}x</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <p className="text-gray-500 text-xs text-center">
+              Sessions are pseudo-anonymous (per-browser id). Page views, geography &amp; device data are in Vercel Analytics.
+            </p>
           </div>
         )}
 
