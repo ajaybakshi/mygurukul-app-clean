@@ -123,11 +123,15 @@ export async function POST(req: NextRequest) {
             controller.enqueue(value);
           }
 
-          controller.close();
-
-          // Fire-and-forget: log after stream completes
+          // Persist conversation + metrics BEFORE closing the stream. On
+          // Vercel the serverless instance can be frozen the moment the
+          // response stream closes, so an un-awaited write here gets killed
+          // before it lands — which silently dropped recent conversations
+          // from the admin dashboard. Awaiting keeps the function alive until
+          // the INSERT completes; the user already has all streamed content,
+          // so this only delays the stream's "done" signal by a few ms.
           const elapsed = Date.now() - startTime;
-          Promise.all([
+          await Promise.all([
             logConversation({
               session_id: streamSessionId,
               question,
@@ -152,6 +156,8 @@ export async function POST(req: NextRequest) {
               },
             }),
           ]).catch(err => console.error('[AgenticWisdom] DB logging failed (non-fatal):', err));
+
+          controller.close();
         },
       });
 
@@ -172,8 +178,9 @@ export async function POST(req: NextRequest) {
       const resolvedSessionId = sessionId || `agentic-${Date.now()}`;
       console.log(`[AgenticWisdom] Complete in ${elapsed}ms`);
 
-      // Fire-and-forget: log conversation + metrics
-      Promise.all([
+      // Persist conversation + metrics before returning, so the serverless
+      // instance isn't frozen mid-write (see streaming branch above).
+      await Promise.all([
         logConversation({
           session_id: resolvedSessionId,
           question,
