@@ -1,6 +1,107 @@
 # MyGurukul — Status & Continuity Notes
 
-## Last Updated: 2026-06-02 — admin dashboard hardening + user analytics
+## Last Updated: 2026-06-08 (session 3) — PramaKosha pipeline BUILT: Māṇḍūkya + Āryabhaṭīya domain pack + GOLD #5 (code shipped & pushed)
+
+---
+
+## PramaKosha — Pipeline Built + Āryabhaṭīya Domain Pack + GOLD #5 (2026-06-08, session 3)
+
+### Context
+First **code** session (prior sessions were design-only). Built the general ingestion pipeline as a standalone TypeScript package and proved it on two texts. Decisions taken this session: runtime = **TypeScript** (`pramakosha/ingest/`); goal reframed by Ajay — build a **general** pipeline, GOLD entries are **calibration references, not targets** (don't overfit); domain pack = full pack **incl. LLM stages**; LLM provider = **Claude** (`claude-opus-4-8`); sources versioned in a **separate repo**.
+
+### Shipped (all committed & pushed to ajaybakshi/pramakosha)
+- **`b509fcf` — Māṇḍūkya general pipeline.** Deterministic spine (Stages 0–3 + consolidate + Stage-10 gates), zero LLM. 3 GRETIL TEI-XML → 438 loci (mūla 12 · kārikā 215 · bhāṣya 211), locus-resolve 0.986, 0 dropped, idempotent, 7/7 tests. Adapter model = "add an adapter, not stage code". Calibration: independently marked MU 2/7 core, GK 3.48 provisional (recurs 4.71) — matching the hand-authored Turīya entry it had no knowledge of. Briefs: `pramakosha-pilot-architecture.html`, `pramakosha-pilot-results.html`.
+- **`0893be0` — Āryabhaṭīya domain pack + first LLM stages → GOLD #5.** Deterministic: 2nd adapter (attribute `xml:id` markers — the one named segmenter generalization), numeral parser (varga/avarga decode; khyughṛ=4,320,000, makhi=225, 97/97 Gītikā numerals confident), verify-tool (caught bhaki=124 source anomaly). 121 verses, 0 dropped, 11/11 tests (Māṇḍūkya's 7 still green). Agentic (Claude): thin client (forced-tool structured output, hard call cap, logging, prompt cache, key from gitignored `.env.local`), Stage 5 lexicography + Stage 8 draft (both with abstain branch). GOLD #5 = Āryabhaṭa numeral-system procedure entry, 2 Claude calls: abstained on `sthāna`, marked `bhaki` unverified per verify-tool (not fixed), every step cited. Briefs: `pramakosha-aryabhatiya-domain-pack.html`, `pramakosha-entry-aryabhata-numerals.html` (GOLD #5).
+- **`pramakosha-sources` repo** (new, local-only — NO remote yet): Māṇḍūkya + Āryabhaṭīya GRETIL TEI-XML with `PROVENANCE.md` (sha256, license, legacy paths). Generated records gitignored.
+
+### Thesis proven on depth (Māṇḍūkya) + breadth (Āryabhaṭīya)
+General pipeline + declarable domain packs; claims checkable by tools; agents abstain; GOLD-quality output from grounded processing — not overfitting.
+
+### Next up
+Extend GOLD #5 past Gītikā-pāda; add the `-comm` file (Bhāskara I + Someśvara) as commentary witnesses; Postgres index tier; more verify-tools (`procedureExec`, rotation-constant consistency).
+
+### Decisions still open
+- Create a GitHub remote for `pramakosha-sources` (currently local-only)?
+- Whether/when to fold PramaKosha into a mygurukul tab vs. keep standalone.
+
+---
+
+## PramaKosha — Data Layer + Ingestion Pipeline + GOLD #4 (2026-06-08, session 2)
+
+### Context
+Design session #2 (still no code). Settled *where* PramaKosha's data sits, *how* it gets there, and built the depth-stressor GOLD entry. Three new HTML briefs in the **pramakosha repo** (`/Users/AJ/Developer/ML_Workspace/pramakosha/`), all untracked.
+
+### Decisions locked this session
+- **Data layer: Postgres-first, NOT a graph DB.** First-principles: PramaKosha is graph-*shaped* but traversals are shallow (1–3 hops) and it needs vector search — so a dedicated graph engine pays for an unused strength while degrading vectors. More texts *widen* the graph (fan-out), don't *deepen* it → scale strengthens the Postgres case. Architecture = **files as source of truth (git) → Postgres as derived/rebuildable index (relational + recursive-CTE + pgvector + tsvector) → static-render tier-1 pages to CDN** so read cost decouples from corpus size. Dedicated PramaKosha Postgres instance (honours "separate data store", dodges mygurukul's 56%-full DB). Cost: $0 pilot → ~$19/mo at thousands of texts (storage-bound, scale-to-zero). Caveats to verify: Neon free-tier specifics; no Apache AGE on Neon; Turso/libSQL as cheaper alt.
+- **Ingestion pipeline = the provenance agents made real.** 12 stages, 4 phases, typed I/O contracts per stage. Deterministic-first (8/12 stages pure fns; only 4 spend LLM tokens — and translate/gloss runs on Tier-1 curated loci only, so **token cost scales with curated landmarks, not corpus size**). Key mechanics: CTS-URN minting (stable-or-provisional), stratum alignment by **pratīka-matching**. **GOLD entry = the golden-file acceptance test.**
+- **GROUNDING DISCIPLINE (Ajay):** source files to be **manually downloaded to a local repo first**, before any agent processing — human-visible provenance, agents must NOT rely on parametric/training knowledge of the texts. [[pramakosha-grounding-discipline]]
+- **GOLD #4 — Dharma shipped** as the depth exemplar: 7 witnesses / 5 traditions / 3 languages / 5 corpora; tradition-relative senses + `parallel-in-tradition` (anti-syncretism); interactive chronology-framework lens switch (mainstream/archaeoastronomy-Oak/purāṇic, verdict-free); two-tier attestation (curated cards + facet-filterable concordance); contested-date. Accessibility pass after Gemini critique (sub-10px metadata bumped). Captured a schema note: relations need a **node-promotion lifecycle** (a translation-parallel like Tamil *aṟam* may graduate to its own root node).
+
+### Shipped (artifacts, pramakosha repo — untracked)
+- `pramakosha-data-architecture.html` · `pramakosha-entry-dharma.html` (GOLD #4) · `pramakosha-ingestion-pipeline.html`
+
+### Next up
+Build the **Māṇḍūkya pilot** — but FIRST manually download the 4 GRETIL source files (Māṇḍūkya mūla, Gauḍapāda kārikā, Śaṅkara bhāṣya, Ānandagiri ṭīkā) into a local source repo. Then stand up deterministic Stages 0–3 + audit gates (zero LLM) and assert the acceptance table's deterministic rows against the Turīya GOLD record. Then GOLD #5 (technical entry).
+
+### Decisions still open
+- Commit the 3 new pramakosha briefs (repo currently has only the initial commit).
+- Verify Neon free-tier limits; confirm GRETIL Māṇḍūkya source paths/encoding before the build.
+- Whether Tamil `aṟam` should be `parallel-in-tradition[tamiḻ]` rather than the weaker `translation-parallel`.
+
+---
+
+## PramaKosha — Design Hardening + Private Repo (2026-06-08)
+
+### Context
+Design-only session (no code). Pressure-tested whether the 3 GOLD entries' structure can scale to PramaKosha's full ambition, then created a dedicated private repo for the project.
+
+### Decisions locked this session
+- **Depth needs a new axis.** `stratum` (mūla→ṭīkā, vertical/intra-work) is wrong for cross-text spread. Add **Witness** as a first-class entity `{work, tradition, language, school, date, corpus_source, edition, license}` on every attestation — the keystone for cross-tradition depth, the timeline, and multi-corpus.
+- **Temporal organising principle.** Organise by the **agreed relative skeleton** (partial order: quotes/presupposes/commentary-on/linguistic-layer), default to NO calendar years. Absolute dates = attributed **chronology frameworks** (mainstream-indology / archaeoastronomy-Oak / puranic-traditional), verdict-free, applied equally. Resolves Ajay's point that the conventional timeline is contested and can't be ground truth.
+- **Anti-syncretism is structural** — tradition-relative senses + `parallel-in-tradition` relation (Buddhist dhamma ≠ Brahmanical dharma; parallel, not contested).
+- **Two-tier attestations** — curated landmark cards + exhaustive machine concordance. "Every reference" = tier 2.
+- **Breadth via ~9 shared archetypes** (added: dravya, procedure, parameter, taxonomy-node, normative-rule, narrative-unit) — domains reuse them; new domain = a pack, not new core.
+- **Domains organised by native vidyāsthāna taxonomy**; a corpus census maps all of GRETIL.
+- **Domain packs, not persona "expert agents"** — expertise = lexicon + parser + verify-tools + grounded exemplars + human triage; agents' key skill is calibrated abstention. Make claims checkable by experts/tools, don't make agents experts.
+- **GOLD set revised** — Dharma (depth-stressor) + an Āryabhaṭīya procedure (breadth-stressor, = first domain pack) replace Ātman + OM.
+
+### Shipped (artifacts)
+- New: `pramakosha-depth-breadth-analysis.html` (architecture review), `pramakosha-build-plan.html` (consolidated roadmap). Completed breadth section of the analysis brief.
+- New **private repo `ajaybakshi/pramakosha`** (default branch `main`) — 6 pramakosha-*.html + README, committed & pushed. Lives at `/Users/AJ/Developer/ML_Workspace/pramakosha/` (standalone, NOT nested in mygurukul). Bharat-pedia old-name files excluded. Docs were COPIED — originals still untracked in `mygurukul-final/PramaKosha/`; new repo is canonical.
+
+### Next up
+Build **GOLD #4 — Dharma** in the pramakosha repo (exercise Witness axis + chronology frameworks + tradition-relative senses + two-tier). Then GOLD #5 (Āryabhaṭīya). Then Schema v0.1 + Editorial Guidelines v0.1.
+
+### Decisions still open
+- PramaKosha will launch as a **tab in mygurukul** (eventual code in `mygurukul-app-clean`), but design docs live in the separate private repo for now — decide when/how the two converge.
+- Doc duplication: pick canonical home (recommend the new repo), clear `mygurukul-final/PramaKosha/` copies.
+- Data separation / direct GRETIL TEI ingestion; Pali/Tamil corpus sources; storage migration; 10th archetype for Vyākaraṇa.
+
+---
+
+## PramaKosha — Project Kickoff (2026-06-07)
+
+### Context
+New sub-project of MyGurukul: turn the 79+ Sanskrit text library into a concept-indexed, citation-grounded, agent-built encyclopedia. Lives in-repo under `PramaKosha/` (design docs only so far — no code). Will launch as a mode at `mygurukul.org/pramakosha`, apex `pramakosha.org` later. Domains registered (`.org/.com/.in`). Earlier name "Bhārat-pedia" retired.
+
+### Decisions locked this session
+- **Name** PramaKosha (प्रमा = valid knowledge + कोश = treasury); wordmark camelCase, "Pramākośa" w/ diacritics on about page; pron cue PRA-maa KO-sha.
+- **Namespaced from day one**, separate data store; corpus-sharing TBD (leaning: ingest GRETIL TEI-XML directly).
+- **Build approach: spec-first.** Order = GOLD entries → Editorial Guidelines (Notability ⊂) → Schema (hinge) → agentic system. Entry is the *forcing function* for the guidelines.
+- **Golden set (5):** Soma, Turīya, Gauḍapāda, Ātman (scoped to pilot texts + few), OM/Praṇava.
+- **NO numeric stratum weights** — permission rules only (what a stratum may assert *about*).
+
+### Shipped (artifacts in `PramaKosha/`, untracked)
+1. `pramakosha-best-practices.html` — synthesis of 103-agent deep-research run (Amarakośa digitization = ready-made data model; SEP/Iranica/Brill governance; TEI Lex-0 + CTS-URN; Wikipedia excluded). Provenance-tagged ✓/◇/→.
+2. `pramakosha-entry-soma.html` — GOLD, substance/deity (polysemy=3 synsets, CTS-URN loci, stratum permission, contested-empirical, canonical-record drawer).
+3. `pramakosha-entry-turiya.html` — GOLD, pure concept (full 4-stratum stack mūla→ṭīkā, stratum permission rubric, contested-interpretation, corpus-seeded synsets).
+4. `pramakosha-entry-gaudapada.html` — GOLD, person (name-set, floruit-as-range, self/external attestation types, 2 contested kinds: date + identity).
+
+### Research provenance
+deep-research workflow: 103 agents, 21 sources, 25 claims adversarially verified (24 confirmed, 1 killed). Keystone finding: the Amarakośa (UoH digitization) already does synset-as-unit + polysemy-as-multi-membership + machine-locus + ranked-commentary adjudication → the stratum model is *traditional method*. Two things the West has no template for (PK must design): differential commentary permissions + contested-claims-as-positions.
+
+### Next up
+Build remaining 2 GOLD entries: **Ātman** (horizontal axis — cross-text attestation at scale) then **OM/Praṇava** (symbol/practice). Then extract **Editorial Guidelines v0.1 + Schema v0.1** from the decisions the 5 entries forced.
 
 ---
 

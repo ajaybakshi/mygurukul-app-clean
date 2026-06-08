@@ -1,24 +1,24 @@
 # Session Handoff
 
-**Ended:** 2026-06-02T14:40Z
-**Branch:** main
+**Ended:** 2026-06-08T18:30+05:30 (session 3)
+**Branch:** main (mygurukul-final) · main (pramakosha, pushed) · main (pramakosha-sources, local-only)
 **Session ID:** unknown
 
 ## Where we left off
-Clean wrap. All session work (4 commits, admin auth fix → token rotation → write-persistence fixes → analytics panel) is committed and pushed to `main`; Vercel auto-deploys. Nothing in flight.
+Clean wrap — first **code** session for PramaKosha. Built the general ingestion pipeline (TypeScript, `pramakosha/ingest/`), proved it on Māṇḍūkya (depth) and Āryabhaṭīya (breadth, incl. a domain pack with numeral parser + verify-tool + Claude-powered Stages 5/8 → GOLD #5). All code committed and **pushed** to `ajaybakshi/pramakosha` (`b509fcf`, `0893be0`). 11/11 tests green.
 
 ## Next concrete step
-After Vercel deploys `664ce85`: verify the analytics endpoint and tab —
-`curl -s "https://www.mygurukul.org/api/admin/analytics?days=30&token=$(cat .admin-token.local)"`
-should return data; open dashboard → 📈 User Analytics tab. Then resume from STATUS.md "Optional follow-ups" if desired.
+Pick from STATUS "Next up": extend GOLD #5 beyond the Gītikā-pāda, OR add the `-comm` file (Bhāskara I + Someśvara) as commentary witnesses to the Āryabhaṭīya adapter. Both run on the existing pipeline. Run `cd pramakosha/ingest && npm test` to confirm green before extending.
 
 ## Open questions for Ajay
-- Delete `.admin-token.local` now, or keep for verification? (still in working dir, gitignored)
-- Conversations API was publicly reachable pre-fix — any user-data/privacy obligation to act on?
+- Create a GitHub remote for `pramakosha-sources`? (committed locally, no remote — I didn't create one unprompted.)
 
 ## Non-obvious context
-- New admin token lives ONLY in Vercel env + gitignored `.admin-token.local` — not in repo. Preview env has no `ADMIN_SECRET_TOKEN` (intentionally skipped).
-- Root-cause pattern for this whole session: un-awaited writes after the response are killed on Vercel instance freeze. See STATUS.md "Key lesson".
+- **STATUS.md + SESSION_HANDOFF.md live in mygurukul-final but track pramakosha work** (separate repos). Code is in `/Users/AJ/Developer/ML_Workspace/pramakosha/ingest/`; sources in `/Users/AJ/Developer/ML_Workspace/pramakosha-sources/`.
+- **LLM key:** `pramakosha/ingest/.env.local` (gitignored) holds `ANTHROPIC_API_KEY`. `npm run gold5` needs it; `npm run ingest`/`npm test` do not.
+- Goal reframe that shaped everything: build a **general** pipeline; GOLD entries are **calibration references, not targets** — never tune to reproduce a golden file.
+- Generality rule held: a new text = a new adapter + (optional) domain-pack modules; the only stage-code change all session was the named `markerSource: "attribute"` branch in the segmenter.
+- Pre-existing noise in mygurukul-final git status (52 modified scripts, .pyc deletions, untracked PramaKosha/ copies) is NOT this session's — leave as-is.
 
 ## Files in flight
-- (none — `.gitignore` edit is the only uncommitted session change; see wrap-up question about committing it)
+- (none — all PramaKosha work committed & pushed; only STATUS.md + SESSION_HANDOFF.md staged here)
