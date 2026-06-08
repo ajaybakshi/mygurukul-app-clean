@@ -1,25 +1,25 @@
 # Session Handoff
 
-**Ended:** 2026-06-08T15:00+05:30 (session 4)
-**Branch:** main (mygurukul-final) · main (pramakosha — committed `07ab7c2`, NOT pushed) · main (pramakosha-sources, local-only)
+**Ended:** 2026-06-08T18:30+05:30 (session 5)
+**Branch:** main (mygurukul-final) · main (pramakosha — pushed through `d93b5f2`)
 **Session ID:** unknown
 
 ## Where we left off
-Clean wrap. Built the PramaKosha **encyclopedia layer**: hub UI, concept extraction (Stage 4.5 → 118 Māṇḍūkya concepts), entry draft (Stage 8c → 6 entries), and the durable **concept-node store + Stage 6.5 merge** that answers "how does a concept entry stay coherent as new texts arrive." Proven by treating Māṇḍūkya's 3 witnesses as 2 ingestions (v1 mūla+kārikā → v2 +Śaṅkara bhāṣya). All committed to the pramakosha repo. User is downloading the Bhagavad Gītā GRETIL source to do the real cross-text test next.
+Clean wrap. Realigned the Gītā to **proper pipeline order** after catching that session 4's tail had run Stage 6.5 (cross-text merge) ahead of its prerequisites. Backed that out, then took the Gītā through Step 1 (deterministic ingest, `record.json`, integrity 0) → Step 3 (Stage 4.5 mining, Chapter 1, 197 concepts) → Step 4 (Stage 8c, 12 v1 nodes). Also built the triage UI (`npm run triage`, 34-item backlog) and `hub:sync` (all 31 nodes on `index.html`). All committed and pushed to the pramakosha repo.
 
 ## Next concrete step
-Ingest the **Bhagavad Gītā** once its GRETIL source lands: write a Gītā adapter (`pramakosha/ingest/src/adapters/`), drop the source into `pramakosha-sources/`, then run the concept pipeline + `npm run concepts` so `oṃkāra` accretes Gītā attestations across a genuinely different text. Run `cd pramakosha/ingest && npm test` (16/16) to confirm green first.
+**Chapter 2 full cycle** (the philosophical core, ~72 mūla units): `PK_CHAPTER=2 PK_LLM_CAP=90 npm run gita:mine` → `npm run gita:draft` → then the gloss-grounded `npm run gita` (Stage 6.5) — which will finally fire for **ātman/brahman** shared with Māṇḍūkya. This is the first *real* cross-text accretion. Confirm `npm test` (21/21) green first.
 
 ## Open questions for Ajay
-- Push the `pramakosha` repo? (committed `07ab7c2`, not pushed.)
-- GitHub remote for `pramakosha-sources` (still local-only)?
+- Remove the stray untracked `STATUS.md`/`SESSION_HANDOFF.md` copies in the pramakosha repo? (Canonical ones live in mygurukul-final.)
+- `pramakosha-sources` still local-only — create a GitHub remote?
 
 ## Non-obvious context
-- STATUS.md + this handoff live in **mygurukul-final** but track **pramakosha** work (separate repos). Code: `/Users/AJ/Developer/ML_Workspace/pramakosha/ingest/`; sources: `pramakosha-sources/`; concept store: `pramakosha/concepts/*.json`.
-- LLM key in `pramakosha/ingest/.env.local` (gitignored). `npm run mandukya|concepts|gold5` spend; `npm run ingest|test|*:render` do not. Per-locus glosses are reused from `pramakosha-sources/mandukya/out/concepts/index.json` so re-runs of `concepts` only spend on draft+merge.
-- Hub manifest is **inlined** in `index.html` (not fetched) on purpose — so it opens offline via file://. When served from a CDN, switch to external `entries.json`.
-- **Known limitation:** term-stem attestation gather over-recalls → a few Stage 6.5 proposals are off-concept; merge agent flags them in `rationale`; real fix = "reject" branch in merge schema or embedding-gated gather.
-- Reproducibility: `npm run concepts` clears + rebuilds the 6 target nodes each run (v1→v2). To re-render any HTML without spend: `npm run concepts:render` / `mandukya:render`.
+- **Process rule set this session:** run the full pipeline in proper order; do not jump stages unless Ajay explicitly asks (else drift). Per-text order: Step 1 deterministic ingest → (2 GOLD, optional) → 4.5 extraction → 8c v1 nodes → 6.5 merge → render/triage.
+- Per-chapter Gītā cycle = mine → draft *new* nodes → merge *shared* ones. Ch 1 was all-new (merge no-op); cross-text merge becomes real at Ch 2 (ātman/brahman), 7–8 (oṃkāra), 15 (vaiśvānara).
+- The v3 snippet-only merge was **deliberately backed out** — when redone, it must be gloss-grounded (the glosses now exist in `index.json`).
+- New commands: `gita:mine`, `gita:draft`, `triage`, `hub:sync`. `index.json` (sources repo) is cumulative across chapters.
+- STATUS/handoff live in mygurukul-final but track pramakosha work (separate repos). Code: `pramakosha/ingest/`; store: `pramakosha/concepts/*.json`; sources: `pramakosha-sources/bhagvad-gita/`.
 
 ## Files in flight
-- (none — all pramakosha work committed `07ab7c2`; only STATUS.md + SESSION_HANDOFF.md staged here in mygurukul-final)
+- (none — all pramakosha work committed & pushed through `d93b5f2`; only STATUS.md + this file staged here in mygurukul-final)

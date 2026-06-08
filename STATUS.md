@@ -1,6 +1,34 @@
 # MyGurukul — Status & Continuity Notes
 
-## Last Updated: 2026-06-08 (session 4) — PramaKosha encyclopedia layer: concept pipeline + durable concept-node store + Stage 6.5 merge + hub UI (committed, not pushed)
+## Last Updated: 2026-06-08 (session 5) — Gītā realigned to proper pipeline order; Chapter 1 processed end-to-end (mine → 12 v1 nodes); triage UI + hub sync (all pushed, pramakosha d93b5f2)
+
+---
+
+## PramaKosha — Gītā realigned to proper order + Chapter 1 processed (2026-06-08, session 5)
+
+### Context
+Caught pipeline drift: the Gītā Stage 6.5 merge (v3) from session 4's tail had run *ahead* of its prerequisites (deterministic emit + Stage 4.5 extraction), so it was snippet-only. Per Ajay's directive — **run the full pipeline in proper order; no jumping stages unless explicitly asked** — backed it out and re-ran the Gītā in order. All work in the **pramakosha repo**, pushed through `d93b5f2`.
+
+### Shipped (pramakosha main, pushed)
+- **Backed out** the out-of-order v3 (oṃkāra/ātman/vaiśvānara restored to v2 from `b10787b`).
+- **`boundaries` segmenter capability** (general): block-start delimiters that close a unit without becoming a locus (commentary author headwords). Not Gītā-specific.
+- **`gretil-gita` adapter** (mūla-only): BhG c.v leading marker + Śrīdhara/Viśvanātha/Baladeva boundaries.
+- **Step 1 — deterministic ingest** → `record.json` (637 mūla units, locus-resolve 1.0, **droppedUnits 0**). Required a general `countBodyMarkers` fix: leading markers counted only block-anchored (so commentary cross-refs/endnotes don't inflate the count). Māṇḍūkya/Āryabhaṭīya unchanged.
+- **Step 3 — Stage 4.5 miner** (`gita-mine`, cumulative `index.json`): Chapter 1 = 32 units, **197 concepts**, grounded mūla-only.
+- **Step 4 — Stage 8c drafter** (`gita-draft`): **12 v1 Gītā nodes** (dharmic-crisis cluster + sukha). Selector = archetype∈{concept,normative-rule} ∧ loci≥2, with phrase + epithet guards (pruned 4 non-concepts the heuristic admitted). Store 19 → 31 nodes.
+- **Triage interface** (`triage.ts`) + **`rejectSense`**: review/promote/reject proposed senses + self-contained `triage.html`; surfaced a **34-item** backlog.
+- **`hub:sync`** (`sync-hub.ts`): all 31 nodes now listed on `index.html` (surgical insert, GOLD cards untouched). Resolves the manual-hub drift.
+- Tests **21/21**, typecheck clean.
+
+### Architecture / process note
+Per-chapter Gītā cycle = **mine → draft new nodes → Stage 6.5 merge shared concepts**. Chapter 1's concepts are all *new*, so the merge was correctly a no-op; real cross-text accretion (oṃkāra/ātman/vaiśvānara growing with Gītā evidence) only fires at **Ch 2** (ātman/brahman), **7–8** (oṃkāra/praṇava), **15** (vaiśvānara).
+
+### Next up
+**Chapter 2 full cycle** — mine (~72 units) → draft new v1 nodes → run the now gloss-grounded Stage 6.5 merge (the first real cross-text accretion). Then iterate further chapters; eventually work the 34-item triage backlog.
+
+### Known / flags
+- 34 proposed senses await human triage (`npm run triage`).
+- Stray untracked `STATUS.md`/`SESSION_HANDOFF.md` copies sit in the pramakosha repo (canonical ones live here in mygurukul-final) — almost got committed once; worth `rm`-ing.
 
 ---
 
