@@ -1,6 +1,33 @@
 # MyGurukul — Status & Continuity Notes
 
-## Last Updated: 2026-06-08 (session 3) — PramaKosha pipeline BUILT: Māṇḍūkya + Āryabhaṭīya domain pack + GOLD #5 (code shipped & pushed)
+## Last Updated: 2026-06-08 (session 4) — PramaKosha encyclopedia layer: concept pipeline + durable concept-node store + Stage 6.5 merge + hub UI (committed, not pushed)
+
+---
+
+## PramaKosha — Concept Layer: Extraction + Concept-Node Store + Stage 6.5 + Hub UI (2026-06-08, session 4)
+
+### Context
+Second code session. Built the encyclopedia layer on top of the deterministic spine: concept extraction, durable concept nodes, and the cross-text merge that answers "how does the oṃkāra entry stay coherent as new texts arrive." All in the **pramakosha repo** (`/Users/AJ/Developer/ML_Workspace/pramakosha/`), committed to `main` as `07ab7c2` — **not pushed** (user said commit, not push).
+
+### Shipped (committed `07ab7c2`, pramakosha repo)
+- **Hub UI** (`index.html`) — self-contained, manifest-driven; entry cards (5 GOLD + 6 concept nodes); GOLD-vs-Generated provenance filter; `browse concept nodes →` + `concepts.html` in docs. Opens offline (manifest inlined, not fetched, deliberately).
+- **Concept pipeline** (Māṇḍūkya, supplied witnesses only — no parametric memory): **Stage 4.5** extraction (`stages/llm_concepts.ts`, per verse: mantra + deterministically-aligned Śaṅkara bhāṣya as the only evidence) → **118 concepts / 12 verses**; **Stage 8c** entry draft (`stages/llm_concept_entry.ts`). Runner `mandukya-concepts.ts` (`npm run mandukya`), report `pramakosha-mandukya-concepts.html`. Zero hallucinated loci; 4 genuine contested cruxes detected; the drafter refused to count Śaṅkara's embedded quotations as independent attestations.
+- **Durable concept-node store + Stage 6.5** (the cross-text answer): `concept-store.ts` — URN-addressed nodes (`urn:pramakosha:concept:<slug>`); append-only attestations (dedup by locus); senses as the reading surface (settled vs proposed); pure `applyMerge`/`promoteSense` (no LLM, 5 unit tests). **Stage 6.5** (`stages/llm_merge.ts`) routes new attestations to existing senses or proposes new ones over the **delta only**, never rewriting settled prose. Demo `concepts-ingest.ts` (`npm run concepts`) treats Māṇḍūkya's 3 witnesses as 2 ingestions: mūla+kārikā → v1, Śaṅkara bhāṣya → v2 merge. Result: every concept **routed the bulk to existing senses** (oṃkāra 11, taijasa 12…) and **proposed a few genuinely new** (oṃkāra 3, turīya 3, ātman 2…). Pages: `concept-<slug>.html` + `concepts.html` (`render-concept.ts`). 6 nodes: oṃkāra, ātman, turīya, vaiśvānara, taijasa, prājña.
+- Design mockup `pramakosha-concept-omkara.html` (multi-witness target structure, Gītā rows illustrative).
+- Tests **16/16** (11 spine + 5 store/merge); typecheck clean.
+
+### Architecture decided this session
+Concept is a **durable node that owns attestations across ingestions**; the page is a **projection**, never append-prose. Three layers: attestations (append-only) → senses/synset (slow-growing reading surface) → composed entry (per-sense prose cached, only new/changed re-written). Per-text reports demote to **provenance**; hub cards point at the concept node, not a run report. New cross-text senses arrive `proposed`, promote on human triage.
+
+### Next up
+Ingest **Bhagavad Gītā** (user downloading GRETIL now) — the real cross-text test of Stage 6.5; needs a Gītā adapter. Then: triage UI for proposed senses (`promoteSense` has no interface yet); scale extraction past 6 nodes; fix merge over-recall (see Blockers); push pramakosha repo; eventual Postgres index tier.
+
+### Known limitation
+Deterministic attestation gather (term-stem substring) **over-recalls** → a few Stage 6.5 proposals are off-concept (e.g. oṃkāra picked up ajātivāda/ātman loci that don't mention oṃkāra). The merge agent flags these honestly in its `rationale`, so human triage catches them — but the real fix is a "reject / not-this-concept" branch in the merge schema, or embedding-gated gather.
+
+### Decisions still open
+- Push the `pramakosha` repo (committed locally, not pushed)?
+- Create a GitHub remote for `pramakosha-sources` (still local-only)?
 
 ---
 
