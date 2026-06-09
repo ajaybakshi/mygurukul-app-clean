@@ -1,6 +1,27 @@
 # MyGurukul — Status & Continuity Notes
 
-## Last Updated: 2026-06-08 (session 5) — Gītā realigned to proper pipeline order; Chapter 1 processed end-to-end (mine → 12 v1 nodes); triage UI + hub sync (all pushed, pramakosha d93b5f2)
+## Last Updated: 2026-06-09 — Social card fix: Om glyph now renders in OG/Twitter images (was 0-byte broken card); committed + pushed (mygurukul 5095032), verified live
+
+---
+
+## MyGurukul — Social card (OG/Twitter) fix (2026-06-09)
+
+### Context
+X/Twitter card showed a broken-image placeholder. The `og:image`/`twitter:image` endpoints returned **HTTP 200 with content-length 0** — a 0-byte PNG that Vercel had cached for a year (`max-age=31536000`).
+
+### Root cause
+`src/app/opengraph-image.tsx` + `twitter-image.tsx` render the Devanagari **ॐ** (U+0950). `next/og`'s default font has no Devanagari coverage, so Satori threw mid-render and emitted an empty body. The Latin text alone would have rendered — only the single `ॐ` glyph killed it.
+
+### Shipped (mygurukul-final main, pushed `5095032`)
+- Bundled a Devanagari font co-located with the routes (`src/app/NotoSansDevanagari.ttf`), loaded via `import.meta.url` so Next traces it into the edge bundle.
+- **Key gotcha:** Google's Noto Sans Devanagari is now a *variable* font, and `@vercel/og` can't parse a variable font's `fvar` table (`Cannot read properties of undefined (reading '256')`). Instantiated a **static** Regular weight with `fonttools` (647KB variable → 223KB static).
+- Wrapped font load in try/catch + conditional Om render, so any future font failure degrades to a card-without-Om instead of another 0-byte image.
+
+### Verified live
+`og:image` content hash changed (`a88947…` → `7cd9e00e…`, bypassing the stale Vercel cache). OG endpoint = 119,531 B / 1200×630, Twitter = 95,424 B / 1200×600, both valid PNGs with the gold Om rendering. `npm run build` exit 0; both routes build as edge functions.
+
+### Note
+Existing tweets may keep showing the old broken card until X re-scrapes (X's own cache, independent of ours). Any **new** share fetches the fresh image (changed hash forces it).
 
 ---
 
