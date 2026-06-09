@@ -10,7 +10,22 @@ export const size = {
 
 export const contentType = 'image/png';
 
+// Load the Devanagari font so Satori can render the Om (ॐ) glyph.
+// next/og's default font has no Devanagari coverage; without this the
+// render throws mid-stream and emits a 0-byte PNG (broken social card).
+async function loadOmFont(): Promise<ArrayBuffer | null> {
+  try {
+    return await fetch(
+      new URL('./NotoSansDevanagari.ttf', import.meta.url)
+    ).then((res) => (res.ok ? res.arrayBuffer() : null));
+  } catch {
+    return null;
+  }
+}
+
 export default async function TwitterImage() {
+  const omFont = await loadOmFont();
+
   return new ImageResponse(
     (
       <div
@@ -38,15 +53,19 @@ export default async function TwitterImage() {
           }}
         />
 
-        {/* Om Symbol */}
-        <div
-          style={{
-            fontSize: 80,
-            marginBottom: 16,
-          }}
-        >
-          <span style={{ color: '#D4AF37' }}>ॐ</span>
-        </div>
+        {/* Om Symbol — only rendered if the Devanagari font loaded */}
+        {omFont && (
+          <div
+            style={{
+              fontSize: 80,
+              marginBottom: 16,
+              fontFamily: 'Noto Sans Devanagari',
+              color: '#D4AF37',
+            }}
+          >
+            ॐ
+          </div>
+        )}
 
         {/* Title */}
         <div
@@ -94,6 +113,16 @@ export default async function TwitterImage() {
     ),
     {
       ...size,
+      fonts: omFont
+        ? [
+            {
+              name: 'Noto Sans Devanagari',
+              data: omFont,
+              style: 'normal' as const,
+              weight: 400 as const,
+            },
+          ]
+        : undefined,
     }
   );
 }
